@@ -9,13 +9,13 @@ type Props = {
 
 export function ResumePrintButton({ children, className }: Props) {
   return (
-    <button
-      type="button"
+    <a
       className={className}
       id="resumeBtn"
-      onClick={() => window.print()}
+      href="/resume.pdf"
+      download="Luka-Khimshiashvili-Resume.pdf"
     >
       {children}
-    </button>
+    </a>
   );
 }
