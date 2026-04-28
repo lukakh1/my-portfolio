@@ -9,6 +9,7 @@ type Props = {
 
 export function ResumePrintButton({ children, className }: Props) {
   return (
+    // resume downloader
     <a
       className={className}
       id="resumeBtn"
