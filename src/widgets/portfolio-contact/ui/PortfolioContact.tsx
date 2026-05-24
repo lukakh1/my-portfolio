@@ -50,6 +50,9 @@ export function PortfolioContact() {
             >
               See more on GitHub
             </a>
+            <button className="btn" type="button" data-copy={contactEmail}>
+              Copy email
+            </button>
           </div>
 
           <div className="contact-grid">

@@ -1,8 +1,16 @@
+import { ClipboardRoot } from "@/features/clipboard";
+import { CustomCursor } from "@/features/custom-cursor";
+import { ExperienceModalRoot } from "@/features/experience-modal";
+import { IntroGate } from "@/features/intro-gate";
+import { MagneticRoot } from "@/features/magnetic";
 import { ProjectCardGlowRoot } from "@/features/project-card-glow";
 import { RevealOnScroll } from "@/features/reveal-on-scroll";
+import { ScrollProgress } from "@/features/scroll-progress";
 import { ScrollSpyNav } from "@/features/scroll-spy-nav";
-import { SmoothAnchorScroll } from "@/features/smooth-anchor-scroll";
+import { SmoothScroll } from "@/features/smooth-scroll";
 import { StatCounters } from "@/features/stat-counter";
+import { TimelineTrace } from "@/features/timeline-trace";
+import { SceneRootClient } from "@/shared/three";
 import { PortfolioAbout } from "@/widgets/portfolio-about";
 import { PortfolioBackground } from "@/widgets/portfolio-background";
 import { PortfolioContact } from "@/widgets/portfolio-contact";
@@ -19,12 +27,20 @@ import { PortfolioStats } from "@/widgets/portfolio-stats";
 export function PortfolioHomePage() {
   return (
     <>
+      <IntroGate />
+      <SmoothScroll />
       <ScrollSpyNav />
-      <SmoothAnchorScroll />
       <RevealOnScroll />
       <StatCounters />
       <ProjectCardGlowRoot />
+      <TimelineTrace />
+      <ClipboardRoot />
+      <ExperienceModalRoot />
+      <MagneticRoot />
+      <ScrollProgress />
+      <CustomCursor />
       <PortfolioBackground />
+      <SceneRootClient />
       <PortfolioPrintHeader />
       <PortfolioNav />
       <main id="top">

@@ -32,30 +32,65 @@ function TimelineItem({
   const className = ["tl-item", "reveal", entry.current ? "current" : ""]
     .filter(Boolean)
     .join(" ");
+  const product = entry.product;
 
   return (
     <li className={className} data-delay={revealDelay}>
       <span className="tl-dot" />
-      <div className="tl-card">
-        <div className="tl-meta">
-          {entry.badge ? (
-            <span className="tl-badge">{entry.badge}</span>
+      <div
+        className="tl-card"
+        data-exp={product ? entry.id : undefined}
+        role={product ? "button" : undefined}
+        tabIndex={product ? 0 : undefined}
+        aria-label={
+          product
+            ? `${entry.title} at ${entry.companyAccent} — open ${product.name} details`
+            : undefined
+        }
+      >
+        <div className="tl-card-inner">
+          <div className="tl-card-face tl-card-front">
+            <div className="tl-meta">
+              {entry.badge ? (
+                <span className="tl-badge">{entry.badge}</span>
+              ) : null}
+              <span className="tl-date">{entry.date}</span>
+            </div>
+            <h3>{entry.title}</h3>
+            <div className="tl-company">
+              <span className="org">{entry.companyAccent}</span>
+              {entry.companySuffix}
+            </div>
+            <ul className="tl-list">
+              {entry.bullets.map((b, i) => (
+                <Bullet
+                  key={
+                    typeof b === "string"
+                      ? `${entry.id}-${i}`
+                      : `${entry.id}-${b.strong}`
+                  }
+                  item={b}
+                />
+              ))}
+            </ul>
+            {product ? (
+              <span className="tl-hint">Hover to preview · click for details →</span>
+            ) : null}
+          </div>
+          {product ? (
+            <div className="tl-card-face tl-card-back" aria-hidden>
+              <img
+                src={product.images[0]}
+                alt={`${product.name} preview`}
+                loading="lazy"
+              />
+              <div className="tl-back-overlay">
+                <span className="tl-back-name">{product.name}</span>
+                <span className="tl-back-cta">View details →</span>
+              </div>
+            </div>
           ) : null}
-          <span className="tl-date">{entry.date}</span>
         </div>
-        <h3>{entry.title}</h3>
-        <div className="tl-company">
-          <span className="org">{entry.companyAccent}</span>
-          {entry.companySuffix}
-        </div>
-        <ul className="tl-list">
-          {entry.bullets.map((b, i) => (
-            <Bullet
-              key={typeof b === "string" ? `${entry.id}-${i}` : `${entry.id}-${b.strong}`}
-              item={b}
-            />
-          ))}
-        </ul>
       </div>
     </li>
   );

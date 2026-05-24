@@ -36,6 +36,22 @@ body {
 }
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 84px;
+}
+/* Lenis owns scrolling when active; disable native smoothing so they don't
+   fight. These classes are toggled on <html> by Lenis itself. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 body {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
@@ -140,6 +156,152 @@ button {
   opacity: 0.06;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+/* WebGL backdrop: above the .bg-fx gradient (z0, later in DOM), below the
+   .noise grain (z1) and all page content (main, z2). Transparent canvas, so
+   the .bg-fx gradient shows through and doubles as the no-WebGL fallback. */
+.scene-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Top scroll-progress hairline (above the nav). */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  background: var(--grad);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Custom cursor (desktop only; the JS adds .cursor-custom / .cursor-on). */
+html.cursor-custom,
+html.cursor-custom * {
+  cursor: none !important;
+}
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease, border-color 0.2s ease, background 0.2s ease;
+  will-change: transform;
+}
+html.cursor-on .cursor-dot,
+html.cursor-on .cursor-ring {
+  opacity: 1;
+}
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  mix-blend-mode: difference;
+}
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+}
+.cursor-ring.is-hover {
+  border-color: rgba(139, 92, 246, 0.9);
+  background: rgba(139, 92, 246, 0.08);
+}
+
+/* Intro loader: "noise → signal" */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #050510;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.intro.entering {
+  opacity: 0;
+  transform: translateY(-3%);
+  pointer-events: none;
+}
+.intro-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 0 24px;
+}
+.intro-word {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(54px, 12vw, 140px);
+  font-weight: 700;
+  line-height: 1;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  will-change: filter, opacity, letter-spacing;
+}
+.intro-bar {
+  width: 220px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.intro-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--grad);
+  transform-origin: 0 50%;
+}
+.intro-status {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+  text-transform: lowercase;
+}
+.intro-sound,
+.sound-toggle {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.intro-sound {
+  margin-top: 6px;
+}
+.intro-sound:hover,
+.sound-toggle:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.sound-toggle {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 70;
+  background: rgba(8, 8, 15, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
 main {
@@ -293,6 +455,24 @@ main {
   display: flex;
   align-items: center;
   position: relative;
+}
+/* Keep hero text above the WebGL field with a left-biased dark scrim for
+   guaranteed contrast; the glowing orb reads on the right. */
+.hero .container {
+  position: relative;
+  z-index: 1;
+}
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 78% 68% at 30% 52%,
+    rgba(5, 5, 16, 0.92),
+    rgba(5, 5, 16, 0.55) 42%,
+    transparent 72%
+  );
 }
 .mesh {
   position: absolute;
@@ -733,22 +913,101 @@ section {
   border-color: rgba(124, 58, 237, 0.6);
   box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.18), 0 0 24px rgba(124, 58, 237, 0.5);
 }
+/* Experience cards flip on hover to reveal a product screenshot; clicking opens
+   the detail modal. The front (in flow) sets the height; the back fills it. */
 .tl-card {
-  border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0));
+  position: relative;
+  perspective: 1800px;
   border-radius: var(--radius);
-  padding: 24px 26px;
-  transition: border-color 0.25s, background 0.25s, transform 0.25s;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .tl-card:hover {
-  border-color: rgba(124, 58, 237, 0.45);
-  background: linear-gradient(180deg, rgba(124, 58, 237, 0.06), rgba(59, 130, 246, 0.03));
-  transform: translateX(2px);
+  transform: translateY(-4px);
+  z-index: 5;
 }
-.tl-item.current .tl-card {
+.tl-card:focus-visible {
+  outline: 2px solid rgba(124, 58, 237, 0.7);
+  outline-offset: 4px;
+}
+.tl-card-inner {
+  position: relative;
+  border-radius: var(--radius);
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.6s ease;
+}
+.tl-card:hover .tl-card-inner {
+  transform: rotateY(180deg);
+  box-shadow: 0 24px 60px -36px rgba(124, 58, 237, 0.45);
+}
+.tl-card-face {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+.tl-card-front {
+  position: relative;
+  padding: 24px 26px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.025),
+    rgba(255, 255, 255, 0)
+  );
+}
+.tl-card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  background: #0b0b14;
+}
+.tl-card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.tl-back-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(0deg, rgba(5, 5, 16, 0.94), rgba(5, 5, 16, 0));
+}
+.tl-back-name {
+  font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #fff;
+}
+.tl-back-cta {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  color: #cbb6ff;
+}
+.tl-hint {
+  display: block;
+  margin-top: 14px;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+}
+.tl-item.current .tl-card-front {
   border-color: rgba(124, 58, 237, 0.4);
-  background: linear-gradient(180deg, rgba(124, 58, 237, 0.08), rgba(59, 130, 246, 0.04));
-  box-shadow: 0 24px 60px -28px rgba(124, 58, 237, 0.5);
+  background: linear-gradient(
+    180deg,
+    rgba(124, 58, 237, 0.08),
+    rgba(59, 130, 246, 0.04)
+  );
+}
+.tl-item.current .tl-card-inner {
+  box-shadow: 0 20px 50px -32px rgba(124, 58, 237, 0.5);
 }
 .tl-meta {
   display: flex;
@@ -1179,6 +1438,261 @@ footer {
   transition-delay: 0.4s;
 }
 
+/* ── Section choreography ──────────────────────────────────────── */
+
+/* Experience: scroll-drawn timeline thread + node ignition */
+.timeline::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 8px;
+  width: 1px;
+  height: calc(100% - 16px);
+  transform-origin: 50% 0;
+  transform: scaleY(var(--tl-progress, 0));
+  background: linear-gradient(180deg, #7c3aed, #38bdf8);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.55);
+}
+.tl-dot {
+  transition: background 0.35s ease, border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.tl-item.lit .tl-dot {
+  background: var(--grad);
+  border-color: rgba(124, 58, 237, 0.6);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.16),
+    0 0 18px rgba(124, 58, 237, 0.45);
+}
+
+/* Projects: sheen sweep on hover (atop the existing cursor-follow glow) */
+.proj::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.07) 45%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s ease;
+}
+.proj:hover::after {
+  transform: translateX(130%);
+}
+
+/* Skills: pills cascade up on card hover */
+.skill-card .pill {
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease,
+    transform 0.3s ease;
+}
+.skill-card:hover .pill {
+  transform: translateY(-2px);
+}
+.skill-card:hover .pill:nth-child(2) {
+  transition-delay: 0.03s;
+}
+.skill-card:hover .pill:nth-child(3) {
+  transition-delay: 0.06s;
+}
+.skill-card:hover .pill:nth-child(4) {
+  transition-delay: 0.09s;
+}
+.skill-card:hover .pill:nth-child(5) {
+  transition-delay: 0.12s;
+}
+.skill-card:hover .pill:nth-child(n + 6) {
+  transition-delay: 0.15s;
+}
+
+/* Education: periodic gold shimmer across the scholarship callout */
+.edu .scholarship {
+  position: relative;
+  overflow: hidden;
+}
+.edu .scholarship::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(251, 191, 36, 0.22) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+  animation: goldSweep 6s ease-in-out 1.2s infinite;
+}
+@keyframes goldSweep {
+  0% {
+    transform: translateX(-130%);
+  }
+  16%,
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+/* Contact: copy-email confirmation */
+.btn.copied {
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+/* Experience detail modal */
+.exp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 5, 12, 0.72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: modalFade 0.25s ease;
+}
+@keyframes modalFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.exp-modal {
+  position: relative;
+  width: min(940px, 100%);
+  max-height: 88vh;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 40px 120px -40px rgba(124, 58, 237, 0.55);
+  animation: modalRise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes modalRise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.exp-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--line);
+  transition: background 0.2s ease;
+}
+.exp-modal-close:hover {
+  background: rgba(124, 58, 237, 0.55);
+}
+.exp-modal-media {
+  background: #0a0a12;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.exp-modal-img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+}
+.exp-modal-thumbs {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+}
+.exp-thumb {
+  width: 66px;
+  height: 42px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  opacity: 0.55;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.exp-thumb.active,
+.exp-thumb:hover {
+  opacity: 1;
+  border-color: rgba(124, 58, 237, 0.7);
+}
+.exp-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.exp-modal-body {
+  padding: 30px 32px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.exp-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.exp-modal-title {
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+.exp-modal-role {
+  margin-top: 4px;
+  font-size: 14.5px;
+  color: var(--ink-dim);
+}
+.exp-modal-role .org {
+  color: #cbb6ff;
+}
+.exp-modal-blurb {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #d4d4e0;
+}
+.exp-modal-list {
+  margin-top: 16px;
+}
+.exp-modal-link {
+  margin-top: 22px;
+  align-self: flex-start;
+}
+.exp-modal-soon {
+  margin-top: 22px;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--ink-mute);
+}
+@media (max-width: 760px) {
+  .exp-modal {
+    grid-template-columns: 1fr;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
 @media (max-width: 980px) {
   .hero-grid {
     grid-template-columns: 1fr;
@@ -1281,6 +1795,13 @@ footer {
   }
   .bg-fx,
   .noise,
+  .scene-canvas,
+  .scroll-progress,
+  .cursor-dot,
+  .cursor-ring,
+  .intro,
+  .sound-toggle,
+  .exp-modal-backdrop,
   .mesh,
   .nav,
   footer,
@@ -1570,13 +2091,22 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
   .blob,
-  .grad-name {
+  .grad-name,
+  .edu .scholarship::after {
     animation: none !important;
   }
   .reveal {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+  }
+  .tl-card:hover,
+  .tl-card:hover .tl-card-inner {
+    transform: none;
+  }
+  .exp-modal-backdrop,
+  .exp-modal {
+    animation: none !important;
   }
   html {
     scroll-behavior: auto;

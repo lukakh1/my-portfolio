@@ -54,6 +54,14 @@ export const profileRows: { key: string; value: string }[] = [
   { key: "Time zone", value: "UTC+4" },
 ];
 
+export type ExperienceProduct = {
+  name: string;
+  url?: string;
+  blurb: string;
+  /** Screenshot paths under /public; the first is the card-back preview. */
+  images: string[];
+};
+
 export type ExperienceEntry = {
   id: string;
   current?: boolean;
@@ -64,6 +72,7 @@ export type ExperienceEntry = {
   /** Text after the highlighted org name (include leading space or · as needed). */
   companySuffix: string;
   bullets: (string | { strong: string; rest: string })[];
+  product?: ExperienceProduct;
 };
 
 export const experience: ExperienceEntry[] = [
@@ -80,6 +89,13 @@ export const experience: ExperienceEntry[] = [
       "Working across consumer-facing surfaces with design, backend, and product partners across multiple time zones.",
       "Operating at the scale of a company that ships large-scale digital products to a global audience.",
     ],
+    product: {
+      name: "Zendocs",
+      url: "https://zendocs.com",
+      blurb:
+        "A documentation product I help build and maintain at Ruby Labs — production Next.js, shipped to a global audience.",
+      images: ["/products/zendocs-1.svg", "/products/zendocs-2.svg"],
+    },
   },
   {
     id: "stickets",
@@ -91,6 +107,13 @@ export const experience: ExperienceEntry[] = [
       "Designed and shipped an end-to-end ticketing platform on Next.js (frontend) and Express.js (backend).",
       "Modeled the database schema, built the REST API surface, and owned the responsive UI from wireframe to production.",
     ],
+    product: {
+      name: "sTickets",
+      url: "https://stickets.ge",
+      blurb:
+        "An end-to-end ticketing platform — Next.js frontend, Express API, and a database schema I modeled from scratch.",
+      images: ["/products/stickets-1.svg", "/products/stickets-2.svg"],
+    },
   },
   {
     id: "sakhlamde",
@@ -102,6 +125,12 @@ export const experience: ExperienceEntry[] = [
       "Built a real-estate platform for buying, selling, and renting properties — frontend and backend in Next.js, Supabase as the database.",
       "Owned the listing experience, search, and authenticated user flows top-to-bottom.",
     ],
+    product: {
+      name: "Sakhlamde",
+      blurb:
+        "A real-estate marketplace for buying, selling, and renting — Next.js + Supabase, with listings, search, and authenticated flows.",
+      images: ["/products/sakhlamde-1.svg", "/products/sakhlamde-2.svg"],
+    },
   },
   {
     id: "artron",
@@ -113,6 +142,12 @@ export const experience: ExperienceEntry[] = [
       "Built React-based admin panels for gym operators — schedules, members, billing.",
       "Focused on dashboard UX, data visualization, and dense responsive layouts.",
     ],
+    product: {
+      name: "Artron",
+      blurb:
+        "Admin dashboards for gym operators — schedules, members, and billing in dense, data-rich React UIs.",
+      images: ["/products/artron-1.svg", "/products/artron-2.svg"],
+    },
   },
   {
     id: "onstream",
@@ -124,6 +159,12 @@ export const experience: ExperienceEntry[] = [
       "Developed Angular admin UI for a television network's movie scheduling platform.",
       "Shipped interfaces for content scheduling, playback control, and channel management.",
     ],
+    product: {
+      name: "OnStream",
+      blurb:
+        "Angular admin UI for a television network — content scheduling, playback control, and channel management.",
+      images: ["/products/onstream-1.svg", "/products/onstream-2.svg"],
+    },
   },
   {
     id: "burq",
@@ -134,6 +175,12 @@ export const experience: ExperienceEntry[] = [
     bullets: [
       "Contributed to the customer-facing React web application for a goods-delivery startup.",
     ],
+    product: {
+      name: "Burq",
+      blurb:
+        "Customer-facing React web app for a goods-delivery startup.",
+      images: ["/products/burq-1.svg", "/products/burq-2.svg"],
+    },
   },
   {
     id: "4twiggers",
@@ -155,6 +202,12 @@ export const experience: ExperienceEntry[] = [
         rest: " — custom D3.js data visualizations for an analytics product, plus several smaller React Native apps that built deep mobile expertise.",
       },
     ],
+    product: {
+      name: "4Twiggers",
+      blurb:
+        "Where it started at 15 — Pravis Testebi and Realremote (React Native), plus custom D3.js dashboards for Slotstats.",
+      images: ["/products/4twiggers-1.svg", "/products/4twiggers-2.svg"],
+    },
   },
 ];
 

@@ -96,6 +96,7 @@ export function PortfolioHero() {
         <div className="blob b2" />
         <div className="blob b3" />
       </div>
+      <div className="hero-scrim" aria-hidden />
       <div className="container">
         <div className="hero-grid">
           <div>
