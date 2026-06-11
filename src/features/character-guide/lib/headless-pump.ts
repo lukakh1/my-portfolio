@@ -11,8 +11,15 @@
  * Imported for side effects by CharacterGuide.client.tsx — the whole block is
  * dead-code-eliminated in production builds.
  */
+import { sceneStore } from "@/shared/three";
+
+import { robotStore } from "../model/robot-store";
+
 if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
   try {
+    // dev hooks for eval-based verification tooling
+    (window as unknown as { __robotStore: typeof robotStore }).__robotStore = robotStore;
+    (window as unknown as { __sceneStore: typeof sceneStore }).__sceneStore = sceneStore;
     // surface uncaught errors to eval-based tooling (preview console only
     // captures console.* calls, not uncaught exceptions)
     const errs: string[] = [];

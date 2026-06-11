@@ -23,10 +23,15 @@ export type RobotSection =
 
 export type RobotMode = "hidden" | "enter" | "ground" | "dash" | "rope" | "slide";
 
-/** Travel direction/style request: "up" must jetpack, "down" may rope/slide. */
-export type TravelHint = "auto" | "dash" | "up" | "down";
+/**
+ * Travel direction/style request: "up" must jetpack, "down" may rope/slide.
+ * "ropeIn" rappels in from the sky (intro stage entrance), "exitRight" jets
+ * off the right edge (intro → site cinematic), "enterLeft" flies in from the
+ * left edge and superhero-lands.
+ */
+export type TravelHint = "auto" | "dash" | "up" | "down" | "ropeIn" | "exitRight" | "enterLeft";
 
-export type RobotEmote = "wave" | "hop" | "spin" | "bow" | "poke";
+export type RobotEmote = "wave" | "hop" | "spin" | "bow" | "poke" | "dance";
 
 export interface RobotLineRef {
   id: string;

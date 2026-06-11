@@ -13,6 +13,7 @@ import { RobotBrain } from "../model/brain";
 import { createRobotRefs } from "../model/rig";
 import { DustPuff, type DustHandle } from "./DustPuff";
 import { Robot } from "./Robot";
+import { ShockRing, type ShockHandle } from "./ShockRing";
 
 /**
  * Generated environment map (no network HDR) so the gunmetal panels read as
@@ -39,6 +40,7 @@ export function RobotRig({ tier }: { tier: "low" | "high" }) {
   const refs = useMemo(() => createRobotRefs(), []);
   const brain = useMemo(() => new RobotBrain(refs), [refs]);
   const dustRef = useRef<DustHandle | null>(null);
+  const ringRef = useRef<ShockHandle | null>(null);
   const size = useThree((s) => s.size);
 
   // Dev-only: under the headless-preview pump, fiber's shared loop can stall
@@ -50,16 +52,16 @@ export function RobotRig({ tier }: { tier: "low" | "high" }) {
     return () => window.clearInterval(id);
   }, []);
 
-  // Violet under-glow "shadow" — a dark blob is invisible on a near-black
+  // Warm ember under-glow "shadow" — a dark blob is invisible on a near-black
   // site, so the ground contact is a soft light pool instead.
   const shadowTex = useMemo(() => {
     const c = document.createElement("canvas");
     c.width = c.height = 64;
     const g = c.getContext("2d")!;
     const grad = g.createRadialGradient(32, 32, 2, 32, 32, 31);
-    grad.addColorStop(0, "rgba(146, 100, 255, 0.85)");
-    grad.addColorStop(0.55, "rgba(96, 78, 220, 0.32)");
-    grad.addColorStop(1, "rgba(60, 50, 160, 0)");
+    grad.addColorStop(0, "rgba(255, 150, 70, 0.8)");
+    grad.addColorStop(0.55, "rgba(230, 95, 40, 0.3)");
+    grad.addColorStop(1, "rgba(180, 60, 20, 0)");
     g.fillStyle = grad;
     g.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(c);
@@ -73,6 +75,7 @@ export function RobotRig({ tier }: { tier: "low" | "high" }) {
       vw: size.width,
       vh: size.height,
       dust: dustRef.current,
+      ring: ringRef.current,
     });
     if (process.env.NODE_ENV !== "production") {
       (window as unknown as { __robi?: object }).__robi = {
@@ -86,10 +89,12 @@ export function RobotRig({ tier }: { tier: "low" | "high" }) {
   return (
     <>
       <StudioEnv />
-      <ambientLight intensity={0.65} color="#b8c4ff" />
-      <directionalLight position={[3, 6, 5]} intensity={2.1} />
-      <directionalLight position={[-4, 2, -4]} intensity={1.5} color="#7c3aed" />
-      <directionalLight position={[2, 1, -2]} intensity={0.5} color="#3b82f6" />
+      {/* Warm key / cool teal rim / violet kicker — keeps the orange shell
+          saturated while tying him to the site's violet-blue world. */}
+      <ambientLight intensity={0.55} color="#cfd8ff" />
+      <directionalLight position={[3, 6, 5]} intensity={2.2} color="#fff1e0" />
+      <directionalLight position={[-4, 2, -4]} intensity={1.6} color="#22d3ee" />
+      <directionalLight position={[2, 1, -2]} intensity={0.7} color="#7c5cff" />
 
       <Robot refs={refs} withTrail={tier === "high"} />
 
@@ -113,6 +118,11 @@ export function RobotRig({ tier }: { tier: "low" | "high" }) {
           }}
         />
       )}
+      <ShockRing
+        register={(h) => {
+          ringRef.current = h;
+        }}
+      />
     </>
   );
 }

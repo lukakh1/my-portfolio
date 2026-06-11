@@ -18,21 +18,27 @@ import {
   worldPerPixel,
   worldToPxX,
   worldToPxY,
+  CAM_Z,
   PLANE_H,
 } from "../lib/screen-world";
 import { Spring1, Spring3, expApproach } from "../lib/springs";
 import { FOOT_LIFT, LEG_L, ROBOT_NATIVE_H, robotMats, type RobotRefs } from "./rig";
 import { robotStore, type RobotSection } from "./robot-store";
 import type { DustHandle } from "../ui/DustPuff";
+import type { ShockHandle } from "../ui/ShockRing";
 
 /**
  * The rig-side brain: ONE update per frame, zero React state. The director
  * says where to stand and what to say; this decides HOW — locomotion FSM,
  * spring-driven gait, jet-dash beats, gaze/blink/breath, gestures.
  *
- * Core principle (the fix for the old robot): nothing writes a ref from a
- * closed-form curve. Behaviors write spring TARGETS (or kick velocities);
- * springs write the refs. Overlap and follow-through come from physics.
+ * Core principles:
+ *  - Nothing writes a ref from a closed-form curve. Behaviors write spring
+ *    TARGETS (or kick velocities); springs write the refs.
+ *  - WALK-FIRST: the robot rides the page 1:1 while you scroll (no float
+ *    lag) and walks/jogs to anything reachable. Jet dashes, rope descents
+ *    and ground slides are reserved for genuinely far jumps — spectacle,
+ *    not commute.
  */
 
 type Mode =
@@ -43,14 +49,16 @@ type Mode =
   | "dashLand"
   | "exitUp"
   | "ropeDown"
-  | "slide";
+  | "slide"
+  | "flyOff"
+  | "offsite";
 
 type TravelKind = "dash" | "rope" | "ropeFromTop" | "slide";
 
 /** Sections entered (scrolling down) by rappelling in on the energy cable. */
 const ROPE_SECTIONS = new Set<RobotSection>(["experience", "about", "education"]);
 
-type GestureKind = "wave" | "hop" | "spin" | "bow" | "poke" | "hover" | "point";
+type GestureKind = "wave" | "hop" | "spin" | "bow" | "poke" | "hover" | "point" | "dance";
 
 interface Gesture {
   kind: GestureKind;
@@ -65,11 +73,17 @@ interface Gesture {
 const HALF_PI = Math.PI / 2;
 const TWO_PI = Math.PI * 2;
 
-const MAX_SPEED = 1.45; // wu/s at scale 1
+const MAX_SPEED = 1.45; // wu/s at scale 1, multiplied by `hurry` when far
 const GAIT_ON_SPEED = 0.12;
 const BRACE_ON = 50;
 const BRACE_OFF = 8;
 const NAV_CLEAR_PX = 76; // nav 64 + margin
+/** Targets within this stay on foot; beyond it the jetpack/rope earns its keep. */
+const WALK_DIST = 7.5;
+/** Vertical gaps walking can't sell — beyond this, fly/rope/slide. */
+const WALK_DY = 1.35;
+/** Page-riding window: scroll deltas larger than this are a fling, not a ride. */
+const RIDE_MAX_PX = 140;
 
 export interface BrainEnv {
   dt: number;
@@ -77,6 +91,7 @@ export interface BrainEnv {
   vw: number;
   vh: number;
   dust: DustHandle | null;
+  ring: ShockHandle | null;
 }
 
 export interface BrainDebug {
@@ -84,12 +99,13 @@ export interface BrainDebug {
   speed: number;
   gaitPhase: number;
   vel: number;
+  thr: number;
 }
 
 export class RobotBrain {
   /* ---- root channels (world units) ---- */
-  rootX = new Spring1(1.6, 1);
-  rootY = new Spring1(2.0, 1);
+  rootX = new Spring1(2.0, 1);
+  rootY = new Spring1(2.4, 1);
   yaw = new Spring1(1.3, 0.85);
   scaleW = new Spring1(2.0, 1, 0.9);
 
@@ -125,8 +141,11 @@ export class RobotBrain {
   // matches the store's initial travelSeq — the first REAL commit bumps it
   private lastSeq = 0;
   private pendingTravel: TravelKind | null = null;
+  private pendingEnterLeft = false;
   private fromEnter = false;
   private landFrom: "dash" | "rope" | "slide" = "dash";
+  private heroLand = false;
+  private heroSpun = false;
 
   /* rope descent */
   private ropeDur = 1;
@@ -167,6 +186,17 @@ export class RobotBrain {
   private fidget: { kind: number; t: number; dur: number; side: 1 | -1 } | null = null;
   private fidgetNext = 5;
 
+  /* idle pacing — little strolls around the anchor */
+  private wanderOff = 0;
+  private wanderUntil = 0;
+  private wanderNext = 9;
+
+  private prevScrollY = Number.NaN;
+  private selfTravelNext = 0;
+  /** Trails hide briefly after any root teleport — drei's Trail would
+      otherwise draw a stale streak from the old position. */
+  private trailSuppressT = 0;
+
   private gesture: Gesture | null = null;
   private emoteSeen = 0;
   private pointSeen = 0;
@@ -188,7 +218,7 @@ export class RobotBrain {
 
   private arrivedFrames = 0;
 
-  readonly debug: BrainDebug = { mode: "hidden", speed: 0, gaitPhase: 0, vel: 0 };
+  readonly debug: BrainDebug = { mode: "hidden", speed: 0, gaitPhase: 0, vel: 0, thr: 0 };
 
   constructor(private refs: RobotRefs) {}
 
@@ -207,11 +237,14 @@ export class RobotBrain {
 
     /* ---- resolve target (viewport px → world) ---- */
     const scrollY = typeof window !== "undefined" ? window.scrollY : sc.scroll;
+    const dScroll = Number.isFinite(this.prevScrollY) ? scrollY - this.prevScrollY : 0;
+    this.prevScrollY = scrollY;
     let tvx = rs.targetX;
     let tvy = rs.targetSpace === "doc" ? rs.targetY - scrollY : rs.targetY;
     const hPx = rs.scalePx;
-    tvy = clamp(tvy, NAV_CLEAR_PX + hPx, vh - 10);
-    tvx = clamp(tvx, 12 + hPx * 0.25, vw - 12 - hPx * 0.25);
+    // order-safe: on very short windows the bounds can cross
+    tvy = clamp(tvy, NAV_CLEAR_PX + hPx, Math.max(NAV_CLEAR_PX + hPx, vh - 10));
+    tvx = clamp(tvx, 12 + hPx * 0.25, Math.max(12 + hPx * 0.25, vw - 12 - hPx * 0.25));
     const twx = pxToWorldX(tvx, vw, vh);
     const twy = pxToWorldY(tvy, vh);
 
@@ -224,33 +257,50 @@ export class RobotBrain {
       if (t - this.braceCalmSince > 0.3) this.braceActive = false;
     }
 
-    /* ---- new travel? Direction decides style: up = always jetpack,
-       down = rope (story sections) or ground-slide, else dash. ---- */
+    /* ---- new travel? Walk-first: special travel only for far jumps. ---- */
     if (rs.travelSeq !== this.lastSeq) {
       this.lastSeq = rs.travelSeq;
-      if (this.mode === "hidden") {
-        this.startEnter(twx, twy, vh);
+      this.wanderOff = 0;
+      this.wanderNext = t + 8;
+      const hint = rs.travelHint;
+      if (hint === "exitRight") {
+        if (this.mode !== "hidden" && this.mode !== "flyOff" && this.mode !== "offsite") {
+          this.startFlyOff();
+        }
+      } else if (hint === "enterLeft") {
+        if (this.mode === "hidden" || this.mode === "offsite") {
+          this.startEnterLeft(twx, twy, vw, vh);
+        } else {
+          this.pendingEnterLeft = true; // mid fly-off; consumed in "offsite"
+        }
+      } else if (this.mode === "hidden") {
+        if (hint === "ropeIn") this.startEnterRope(twx, twy, vh);
+        else this.startEnter(twx, twy, vh);
       } else if (this.mode === "ground" || this.mode === "dashAnt") {
+        // every new commit supersedes whatever travel was still queued —
+        // otherwise a stale dash/rope re-fires after the robot has arrived
+        this.pendingTravel = null;
         const dxw = twx - this.rootX.value;
         const dyw = twy - this.rootY.value;
         const dist = Math.hypot(dxw, dyw);
-        if (dist >= 0.8) {
-          const hint = rs.travelHint;
-          if (hint === "up" || hint === "dash") {
-            this.pendingTravel = "dash";
-          } else if (hint === "down") {
-            const sect = rs.activeSection;
-            if (sect && ROPE_SECTIONS.has(sect)) {
-              this.pendingTravel = dyw < -0.3 ? "rope" : "ropeFromTop";
-            } else if (dyw < 0.6 && Math.abs(dxw) > 0.8) {
-              // level-ish or below with horizontal room → ground skid
-              this.pendingTravel = "slide";
+        if (dist >= 0.5) {
+          const walkable = dist <= WALK_DIST && Math.abs(dyw) <= WALK_DY;
+          if (!walkable) {
+            if (hint === "down") {
+              const sect = rs.activeSection;
+              if (sect && ROPE_SECTIONS.has(sect)) {
+                this.pendingTravel = dyw < -0.3 ? "rope" : "ropeFromTop";
+              } else if (dyw < 0.6 && Math.abs(dxw) > 0.8) {
+                // level-ish or below with horizontal room → ground skid
+                this.pendingTravel = "slide";
+              } else {
+                this.pendingTravel = "dash";
+              }
             } else {
               this.pendingTravel = "dash";
             }
-          } else if (dist > 3.0 || Math.abs(dyw) > 1.2) {
-            this.pendingTravel = "dash";
           }
+          // walkable → no mode change; the root springs + gait do the rest
         }
       }
       // mid-flight: new target is picked up by the live handoff/landing
@@ -258,10 +308,22 @@ export class RobotBrain {
     if (this.pendingTravel && !this.braceActive && this.mode === "ground") {
       const kind = this.pendingTravel;
       this.pendingTravel = null;
-      if (kind === "dash") this.startDashAnt();
-      else if (kind === "rope") this.beginRopeDescent(twx, twy);
-      else if (kind === "ropeFromTop") this.startExitUp();
-      else this.startSlide(twx, twy);
+      // re-validate at consumption — the queue may be older than the world
+      // (page-riding during a brace can move the robot past the target)
+      const dyw = twy - this.rootY.value;
+      const dist = Math.hypot(twx - this.rootX.value, dyw);
+      if (dist >= 0.5) {
+        if (kind === "rope") {
+          if (dyw < -0.3) this.beginRopeDescent(twx, twy);
+          else this.startDashAnt();
+        } else if (kind === "ropeFromTop") {
+          this.startExitUp();
+        } else if (kind === "slide") {
+          this.startSlide(twx, twy);
+        } else {
+          this.startDashAnt();
+        }
+      }
     }
 
     /* ---- base pose targets, EVERY frame — layers below add/override.
@@ -302,7 +364,7 @@ export class RobotBrain {
         this.ankR.target = 0.3;
         this.shL.setTarget(0.4, 0, -0.2);
         this.shR.setTarget(0.4, 0, 0.2);
-        this.eyeMood.target = 1.12;
+        this.eyeMood.target = 0.88;
         this.brow.target = 0.1;
         if (this.stateT >= 0.18) this.startDashFly(twx, twy);
         break;
@@ -341,6 +403,7 @@ export class RobotBrain {
         this.elL.target = 0.35;
         this.elR.target = 0.35;
         this.squash.target = pvy > 0.2 ? 1.12 : 1.05;
+        this.eyeMood.target = 0.88;
 
         if (u >= 0.92) this.landDash(twx, twy, env);
         break;
@@ -348,6 +411,38 @@ export class RobotBrain {
 
       case "dashLand": {
         this.thruster.target = 0;
+        if (this.heroLand) {
+          /* superhero landing: one knee + fist planted, beat, rise */
+          const u = this.stateT / 0.62;
+          if (u < 0.45) {
+            this.hipL.target = -1.25;
+            this.kneeL.target = 2.0;
+            this.ankL.target = 0.5;
+            this.hipR.target = -0.3;
+            this.kneeR.target = 0.5;
+            this.bodyOff.setTarget(0, -0.62, 0);
+            this.bodyTilt.setTarget(0.32, 0, 0);
+            this.shR.setTarget(-0.3, 0, 0.4);
+            this.elR.target = 0.2;
+            this.shL.setTarget(0.7, 0, -0.5);
+            this.elL.target = 0.6;
+            this.head.x.target = u < 0.22 ? 0.4 : -0.15;
+            this.eyeMood.target = 0.85;
+          } else {
+            this.bodyOff.setTarget(0, 0, 0);
+            if (!this.heroSpun) {
+              this.heroSpun = true;
+              this.spinT = 0; // victory antenna spin on the rise
+            }
+          }
+          if (this.stateT >= 0.62) {
+            this.mode = "ground";
+            this.stateT = 0;
+            this.squash.target = 1;
+            this.heroLand = false;
+          }
+          break;
+        }
         if (this.stateT < 0.12 && this.landFrom === "dash") {
           this.hipL.target = -0.7;
           this.hipR.target = -0.7;
@@ -412,6 +507,7 @@ export class RobotBrain {
         this.ankL.target = -0.15;
         this.ankR.target = -0.15;
         this.bodyTilt.setTarget(0.05, 0, -0.5 * sway);
+        this.eyeMood.target = 0.9;
         if (u < 0.4) this.head.x.target += 0.3; // glance down at the landing
         if (u >= 1) {
           this.landFrom = "rope";
@@ -423,6 +519,7 @@ export class RobotBrain {
           this.squash.kick(-4);
           this.antX.kick(-5);
           env.dust?.burst(twx, twy, 0.45);
+          env.ring?.burst(twx, twy, 0.8);
           this.ropeRetractT = 0;
         }
         break;
@@ -466,6 +563,7 @@ export class RobotBrain {
           ankLead.target = 0.3;
           hipBack.target = 0.3;
           kneeBack.target = 0.85;
+          // trailing arm drags the ground, lead arm out for balance
           this.shL.setTarget(d === 1 ? -0.3 : 0.6, 0, -0.5);
           this.shR.setTarget(d === 1 ? 0.6 : -0.3, 0, 0.5);
           this.squash.target = 0.95;
@@ -481,18 +579,110 @@ export class RobotBrain {
             this.stateT = 0;
             this.squash.kick(-2.5);
             this.antX.kick(-4);
+            env.ring?.burst(twx, twy, 0.7);
           }
         }
         break;
       }
 
+      case "flyOff": {
+        // intro cinematic: crouch beat, then jet horizontally off the right edge
+        if (this.stateT < 0.16) {
+          this.squash.target = 0.84;
+          this.bodyOff.setTarget(0, -0.4, 0);
+          this.kneeL.target = 1.0;
+          this.kneeR.target = 1.0;
+          this.hipL.target = -0.5;
+          this.hipR.target = -0.5;
+          this.yaw.target = HALF_PI * 0.9;
+          this.thruster.target = 0.4;
+          this.eyeMood.target = 0.86;
+        } else {
+          const a = Math.min(1, (this.stateT - 0.16) / 0.5);
+          const vx = lerp(3, 22, a * a);
+          this.rootX.value += vx * dt;
+          this.rootX.vel = vx;
+          this.rootY.vel = 0;
+          this.thruster.target = 1;
+          this.yaw.target = HALF_PI * 0.95;
+          this.squash.target = 1.14;
+          this.bodyOff.setTarget(0, 0, 0);
+          this.bodyTilt.setTarget(0.15, 0, clamp(-vx * 0.04, -0.6, 0));
+          this.hipL.target = 0.3;
+          this.hipR.target = 0.38;
+          this.kneeL.target = 1.0;
+          this.kneeR.target = 0.85;
+          this.shL.setTarget(0.6, 0, -0.3);
+          this.shR.setTarget(0.6, 0, 0.3);
+          this.eyeMood.target = 0.86;
+          const rightWorld = pxToWorldX(vw * 1.18, vw, vh);
+          if (this.rootX.value > rightWorld) {
+            this.mode = "offsite";
+            this.stateT = 0;
+            this.rootX.vel = 0;
+          }
+        }
+        break;
+      }
+
+      case "offsite": {
+        // parked past the right edge while the page slides in
+        this.thruster.target = 0.25;
+        this.rootX.vel = 0;
+        this.rootY.vel = 0;
+        if (this.pendingEnterLeft) {
+          this.pendingEnterLeft = false;
+          this.startEnterLeft(twx, twy, vw, vh);
+        }
+        break;
+      }
+
       case "ground": {
+        // PAGE-RIDING: glued to the page during normal scrolling — the fix
+        // for the floaty "robot lags the content" feel. Flings still brace;
+        // big jumps still travel.
+        if (
+          !this.braceActive &&
+          rs.targetSpace === "doc" &&
+          dScroll !== 0 &&
+          Math.abs(dScroll) < RIDE_MAX_PX
+        ) {
+          this.rootY.value += dScroll * wpp;
+        }
+
+        // live-anchor watchdog: a big VERTICAL jump (sticky sub-anchors,
+        // resized layout) must not become a long spring drift — fly it.
+        if (!this.braceActive && t > this.selfTravelNext) {
+          const dyT = twy - this.rootY.value;
+          const distT = Math.hypot(twx - this.rootX.value, dyT);
+          if (distT > 1.25 && Math.abs(dyT) > 1.2) {
+            this.selfTravelNext = t + 1.5;
+            this.pendingTravel = dyT < 0.6 && Math.abs(twx - this.rootX.value) > 0.8 ? "slide" : "dash";
+          }
+        }
+
         if (this.braceActive) {
           // hold position while the user is flinging the page
           this.rootX.target = this.rootX.value;
           this.rootY.target = this.rootY.value;
         } else {
-          this.rootX.target = twx;
+          // idle pacing: when settled and quiet, take a little stroll
+          if (
+            !this.gesture &&
+            !rs.speaking &&
+            !rs.currentLine &&
+            !rs.hovered &&
+            this.arrivedFrames > 40 &&
+            t > this.wanderNext
+          ) {
+            this.wanderOff = (Math.random() < 0.5 ? -1 : 1) * rand(0.45, 0.85);
+            this.wanderUntil = t + rand(2.2, 3.4);
+            this.wanderNext = t + rand(7, 13);
+          }
+          if (t > this.wanderUntil) this.wanderOff = 0;
+          const margin = pxToWorldX(clamp(24 + hPx * 0.25, 24, 200), vw, vh);
+          const wx = clamp(twx + this.wanderOff, margin, -margin);
+          this.rootX.target = this.wanderOff !== 0 ? wx : twx;
           this.rootY.target = twy;
         }
         this.squash.target = 1;
@@ -502,18 +692,25 @@ export class RobotBrain {
       }
     }
 
-    /* ---- step root, clamp speed (direct-drive modes write root themselves) ---- */
-    const maxV = MAX_SPEED * S;
+    /* ---- step root, clamp speed (direct-drive modes write root themselves).
+       Walking far away? Hurry: speed scales with remaining distance. ---- */
+    const distToTarget = Math.hypot(twx - this.rootX.value, twy - this.rootY.value);
+    const hurry = this.mode === "ground" && !this.braceActive ? clamp(distToTarget / 1.4, 1, 2.6) : 1;
+    const maxV = MAX_SPEED * S * hurry;
     const directDrive =
       this.mode === "dashFly" ||
       this.mode === "ropeDown" ||
       this.mode === "slide" ||
-      this.mode === "exitUp";
+      this.mode === "exitUp" ||
+      this.mode === "flyOff" ||
+      this.mode === "offsite";
     if (!directDrive) {
       this.rootX.step(dt);
       this.rootY.step(dt);
-      this.rootX.vel = clamp(this.rootX.vel, -maxV, maxV);
-      this.rootY.vel = clamp(this.rootY.vel, -maxV * 1.4, maxV * 1.4);
+      // momentum-preserving touchdown: dashLand keeps most of its arrival energy
+      const landRelax = this.mode === "dashLand" ? 2.4 : 1;
+      this.rootX.vel = clamp(this.rootX.vel, -maxV * landRelax, maxV * landRelax);
+      this.rootY.vel = clamp(this.rootY.vel, -maxV * 1.4 * landRelax, maxV * 1.4 * landRelax);
     }
     this.scaleW.step(dt);
 
@@ -574,15 +771,20 @@ export class RobotBrain {
 
     /* ---- consume emotes / hover / point ---- */
     if (rs.emote && rs.emote.at !== this.emoteSeen) {
-      this.emoteSeen = rs.emote.at;
-      if (grounded) this.startGesture(rs.emote.kind, rs.facing);
+      if (grounded) {
+        this.emoteSeen = rs.emote.at;
+        this.startGesture(rs.emote.kind, rs.facing);
+      } else if (performance.now() - rs.emote.at > 6000) {
+        this.emoteSeen = rs.emote.at; // too stale to buffer — drop it
+      }
+      // otherwise: keep it queued until he's back on the ground
     }
     if (rs.hovered && !this.prevHovered && grounded && !this.gesture) {
       this.startGesture("hover", rs.facing);
     }
     this.prevHovered = rs.hovered;
     const nowMs = performance.now();
-    if (rs.pointUntil > nowMs && this.pointSeen !== rs.pointUntil && grounded) {
+    if (rs.pointUntil > nowMs && this.pointSeen !== rs.pointUntil && grounded && !this.gesture) {
       this.pointSeen = rs.pointUntil;
       const px = pxToWorldX(rs.pointAtX, vw, vh);
       const py = pxToWorldY(rs.pointAtY - scrollY, vh);
@@ -612,7 +814,7 @@ export class RobotBrain {
       this.elR.target = 1.3;
       this.hipL.target = 0.12;
       this.hipR.target = -0.12;
-      this.eyeMood.target = 1.25;
+      this.eyeMood.target = 1.35;
       this.brow.target = 0.12;
     }
 
@@ -631,7 +833,7 @@ export class RobotBrain {
       this.elR.target += 0.02 * Math.sin(t * 0.66 + 2.0);
     }
     if (speaking) this.bodyTilt.x.target += 0.05; // lean in while talking
-    this.pupilDil.target = rs.hovered || speaking ? 1.3 : 1;
+    this.pupilDil.target = this.braceActive ? 0.85 : rs.hovered || speaking ? 1.3 : 1;
 
     /* ---- breath / blink / fidget ---- */
     this.runBreath(speaking, t, dt);
@@ -655,6 +857,7 @@ export class RobotBrain {
           this.squash.target = 1;
           this.squash.kick(-6);
           env.dust?.burst(this.rootX.value, this.rootY.value, 0.5);
+          env.ring?.burst(this.rootX.value, this.rootY.value, 0.55);
           this.antX.kick(-5);
         }
         this.hopY = 0;
@@ -694,7 +897,8 @@ export class RobotBrain {
     this.write(rs, env, bobY, t, twy);
 
     /* ---- arrival + reporting ---- */
-    const distPx = Math.hypot(this.rootX.value - twx, this.rootY.value - twy) / wpp;
+    const effTx = this.mode === "ground" && this.wanderOff !== 0 ? this.rootX.target : twx;
+    const distPx = Math.hypot(this.rootX.value - effTx, this.rootY.value - twy) / wpp;
     if (grounded && distPx < 8 && Math.abs(this.rootX.vel) < 0.08) {
       this.arrivedFrames++;
     } else {
@@ -719,12 +923,14 @@ export class RobotBrain {
     this.debug.speed = speed;
     this.debug.gaitPhase = this.gaitPhase;
     this.debug.vel = vel;
+    this.debug.thr = this.thruster.value;
   }
 
   /* ================================================================ */
 
   private startEnter(twx: number, twy: number, vh: number) {
     this.fromEnter = true;
+    this.trailSuppressT = 0.3;
     const skyY = pxToWorldY(-0.25 * vh, vh);
     this.rootX.set(twx);
     this.rootY.set(skyY);
@@ -745,6 +951,59 @@ export class RobotBrain {
     this.mode = "dashFly";
     this.stateT = 0;
     this.thruster.set(1);
+  }
+
+  /** Intro stage entrance: rappel in from the sky on the energy cable.
+      Faster than a regular descent — he has a show to start. */
+  private startEnterRope(twx: number, twy: number, vh: number) {
+    this.fromEnter = false;
+    this.trailSuppressT = 0.5;
+    this.rootX.set(twx + 0.1);
+    this.rootY.set(pxToWorldY(-0.08 * vh, vh));
+    this.yaw.set(0);
+    this.scaleW.set(this.scaleW.target);
+    this.beginRopeDescent(twx, twy);
+    this.ropeDur = Math.min(this.ropeDur, 1.0);
+  }
+
+  /** Cinematic re-entry: fly in low from the left edge, superhero-land. */
+  private startEnterLeft(twx: number, twy: number, vw: number, vh: number) {
+    this.fromEnter = true;
+    this.trailSuppressT = 0.32;
+    const x0 = pxToWorldX(-0.12 * vw, vw, vh);
+    const y0 = twy + 1.0;
+    this.rootX.set(x0);
+    this.rootY.set(y0);
+    this.yaw.set(HALF_PI * 0.9);
+    this.scaleW.set(this.scaleW.target);
+    this.launchGroundY = twy;
+    const D = Math.hypot(twx - x0, twy - y0);
+    this.dashP0.x = x0;
+    this.dashP0.y = y0;
+    this.dashP1.x = x0 + (twx - x0) * 0.35;
+    this.dashP1.y = y0 + 0.25;
+    this.dashP2.x = twx - 1.6;
+    this.dashP2.y = twy + 0.5;
+    this.dashP3.x = twx;
+    this.dashP3.y = twy;
+    this.dashPrev.x = x0;
+    this.dashPrev.y = y0;
+    this.dashDur = clamp(0.55 + 0.04 * D, 0.7, 1.0);
+    this.mode = "dashFly";
+    this.stateT = 0;
+    this.thruster.set(1);
+  }
+
+  private startFlyOff() {
+    this.gesture = null;
+    this.beat = null;
+    this.pendingTravel = null;
+    this.ropeRetractT = -1;
+    if (this.refs.rope) this.refs.rope.visible = false;
+    this.mode = "flyOff";
+    this.stateT = 0;
+    this.squash.kick(4);
+    this.antX.kick(5);
   }
 
   private startDashAnt() {
@@ -804,14 +1063,16 @@ export class RobotBrain {
 
   private startDashFly(twx: number, twy: number) {
     this.fromEnter = false;
+    this.pendingTravel = null; // an in-flight dash retargets live — nothing stays queued
     const x0 = this.rootX.value;
     const y0 = this.rootY.value;
     const dx = twx - x0;
     const dy = twy - y0;
     const D = Math.hypot(dx, dy);
     const dirX = D > 1e-4 ? dx / D : 1;
-    const up = Math.min(0.55 + 0.18 * D, 1.6);
-    const up2 = Math.min(0.5 + 0.12 * D, 1.4);
+    // flat, purposeful arcs — high parabolas put him on top of content
+    const up = Math.min(0.45 + 0.13 * D, 1.1);
+    const up2 = Math.min(0.4 + 0.1 * D, 0.95);
     this.dashP0.x = x0;
     this.dashP0.y = y0;
     this.dashP1.x = x0 + 0.18 * D * dirX;
@@ -834,16 +1095,20 @@ export class RobotBrain {
   private landDash(twx: number, twy: number, env: BrainEnv) {
     // handoff: springs inherit the path velocity → natural overshoot + settle
     this.landFrom = "dash";
+    const dashDist = Math.hypot(this.dashP3.x - this.dashP0.x, this.dashP3.y - this.dashP0.y);
+    this.heroLand = this.fromEnter || dashDist > 4.5;
+    this.heroSpun = false;
     this.rootX.target = twx;
     this.rootY.target = twy;
     this.mode = "dashLand";
     this.stateT = 0;
     this.fromEnter = false;
     this.squash.target = 0.8;
-    this.squash.kick(-8);
+    this.squash.kick(this.heroLand ? -10 : -8);
     this.antX.kick(-9);
     this.thruster.target = 0;
-    env.dust?.burst(twx, twy, 1);
+    env.dust?.burst(twx, twy, this.heroLand ? 1.2 : 1);
+    env.ring?.burst(twx, twy, this.heroLand ? 1.3 : 0.9);
     if (Math.random() < 0.6) this.blinkT = 0;
     this.breathBoostUntil = env.t + 2;
   }
@@ -875,6 +1140,9 @@ export class RobotBrain {
       case "hover":
         this.gesture = { kind, t: 0, dur: 0.8, side };
         break;
+      case "dance":
+        this.gesture = { kind, t: 0, dur: 2.4, side };
+        break;
       default:
         break;
     }
@@ -887,7 +1155,8 @@ export class RobotBrain {
       this.spinT += dt;
       const u = clamp01(this.spinT / 0.65);
       if (this.refs.antSpin) this.refs.antSpin.rotation.y = 4 * Math.PI * easeOutQuint(u);
-      robotMats.antBall.emissiveIntensity = 2.2 + 3.3 * (1 - u);
+      // ramp must settle back at the material's authored base (3.0)
+      robotMats.antBall.emissiveIntensity = 3.0 + 2.5 * (1 - u);
       if (this.spinT > 0.85) {
         this.spinT = -1;
         if (this.refs.antSpin) this.refs.antSpin.rotation.y = 0;
@@ -899,6 +1168,10 @@ export class RobotBrain {
     if (!g) return false;
     g.t += dt;
     if (g.t >= g.dur) {
+      if (g.kind === "dance") {
+        this.antX.kick(7);
+        env.ring?.burst(this.rootX.value, this.rootY.value, 0.6);
+      }
       this.gesture = null;
       return false;
     }
@@ -962,10 +1235,53 @@ export class RobotBrain {
         this.head.z.target = sgn * 0.18 * ramp;
         sh.setTarget(-0.3, 0, sgn * 0.5 * ramp);
         el.target = 1.2 * ramp + 0.16 + 0.25 * Math.sin(t * TWO_PI * 3) * ramp;
-        this.eyeMood.target = 0.6;
+        this.eyeMood.target = 0.78;
+        return true;
+      }
+      case "dance": {
+        // 2.4s groove at ~125BPM: bounce → K-VRC one-leg pose → groove out
+        const u = g.t / g.dur;
+        const ph = g.t * (125 / 60) * TWO_PI;
+        this.eyeMood.target = 0.55;
+        if (u < 0.4 || u > 0.65) {
+          const s = Math.sin(ph);
+          const c = Math.sin(ph * 0.5);
+          this.squash.target = 1 + 0.06 * Math.max(0, s);
+          this.bodyTilt.setTarget(0.06, 0.12 * c, 0.1 * Math.sin(ph * 0.5 + 1));
+          this.shL.setTarget(-0.5 - 0.45 * Math.max(0, s), 0, -0.45);
+          this.shR.setTarget(-0.5 - 0.45 * Math.max(0, -s), 0, 0.45);
+          this.elL.target = 1.2;
+          this.elR.target = 1.2;
+          this.hipL.target = -0.1 + 0.1 * s;
+          this.hipR.target = -0.1 - 0.1 * s;
+          this.kneeL.target = 0.25;
+          this.kneeR.target = 0.25;
+          this.head.z.target = 0.14 * c;
+          this.torsoYaw.target = 0.18 * c;
+        } else {
+          // the pose
+          this.hipL.target = -0.95;
+          this.kneeL.target = 1.45;
+          this.ankL.target = 0.4;
+          this.hipR.target = 0.05;
+          this.kneeR.target = 0.18;
+          this.shL.setTarget(-2.3, 0, -0.35);
+          this.elL.target = 0.25;
+          this.shR.setTarget(-0.6, 0, 1.0);
+          this.elR.target = 0.9;
+          this.bodyTilt.setTarget(-0.04, 0, 0.12);
+          this.eyeMood.target = 0.45;
+        }
         return true;
       }
       case "point": {
+        // the target is a DOC element — re-project every frame so the arm
+        // stays on it while the robot rides the scrolling page
+        const rsP = robotStore.get();
+        if (Number.isFinite(rsP.pointAtX)) {
+          g.px = pxToWorldX(rsP.pointAtX, env.vw, env.vh);
+          g.py = pxToWorldY(rsP.pointAtY - this.prevScrollY, env.vh);
+        }
         const u = g.t / g.dur;
         const ramp = smoothstep01(u / 0.18) * smoothstep01((1 - u) / 0.2);
         const dx = (g.px ?? 0) - this.rootX.value;
@@ -1057,13 +1373,20 @@ export class RobotBrain {
     }
     const dx = gx - this.rootX.value;
     const dy = gy - headWorldY;
+    // cursor-proximity: the closer your cursor, the more of his body follows it
+    let prox = 0;
+    if (sc.pointerActive && g?.kind !== "point") {
+      prox = 1 - clamp01(Math.hypot(dx, dy) / 3.2);
+    }
     const depth = 3; // virtual gaze depth keeps angles sane for on-plane targets
     const yawWorld = Math.atan2(dx, depth);
     const pitch = Math.atan2(dy, Math.hypot(dx, depth));
     const yawLocal = clamp(wrapAngle(yawWorld - this.yaw.value), -0.9, 0.9);
-    this.head.y.target = yawLocal * 0.6;
-    this.head.x.target += clamp(-pitch * 0.6, -0.4, 0.35);
+    const headGain = lerp(0.6, 0.85, prox);
+    this.head.y.target = yawLocal * headGain;
+    this.head.x.target += clamp(-pitch * headGain, -0.4, 0.35);
     this.head.z.target += -this.bodyTilt.z.value * 0.5;
+    this.torsoYaw.target += yawLocal * 0.22 * prox;
 
     // pupils take the remainder + micro-saccades
     if (t > this.saccNext) {
@@ -1072,8 +1395,9 @@ export class RobotBrain {
       this.saccNext = t + rand(0.8, 2.0);
     }
     const rem = yawLocal - this.head.y.value;
-    this.pupilX.target = clamp(rem * 0.05 + this.microX, -0.022, 0.022);
-    this.pupilY.target = clamp(pitch * 0.04 + this.microY, -0.014, 0.014);
+    const pw = 1 + 0.6 * prox;
+    this.pupilX.target = clamp(rem * 0.05 + this.microX, -0.022 * pw, 0.022 * pw);
+    this.pupilY.target = clamp(pitch * 0.04 + this.microY, -0.014 * pw, 0.014 * pw);
   }
 
   private runBreath(speaking: boolean, t: number, dt: number) {
@@ -1115,15 +1439,16 @@ export class RobotBrain {
     }
     const mood = this.eyeMood.value;
     const refs = this.refs;
-    refs.eyeL?.scale.set(1, Math.max(0.05, L * mood), 1);
-    refs.eyeR?.scale.set(1, Math.max(0.05, R * mood), 1);
+    // floor keeps the ∩ arcs a readable sliver even mid-blink/squint
+    refs.eyeL?.scale.set(1, Math.max(0.15, L * mood), 1);
+    refs.eyeR?.scale.set(1, Math.max(0.15, R * mood), 1);
   }
 
   private runFidget(t: number, dt: number) {
     if (!this.fidget) {
       if (t > this.fidgetNext) {
-        const kind = Math.floor(Math.random() * 4);
-        const dur = [1.4, 1.8, 0.5, 1.6][kind];
+        const kind = Math.floor(Math.random() * 5);
+        const dur = [1.4, 1.8, 0.5, 1.6, 1.9][kind];
         this.fidget = { kind, t: 0, dur, side: Math.random() < 0.5 ? 1 : -1 };
         if (kind === 2) {
           this.antX.kick(6);
@@ -1159,6 +1484,14 @@ export class RobotBrain {
         const tap = Math.max(0, Math.sin(f.t * TWO_PI * 2.5));
         (f.side === 1 ? this.ankR : this.ankL).target += -0.18 * tap * ramp;
         this.bodyOff.x.target = -0.03 * f.side * ramp;
+        break;
+      }
+      case 4: {
+        // tiny groove — hums to himself
+        const s = Math.sin(f.t * TWO_PI * 1.4);
+        this.bodyTilt.z.target += 0.05 * s * ramp;
+        this.head.z.target += 0.08 * s * ramp;
+        this.squash.target = 1 + 0.02 * Math.max(0, s) * ramp;
         break;
       }
     }
@@ -1233,7 +1566,8 @@ export class RobotBrain {
       refs.flameGlow.visible = f > 0.03;
       refs.flameGlow.scale.setScalar(Math.max(0.001, 0.25 + 0.5 * f + 0.06 * flick * f));
     }
-    const trailsOn = f > 0.06;
+    if (this.trailSuppressT > 0) this.trailSuppressT -= env.dt;
+    const trailsOn = f > 0.06 && this.trailSuppressT <= 0 && this.mode !== "offsite";
     if (refs.trailL) refs.trailL.visible = trailsOn;
     if (refs.trailR) refs.trailR.visible = trailsOn;
 
@@ -1262,8 +1596,11 @@ export class RobotBrain {
     }
     const alt = Math.max(0, this.rootY.value + this.hopY - shadowY);
     if (refs.shadow) {
-      refs.shadow.visible = visibleNow;
-      refs.shadow.position.set(this.rootX.value, shadowY + 0.02, -0.45);
+      refs.shadow.visible = visibleNow && this.mode !== "flyOff" && this.mode !== "offsite";
+      // the pool sits at z=-0.45 — scale by the projection factor so it
+      // stays under the feet even near the screen edges
+      const k = (CAM_Z + 0.45) / CAM_Z;
+      refs.shadow.position.set(this.rootX.value * k, (shadowY + 0.02) * k, -0.45);
       const w = (1.1 * S) / (1 + 0.8 * alt);
       refs.shadow.scale.set(w, w * 0.32, 1);
     }
@@ -1274,7 +1611,7 @@ export class RobotBrain {
     const sx = worldToPxX(this.rootX.value, vw, vh);
     const syPx = worldToPxY(feetY, vh);
     const topPx = worldToPxY(feetY + ROBOT_NATIVE_H * S * s, vh);
-    const hPx = ROBOT_NATIVE_H * S * (vh / PLANE_H);
-    robotStore.setScreen(sx, syPx, sx, topPx, hPx * 0.5, hPx);
+    const hPx2 = ROBOT_NATIVE_H * S * (vh / PLANE_H);
+    robotStore.setScreen(sx, syPx, sx, topPx, hPx2 * 0.5, hPx2);
   }
 }

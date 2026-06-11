@@ -12,6 +12,8 @@
   --ink-mute: #6b6b80;
   --violet: #7c3aed;
   --blue: #3b82f6;
+  /* the robot's shell — warm counterpoint woven through his UI */
+  --orange: #ff6a2b;
   --grad: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
   --grad-soft: linear-gradient(
     135deg,
@@ -221,7 +223,7 @@ html.cursor-on .cursor-ring {
   background: rgba(139, 92, 246, 0.08);
 }
 
-/* Intro loader: "noise → signal" */
+/* Intro loader: "noise → signal" — the robot walks the bar as it fills. */
 .intro {
   position: fixed;
   inset: 0;
@@ -230,11 +232,11 @@ html.cursor-on .cursor-ring {
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  /* the small delay lets the robot crouch + launch before the lights go out */
+  transition: opacity 0.45s ease 0.22s;
 }
 .intro.entering {
   opacity: 0;
-  transform: translateY(-3%);
   pointer-events: none;
 }
 .intro-inner {
@@ -253,12 +255,14 @@ html.cursor-on .cursor-ring {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  will-change: filter, opacity, letter-spacing;
+  /* compositor-only animation (filter/opacity/transform) — the old
+     per-frame letter-spacing write forced layout every frame */
+  will-change: filter, opacity, transform;
 }
 .intro-bar {
-  width: 220px;
-  height: 2px;
-  border-radius: 2px;
+  width: min(340px, 46vw);
+  height: 3px;
+  border-radius: 3px;
   background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
@@ -267,6 +271,52 @@ html.cursor-on .cursor-ring {
   height: 100%;
   background: var(--grad);
   transform-origin: 0 50%;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.8);
+}
+
+/* Robot on the intro stage: lift his layers above the gate (z 10000). */
+html.robi-stage .robot-canvas {
+  z-index: 10001;
+}
+html.robi-stage .robot-bubble {
+  z-index: 10002;
+}
+/* Don't animate invisible scenery behind the opaque gate. */
+html.robi-stage .blob {
+  animation-play-state: paused;
+}
+
+/* Enter cinematic: the page slides in right-to-left over the starfield
+   while the robot loops around the screen edges. */
+html.page-enter main {
+  animation: page-slide-in 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.18s backwards;
+}
+html.page-enter .nav {
+  animation: nav-drop-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.55s backwards;
+}
+@keyframes page-slide-in {
+  from {
+    transform: translate3d(100vw, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes nav-drop-in {
+  from {
+    transform: translateY(-72px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.page-enter main,
+  html.page-enter .nav {
+    animation: none;
+  }
 }
 .intro-status {
   font-family: var(--font-jetbrains-mono), monospace;
@@ -2155,7 +2205,7 @@ footer {
   color: var(--ink);
   box-shadow:
     0 18px 50px -20px rgba(0, 0, 0, 0.7),
-    0 0 0 1px rgba(124, 58, 237, 0.08);
+    0 0 0 1px rgba(255, 106, 43, 0.14);
   opacity: 0;
   transform: translateY(4px);
   transition: opacity 0.16s ease;
@@ -2167,13 +2217,14 @@ footer {
   opacity: 1;
 }
 .robot-bubble .rb-prompt {
-  color: var(--ink-mute);
+  color: var(--orange);
+  opacity: 0.85;
   user-select: none;
 }
 .robot-bubble .rb-caret {
   display: inline-block;
   width: 7px;
-  color: var(--violet);
+  color: var(--orange);
   animation: robot-caret 1s steps(1) infinite;
 }
 @keyframes robot-caret {

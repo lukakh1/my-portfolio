@@ -100,7 +100,7 @@ export function DustPuff({ register }: { register: (h: DustHandle) => void }) {
       dummy.scale.setScalar(s);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
-      color.setRGB(0.45, 0.4, 0.75).multiplyScalar(p.active ? (1 - t) * 0.55 : 0);
+      color.setRGB(0.9, 0.6, 0.36).multiplyScalar(p.active ? (1 - t) * 0.55 : 0);
       mesh.setColorAt(i, color);
       if (p.active) any = true;
     }

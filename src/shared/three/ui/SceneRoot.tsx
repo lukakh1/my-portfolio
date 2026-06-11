@@ -1,6 +1,5 @@
 "use client";
 
-import { AdaptiveDpr } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -31,7 +30,6 @@ export function SceneRoot({ tier }: { tier: Tier }) {
     >
       <ParticleField tier={tier} />
       {tier === "high" && <PostFx />}
-      <AdaptiveDpr pixelated={false} />
     </Canvas>
   );
 }

@@ -1,6 +1,6 @@
 import { sceneStore } from "@/shared/three";
 
-import { pick } from "../lib/curves";
+import { pick, rand } from "../lib/curves";
 import { debugFlags } from "../lib/debug";
 import {
   ANCHORS,
@@ -22,6 +22,10 @@ import {
  * say (section tracking, settle debounce, anchor resolution, dialogue and
  * event scheduling) — the rig decides HOW it gets there and performs.
  *
+ * Owns the intro-gate choreography: while the loader is up the robot rappels
+ * onto the stage and WALKS the progress bar as it fills; on enter he jets off
+ * the right edge, the page slides in, and he flies back in from the left.
+ *
  * Driven by a single external tick (the layer's rAF); holds no React state.
  * Module-level memory (greeted sections, quip budgets) deliberately survives
  * unmount/remount across the 700px eligibility boundary.
@@ -33,7 +37,11 @@ const SETTLE_CAP_MS = 500;
 const HYSTERESIS_PX = 80;
 const GREET_DELAY_MS = 350;
 const FAST_SCROLL_VEL = 50;
-const CLICK_EMOTES: RobotEmote[] = ["hop", "spin", "bow"];
+/** A move longer than this (px) earns a travel quip on departure. */
+const TRAVEL_QUIP_PX = 420;
+const CLICK_EMOTES: RobotEmote[] = ["hop", "dance", "spin", "bow"];
+/** Robot height on the intro stage. */
+const INTRO_SCALE_PX = 126;
 
 /* ---- persistent (module) memory ---- */
 const greeted = new Set<RobotSection>();
@@ -43,6 +51,8 @@ const bonusIdx: Partial<Record<RobotSection, number>> = {};
 let clickCount = 0;
 let emoteIdx = 0;
 let fsQuipCount = 0;
+let idleQuipIdx = 0;
+let dancedContact = false;
 
 /* ---- per-run state ---- */
 let running = false;
@@ -61,14 +71,31 @@ let pendingWave = false;
 let fsHighSince = 0;
 let fsCooldownUntil = 0;
 let copyCooldownUntil = 0;
+let travelQuipCooldownUntil = 0;
 let hoverTimes: number[] = [];
 let hoverQuipCooldownUntil = 0;
 let lastRecondense = 0;
 let cleanups: Array<() => void> = [];
 
+/* ambient chatter */
+let ambientNextAt = 0;
+let ambientBudget = 0;
+
+/* intro stage */
+let introStaged = false;
+let introReadySaid = false;
+let exitFired = false;
+
 const now = () => performance.now();
 
 /* ------------------------------------------------------------------ */
+
+/** Single mouth: every spoken line goes through here so the ambient
+    scheduler always knows when he last talked. */
+function say(line: RobotLine) {
+  robotStore.setLine(line);
+  ambientNextAt = now() + rand(9000, 14000);
+}
 
 function finalizeGreet() {
   if (!greetActive) return;
@@ -93,7 +120,11 @@ function allowGreet(section: RobotSection) {
 
 function commitSection(
   section: RobotSection,
-  opts: { entrance?: boolean; lineOverride?: RobotLine | null } = {},
+  opts: {
+    entrance?: boolean;
+    entranceHint?: TravelHint;
+    lineOverride?: RobotLine | null;
+  } = {},
 ) {
   finalizeGreet();
   robotStore.setLine(null);
@@ -108,24 +139,25 @@ function commitSection(
 
   const s = robotStore.get();
   // Scroll direction shapes the travel: up = always jetpack; down = the rig
-  // picks rope/slide per section. Same-section / entrance falls back to dash.
+  // picks rope/slide/walk per distance. Entrances carry their own hint.
   let hint: TravelHint = "auto";
   if (opts.entrance) {
-    hint = "dash";
+    hint = opts.entranceHint ?? "dash";
   } else if (prev && prev !== section) {
     const prevIdx = sections.findIndex((x) => x.id === prev);
     const newIdx = sections.findIndex((x) => x.id === section);
     if (prevIdx >= 0 && newIdx >= 0) hint = newIdx > prevIdx ? "down" : "up";
   }
-  if (hint === "auto") {
-    const tvy = resolved.space === "doc" ? resolved.y - window.scrollY : resolved.y;
-    const dx = resolved.x - s.screenX;
-    const dy = tvy - s.screenY;
-    if (Math.hypot(dx, dy) > 260 || Math.abs(dy) > 120) hint = "dash";
-  }
+  const tvy = resolved.space === "doc" ? resolved.y - window.scrollY : resolved.y;
+  const dxPx = resolved.x - s.screenX;
+  const dyPx = tvy - s.screenY;
+  const distPx = Math.hypot(dxPx, dyPx);
+  if (hint === "auto" && (distPx > 260 || Math.abs(dyPx) > 120)) hint = "dash";
   robotStore.commitTravel(hint);
   robotStore.setActiveSection(section);
   committed = section;
+  ambientBudget = 2;
+  ambientNextAt = now() + rand(9000, 14000);
 
   const line =
     opts.lineOverride !== undefined
@@ -136,6 +168,23 @@ function commitSection(
   pendingGreet = line ? { section, line, isGreet: opts.lineOverride === undefined } : null;
   greetReadyAt = now() + GREET_DELAY_MS;
   if (opts.entrance || section === "footer") pendingWave = true;
+
+  // Departure chatter: long moves get a quip on the way (he talks while
+  // walking and rappelling — the bubble follows his head).
+  const t = now();
+  if (
+    !opts.entrance &&
+    prev &&
+    prev !== section &&
+    distPx > TRAVEL_QUIP_PX &&
+    t > travelQuipCooldownUntil &&
+    Math.random() < 0.85
+  ) {
+    travelQuipCooldownUntil = t + 7000;
+    const pool =
+      hint === "up" ? QUIPS.travelUp : hint === "down" ? QUIPS.travelDown : QUIPS.travelSide;
+    say(pick(pool));
+  }
 }
 
 function measure() {
@@ -149,23 +198,93 @@ function measure() {
   if (debugFlags().anchors) renderAnchorMarkers();
 }
 
-function clearGate() {
+function clearGate(entranceHint: TravelHint) {
   robotStore.setGateCleared(true);
   robotStore.setVisible(true);
   measure();
-  commitSection("hero", { entrance: true });
+  // Mid-page reload (scroll restoration): land at the section actually on
+  // screen instead of dashing to a hero that's a viewport away.
+  let target: RobotSection = "hero";
+  if (window.scrollY > window.innerHeight * 0.4 && sections.length) {
+    const center = window.scrollY + window.innerHeight / 2;
+    for (const s of sections) {
+      if (s.top < center + HYSTERESIS_PX) target = s.id;
+    }
+  }
+  commitSection(target, { entrance: true, entranceHint });
+}
+
+/**
+ * Intro stage: the robot rappels in beside the loading bar, then walks along
+ * it tracking the fill — like he's pulling the light across. At "ready" he
+ * turns to camera, waves, and invites the click.
+ */
+function introStageTick() {
+  const bar = document.querySelector(".intro-bar");
+  if (!bar) return;
+  const r = bar.getBoundingClientRect();
+  if (r.width < 4) return;
+  const p = sceneStore.get().introProgress;
+  const phase = sceneStore.get().gatePhase;
+
+  if (!introStaged) {
+    introStaged = true;
+    robotStore.setVisible(true);
+    robotStore.setTarget(r.left + 6, r.top - 2, "viewport", 1, INTRO_SCALE_PX);
+    robotStore.commitTravel("ropeIn");
+    say(pick(QUIPS.introRopeIn));
+    return;
+  }
+
+  if (phase === "ready") {
+    // parked at the end of the bar, facing the visitor
+    robotStore.setTarget(r.right + 10, r.top - 2, "viewport", -1, INTRO_SCALE_PX);
+    if (!introReadySaid && robotStore.get().arrived) {
+      introReadySaid = true;
+      say(pick(QUIPS.introReady));
+      robotStore.requestEmote("wave");
+    }
+  } else if (robotStore.get().mode === "rope") {
+    // still descending: aim for the bar's START so the catch-up jog along
+    // the fill is the show, not the landing
+    robotStore.setTarget(r.left + 6, r.top - 2, "viewport", 1, INTRO_SCALE_PX);
+  } else {
+    // grounded: chase the fill tip
+    robotStore.setTarget(r.left + 6 + p * r.width, r.top - 2, "viewport", 1, INTRO_SCALE_PX);
+  }
 }
 
 function gateCheck(t: number) {
-  const introEl = document.querySelector(".intro");
-  const introDone = sceneStore.get().introDone;
-  if (debugFlags().gate || (introDone && !introEl)) {
-    clearGate();
+  if (debugFlags().gate) {
+    clearGate("dash");
     return;
   }
-  // Headless/preview fallback: ParticleField's document.hidden guard can keep
-  // introDone false forever. If no overlay is blocking, enter after 4s anyway.
-  if (!introEl && t - startedAt > 4000) clearGate();
+  const phase = sceneStore.get().gatePhase;
+  switch (phase) {
+    case "none":
+      // repeat visit / reduced-motion: classic dash in from the sky
+      if (t - startedAt > 400) clearGate("dash");
+      break;
+    case "loading":
+    case "ready":
+      introStageTick();
+      break;
+    case "entering":
+      // the show: jet off the right edge while the page slides in
+      if (!exitFired) {
+        exitFired = true;
+        robotStore.setLine(null);
+        robotStore.commitTravel("exitRight");
+      }
+      break;
+    case "done":
+      // page is in — fly back in from the left and superhero-land at the hero
+      clearGate("enterLeft");
+      break;
+    default:
+      // headless / no gate mounted: enter anyway after a beat
+      if (t - startedAt > 4000) clearGate("dash");
+  }
 }
 
 /** Within #experience, stand beside whichever card spans the viewport center. */
@@ -257,12 +376,20 @@ function issueDialogue(t: number) {
     !s.currentLine &&
     (onRope || (t >= greetReadyAt && s.arrived && s.mode === "ground"))
   ) {
-    robotStore.setLine(pendingGreet.line);
-    greetActive = { section: pendingGreet.section, isGreet: pendingGreet.isGreet };
+    const greet = pendingGreet;
+    say(greet.line);
+    greetActive = { section: greet.section, isGreet: greet.isGreet };
     pendingGreet = null;
     if (pendingWave) {
       robotStore.requestEmote("wave");
       pendingWave = false;
+    }
+    // One-time celebration when the tour reaches the contact card.
+    if (greet.section === "contact" && !dancedContact) {
+      dancedContact = true;
+      window.setTimeout(() => {
+        if (robotStore.get().activeSection === "contact") robotStore.requestEmote("dance");
+      }, 2600);
     }
     return;
   }
@@ -291,8 +418,36 @@ function issueDialogue(t: number) {
     pointed.add(committed);
   }
 
-  // Fast-scroll quip (pose brace is rig-side and automatic).
+  // Ambient chatter: when the visitor lingers, rotate this section's bonus
+  // lines, then dip into the global idle pool. He's a talker now.
   const vel = Math.abs(sceneStore.get().velocity);
+  if (
+    committed &&
+    !pendingGreet &&
+    !s.currentLine &&
+    s.arrived &&
+    s.mode === "ground" &&
+    vel < SETTLE_VEL &&
+    t > ambientNextAt
+  ) {
+    if (ambientBudget > 0) {
+      ambientBudget--;
+      const list = SCRIPT[committed].bonus;
+      if (list.length) {
+        const i = bonusIdx[committed] ?? 0;
+        say(list[i % list.length]);
+        bonusIdx[committed] = i + 1;
+      }
+    } else if (Math.random() < 0.6) {
+      // budget spent: occasional global idle thought, then go quiet
+      say(QUIPS.idle[idleQuipIdx++ % QUIPS.idle.length]);
+      ambientNextAt = now() + rand(16000, 24000);
+    } else {
+      ambientNextAt = now() + rand(16000, 24000);
+    }
+  }
+
+  // Fast-scroll quip (pose brace is rig-side and automatic).
   if (vel > FAST_SCROLL_VEL) {
     if (fsHighSince === 0) fsHighSince = t;
     if (
@@ -302,7 +457,7 @@ function issueDialogue(t: number) {
       !s.currentLine &&
       s.mode === "ground"
     ) {
-      robotStore.setLine(pick(QUIPS.fastScroll));
+      say(pick(QUIPS.fastScroll));
       fsQuipCount++;
       fsCooldownUntil = t + 30_000;
     }
@@ -380,7 +535,7 @@ export const director = {
       if (t < copyCooldownUntil || !robotStore.get().gateCleared) return;
       copyCooldownUntil = t + 10_000;
       finalizeGreet();
-      robotStore.setLine(pick(QUIPS.copyEmail));
+      say(pick(QUIPS.copyEmail));
       robotStore.requestEmote("spin");
     };
     document.addEventListener("click", onCopyClick);
@@ -443,7 +598,7 @@ export const director = {
       hoverTimes = [];
       hoverQuipCooldownUntil = t + 8000;
       if (!robotStore.get().currentLine) {
-        robotStore.setLine(pick(QUIPS.hoverPoke));
+        say(pick(QUIPS.hoverPoke));
         robotStore.requestEmote("poke");
       }
     }
@@ -461,7 +616,7 @@ export const director = {
     if (!list.length) return;
     finalizeGreet();
     const i = bonusIdx[section] ?? 0;
-    robotStore.setLine(list[i % list.length]);
+    say(list[i % list.length]);
     bonusIdx[section] = i + 1;
     clickCount++;
     if (clickCount % 2 === 0) {

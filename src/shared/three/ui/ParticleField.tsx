@@ -40,6 +40,7 @@ export function ParticleField({ tier }: { tier: Tier }) {
   const pointsRef = useRef<THREE.Points>(null);
   const startRef = useRef<number | null>(null);
   const introFired = useRef(false);
+  const gateWasUp = useRef(false);
   const lastRecondense = useRef(0);
   const worldMouse = useMemo(() => new THREE.Vector3(), []);
   const localMouse = useMemo(() => new THREE.Vector3(999, 999, 999), []);
@@ -128,6 +129,22 @@ export function ParticleField({ tier }: { tier: Tier }) {
     if (startRef.current === null) startRef.current = t;
 
     const store = sceneStore.get();
+
+    // The intro gate is an opaque lid — don't burn 65k particles of GPU
+    // behind it. When it lifts, replay the condense + wordmark so the
+    // signature reveal happens where the visitor can actually see it.
+    const gateUp = store.gatePhase === "loading" || store.gatePhase === "ready";
+    if (gateUp) {
+      gateWasUp.current = true;
+      if (pointsRef.current) pointsRef.current.visible = false;
+      return;
+    }
+    if (gateWasUp.current) {
+      gateWasUp.current = false;
+      startRef.current = t;
+      if (pointsRef.current) pointsRef.current.visible = true;
+    }
+
     // Back-to-top (or any recondense trigger) replays the condense + wordmark.
     if (store.recondenseAt !== lastRecondense.current) {
       lastRecondense.current = store.recondenseAt;
@@ -154,6 +171,18 @@ export function ParticleField({ tier }: { tier: Tier }) {
     // bottom (the contact "finale").
     const heroProg = Math.min(1, store.scroll / (window.innerHeight || 800));
     const endConverge = THREE.MathUtils.smoothstep(store.progress, 0.8, 0.98);
+
+    // Past the hero the field is ~invisible (opacity 0.066) yet the sim and
+    // the 65k-point draw used to run for the whole page. Sleep until the
+    // contact finale needs us again — a real scroll-perf win site-wide.
+    const persp0 = state.camera as THREE.PerspectiveCamera;
+    const asleep = heroProg >= 1 && endConverge <= 0.001 && local > MORPH_END;
+    if (pointsRef.current) pointsRef.current.visible = !asleep;
+    if (asleep) {
+      persp0.position.z = 8.2;
+      return;
+    }
+
     u.uScatter.value = heroProg * 1.15 * (1 - endConverge * 0.8);
     // Keep the drift calm and constant (no turbulence ramp on scroll).
     u.uFlow.value = 0.22;

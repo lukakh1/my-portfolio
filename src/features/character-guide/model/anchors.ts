@@ -10,9 +10,9 @@ import type { RobotSection } from "./robot-store";
  * Feet coordinates are DOC-space px (they ride with the page as it scrolls),
  * or viewport-space when docked.
  */
-export const BASE_SCALE_PX = 140;
-/** Robot screen footprint: width ≈ height × this. */
-export const ROBOT_W_RATIO = 0.5;
+export const BASE_SCALE_PX = 122;
+/** Robot screen footprint: width ≈ height × this (squat, wide silhouette). */
+export const ROBOT_W_RATIO = 0.66;
 /** Below this viewport width every anchor falls back to the dock perch. */
 const DOCK_BELOW_VW = 1080;
 
@@ -34,26 +34,31 @@ export interface AnchorSpec {
 
 export const ANCHORS: Record<RobotSection, AnchorSpec> = {
   hero: {
+    // Stands on the LEFT, in the empty band BELOW the hero copy (a 122px
+    // robot needs ~130px of clearance under the meta line or he covers the
+    // CTA). Faces the content. This is also where the intro fly-in lands.
     section: "hero",
-    selector: "#hero .hero-cta",
-    ref: "right-bottom",
-    offset: { x: 84, y: 0 },
-    facing: -1,
+    selector: "#hero .hero-meta, #hero .hero-cta",
+    ref: "left-bottom",
+    offset: { x: 36, y: 138 },
+    facing: 1,
     point: "#hero .hero-cta",
   },
   stats: {
+    // BESIDE the numbers, not on them — right gutter of the grid.
     section: "stats",
     selector: "#stats .stats-grid, .stats .stats-grid",
-    ref: "top-right",
-    offset: { x: -64, y: 0 },
+    ref: "right-bottom",
+    offset: { x: 64, y: -6 },
     facing: -1,
+    gutter: "right",
     point: ".stats-grid .num",
   },
   about: {
     section: "about",
     selector: "#about .about-card",
     ref: "left-bottom",
-    offset: { x: -56, y: -14 },
+    offset: { x: -56, y: -36 },
     facing: 1,
     live: true,
     gutter: "left",
@@ -95,11 +100,13 @@ export const ANCHORS: Record<RobotSection, AnchorSpec> = {
     point: "#education .scholarship",
   },
   contact: {
+    // Right gutter beside the card — he was standing ON the card before.
     section: "contact",
     selector: "#contact .contact-card",
-    ref: "top-right",
-    offset: { x: -104, y: -4 },
+    ref: "right-bottom",
+    offset: { x: 62, y: -10 },
     facing: -1,
+    gutter: "right",
     point: "#contact [data-copy]",
   },
   footer: {
@@ -148,8 +155,8 @@ export function resolveElementAnchor(
   let scalePx = BASE_SCALE_PX;
   if (gutter) {
     const room = gutter === "right" ? vw - r.right : r.left;
-    if (room < 80) return dockAnchor(vw, vh);
-    if (room < 110) scalePx = BASE_SCALE_PX * 0.75;
+    if (room < 90) return dockAnchor(vw, vh);
+    if (room < 124) scalePx = BASE_SCALE_PX * 0.75;
   }
 
   const refX = ref === "right-bottom" || ref === "top-right" ? r.right : r.left;

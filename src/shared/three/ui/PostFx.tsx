@@ -15,7 +15,9 @@ import * as THREE from "three";
  */
 export function PostFx() {
   return (
-    <EffectComposer>
+    // multisampling 0: the scene is soft additive sprites that bloom blurs
+    // anyway — the default 8x MSAA buffer was pure cost.
+    <EffectComposer multisampling={0}>
       <Bloom
         intensity={0.3}
         luminanceThreshold={0.24}

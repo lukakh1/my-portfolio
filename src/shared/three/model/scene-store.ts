@@ -24,7 +24,16 @@ export interface SceneState {
   introDone: boolean;
   /** Bumped (timestamp) to re-trigger the hero condense, e.g. back-to-top. */
   recondenseAt: number;
+  /**
+   * Intro gate lifecycle, written by IntroGate. "none" = gate skipped
+   * (repeat visit / reduced motion). "unknown" until the gate mounts.
+   */
+  gatePhase: GatePhase;
+  /** Intro loader progress 0..1 (per-frame mutable — drives the robot's bar walk). */
+  introProgress: number;
 }
+
+export type GatePhase = "unknown" | "none" | "loading" | "ready" | "entering" | "done";
 
 const state: SceneState = {
   tier: "high",
@@ -36,6 +45,8 @@ const state: SceneState = {
   pointerActive: false,
   introDone: false,
   recondenseAt: 0,
+  gatePhase: "unknown",
+  introProgress: 0,
 };
 
 type Listener = (s: Readonly<SceneState>) => void;
@@ -66,6 +77,14 @@ export const sceneStore = {
   setIntroDone(done: boolean) {
     state.introDone = done;
     emit();
+  },
+  setGatePhase(phase: GatePhase) {
+    if (state.gatePhase === phase) return;
+    state.gatePhase = phase;
+    emit();
+  },
+  setIntroProgress(p: number) {
+    state.introProgress = p;
   },
   triggerRecondense() {
     state.recondenseAt = typeof performance !== "undefined" ? performance.now() : Date.now();
