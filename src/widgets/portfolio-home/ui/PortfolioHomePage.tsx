@@ -1,3 +1,4 @@
+import { CharacterGuide } from "@/features/character-guide";
 import { ClipboardRoot } from "@/features/clipboard";
 import { CustomCursor } from "@/features/custom-cursor";
 import { ExperienceModalRoot } from "@/features/experience-modal";
@@ -41,6 +42,7 @@ export function PortfolioHomePage() {
       <CustomCursor />
       <PortfolioBackground />
       <SceneRootClient />
+      <CharacterGuide />
       <PortfolioPrintHeader />
       <PortfolioNav />
       <main id="top">
