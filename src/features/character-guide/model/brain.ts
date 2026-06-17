@@ -21,6 +21,7 @@ import {
   CAM_Z,
   PLANE_H,
 } from "../lib/screen-world";
+import { laneGeometry, clampOutOfContent } from "../lib/lane";
 import { Spring1, Spring3, expApproach } from "../lib/springs";
 import { FOOT_LIFT, LEG_L, ROBOT_NATIVE_H, robotMats, type RobotRefs } from "./rig";
 import { robotStore, type RobotSection } from "./robot-store";
@@ -235,6 +236,12 @@ export class RobotBrain {
     this.scaleW.target = (rs.scalePx * wpp) / ROBOT_NATIVE_H;
     const S = this.scaleW.value;
 
+    // Robi rests in the empty gutters (left or right) and LEAPS across between
+    // them. clampOutOfContent keeps every resting/landing frame off the content;
+    // the jet-dash itself is exempt, so soaring over the column is the show.
+    const lane = laneGeometry(vw);
+    const laneOn = !lane.collapsed;
+
     /* ---- resolve target (viewport px → world) ---- */
     const scrollY = typeof window !== "undefined" ? window.scrollY : sc.scroll;
     const dScroll = Number.isFinite(this.prevScrollY) ? scrollY - this.prevScrollY : 0;
@@ -245,6 +252,7 @@ export class RobotBrain {
     // order-safe: on very short windows the bounds can cross
     tvy = clamp(tvy, NAV_CLEAR_PX + hPx, Math.max(NAV_CLEAR_PX + hPx, vh - 10));
     tvx = clamp(tvx, 12 + hPx * 0.25, Math.max(12 + hPx * 0.25, vw - 12 - hPx * 0.25));
+    if (laneOn) tvx = clampOutOfContent(tvx, lane);
     const twx = pxToWorldX(tvx, vw, vh);
     const twy = pxToWorldY(tvy, vh);
 
@@ -286,7 +294,11 @@ export class RobotBrain {
         if (dist >= 0.5) {
           const walkable = dist <= WALK_DIST && Math.abs(dyw) <= WALK_DY;
           if (!walkable) {
-            if (hint === "down") {
+            const crossGutter = Math.abs(dxw) > 3;
+            if (crossGutter) {
+              // changing sides → a dramatic aerial leap across the page
+              this.pendingTravel = "dash";
+            } else if (hint === "down") {
               const sect = rs.activeSection;
               if (sect && ROPE_SECTIONS.has(sect)) {
                 this.pendingTravel = dyw < -0.3 ? "rope" : "ropeFromTop";
@@ -683,6 +695,13 @@ export class RobotBrain {
           const margin = pxToWorldX(clamp(24 + hPx * 0.25, 24, 200), vw, vh);
           const wx = clamp(twx + this.wanderOff, margin, -margin);
           this.rootX.target = this.wanderOff !== 0 ? wx : twx;
+          if (laneOn) {
+            this.rootX.target = pxToWorldX(
+              clampOutOfContent(worldToPxX(this.rootX.target, vw, vh), lane),
+              vw,
+              vh,
+            );
+          }
           this.rootY.target = twy;
         }
         this.squash.target = 1;
@@ -711,6 +730,19 @@ export class RobotBrain {
       const landRelax = this.mode === "dashLand" ? 2.4 : 1;
       this.rootX.vel = clamp(this.rootX.vel, -maxV * landRelax, maxV * landRelax);
       this.rootY.vel = clamp(this.rootY.vel, -maxV * 1.4 * landRelax, maxV * 1.4 * landRelax);
+    }
+    // Rest off the content: in the grounded / landing states snap the robot
+    // out of the content column to the nearer gutter. Travel (dash/rope/slide)
+    // is exempt — leaping over the content is the whole show.
+    if (laneOn && (this.mode === "ground" || this.mode === "dashLand")) {
+      const px = worldToPxX(this.rootX.value, vw, vh);
+      const cpx = clampOutOfContent(px, lane);
+      if (Math.abs(cpx - px) > 0.5) {
+        this.rootX.value = pxToWorldX(cpx, vw, vh);
+        if ((cpx < px && this.rootX.vel > 0) || (cpx > px && this.rootX.vel < 0)) {
+          this.rootX.vel = 0;
+        }
+      }
     }
     this.scaleW.step(dt);
 
@@ -1070,9 +1102,9 @@ export class RobotBrain {
     const dy = twy - y0;
     const D = Math.hypot(dx, dy);
     const dirX = D > 1e-4 ? dx / D : 1;
-    // flat, purposeful arcs — high parabolas put him on top of content
-    const up = Math.min(0.45 + 0.13 * D, 1.1);
-    const up2 = Math.min(0.4 + 0.1 * D, 0.95);
+    // big graceful arcs — he LEAPS up and over the content (the spectacle)
+    const up = Math.min(0.6 + 0.2 * D, 2.4);
+    const up2 = Math.min(0.5 + 0.16 * D, 2.0);
     this.dashP0.x = x0;
     this.dashP0.y = y0;
     this.dashP1.x = x0 + 0.18 * D * dirX;
@@ -1083,7 +1115,7 @@ export class RobotBrain {
     this.dashP3.y = twy;
     this.dashPrev.x = x0;
     this.dashPrev.y = y0;
-    this.dashDur = clamp(0.55 + 0.1 * D, 0.6, 1.1);
+    this.dashDur = clamp(0.55 + 0.1 * D, 0.6, 1.35);
     this.launchGroundY = y0;
     this.mode = "dashFly";
     this.stateT = 0;

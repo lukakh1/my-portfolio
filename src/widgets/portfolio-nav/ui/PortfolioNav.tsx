@@ -9,6 +9,9 @@ export function PortfolioNav() {
           <span>Luka Khimshiashvili</span>
         </a>
         <div className="nav-links">
+          <span className="nav-status" aria-hidden>
+            Online · UTC+4
+          </span>
           {navLinks.map((link) => (
             <a key={link.href} href={link.href} className={link.className}>
               {link.label}

@@ -1,4 +1,4 @@
-import { clamp } from "../lib/curves";
+import { laneGeometry, railXForSide, type LaneSide } from "../lib/lane";
 import type { RobotSection } from "./robot-store";
 
 /**
@@ -21,6 +21,8 @@ type RefCorner = "right-bottom" | "left-bottom" | "top-right" | "top-left";
 export interface AnchorSpec {
   section: RobotSection;
   selector: string;
+  /** Which gutter Robi rests in for this section — he leaps across between them. */
+  side: LaneSide;
   ref: RefCorner;
   offset: { x: number; y: number };
   facing: -1 | 1;
@@ -32,36 +34,38 @@ export interface AnchorSpec {
   gutter?: "left" | "right";
 }
 
+/**
+ * Side choreography — Robi zig-zags down the page (right → left → right …),
+ * leaping across the centre between sections. He only ever RESTS in a gutter,
+ * so the content is never covered; the cross-page leaps are the spectacle.
+ */
 export const ANCHORS: Record<RobotSection, AnchorSpec> = {
   hero: {
-    // Stands on the LEFT, in the empty band BELOW the hero copy (a 122px
-    // robot needs ~130px of clearance under the meta line or he covers the
-    // CTA). Faces the content. This is also where the intro fly-in lands.
     section: "hero",
     selector: "#hero .hero-meta, #hero .hero-cta",
-    ref: "left-bottom",
-    offset: { x: 36, y: 138 },
-    facing: 1,
+    side: "right",
+    ref: "right-bottom",
+    offset: { x: 0, y: 40 },
+    facing: -1,
     point: "#hero .hero-cta",
   },
   stats: {
-    // BESIDE the numbers, not on them — right gutter of the grid.
     section: "stats",
     selector: "#stats .stats-grid, .stats .stats-grid",
-    ref: "right-bottom",
-    offset: { x: 64, y: -6 },
-    facing: -1,
-    gutter: "right",
+    side: "left",
+    ref: "left-bottom",
+    offset: { x: 0, y: 0 },
+    facing: 1,
     point: ".stats-grid .num",
   },
   about: {
     section: "about",
     selector: "#about .about-card",
-    ref: "left-bottom",
-    offset: { x: -56, y: -36 },
-    facing: 1,
+    side: "right",
+    ref: "right-bottom",
+    offset: { x: 0, y: 0 },
+    facing: -1,
     live: true,
-    gutter: "left",
     point: "#about .about-card",
   },
   experience: {
@@ -69,52 +73,55 @@ export const ANCHORS: Record<RobotSection, AnchorSpec> = {
     // center; this selector is the initial / fallback target.
     section: "experience",
     selector: "#experience .tl-item.current .tl-card, #experience .tl-card",
-    ref: "right-bottom",
-    offset: { x: 70, y: 0 },
-    facing: -1,
+    side: "left",
+    ref: "left-bottom",
+    offset: { x: 0, y: 0 },
+    facing: 1,
     live: true,
-    gutter: "right",
   },
   skills: {
     section: "skills",
     selector: "#skills .section-head h2",
+    side: "right",
     ref: "right-bottom",
-    offset: { x: 96, y: 6 },
+    offset: { x: 0, y: 60 },
     facing: -1,
     point: "#skills .skill-card",
   },
   projects: {
     section: "projects",
     selector: "#projects .section-head h2",
-    ref: "right-bottom",
-    offset: { x: 96, y: 6 },
-    facing: -1,
+    side: "left",
+    ref: "left-bottom",
+    offset: { x: 0, y: 60 },
+    facing: 1,
     point: "#projects .proj",
   },
   education: {
     section: "education",
     selector: "#education .section-head h2",
+    side: "right",
     ref: "right-bottom",
-    offset: { x: 96, y: 6 },
+    offset: { x: 0, y: 60 },
     facing: -1,
     point: "#education .scholarship",
   },
   contact: {
-    // Right gutter beside the card — he was standing ON the card before.
     section: "contact",
     selector: "#contact .contact-card",
-    ref: "right-bottom",
-    offset: { x: 62, y: -10 },
-    facing: -1,
-    gutter: "right",
+    side: "left",
+    ref: "left-bottom",
+    offset: { x: 0, y: 0 },
+    facing: 1,
     point: "#contact [data-copy]",
   },
   footer: {
     section: "footer",
     selector: "footer .foot-right",
-    ref: "left-bottom",
-    offset: { x: -64, y: 0 },
-    facing: 1,
+    side: "right",
+    ref: "right-bottom",
+    offset: { x: 0, y: 0 },
+    facing: -1,
   },
 };
 
@@ -139,43 +146,39 @@ export function dockAnchor(vw: number, vh: number): ResolvedAnchor {
   };
 }
 
-/** Resolve an anchor against a specific element (also used for sub-anchoring). */
+/**
+ * Resolve a RAIL placement from a specific element: X is the gutter rail (so
+ * the robot can never cross the content), Y tracks the element's vertical
+ * middle (page-riding keeps it synced as you scroll). Used for the live
+ * experience sub-anchor too. Falls back to the dock when the gutter is too thin.
+ */
 export function resolveElementAnchor(
   el: Element,
-  ref: RefCorner,
-  offset: { x: number; y: number },
-  facing: -1 | 1,
-  gutter: "left" | "right" | undefined,
+  offsetY: number,
+  side: LaneSide,
   vw: number,
   vh: number,
 ): ResolvedAnchor {
+  const lane = laneGeometry(vw);
+  if (lane.collapsed) return dockAnchor(vw, vh);
   const r = el.getBoundingClientRect();
   const sy = window.scrollY;
-
-  let scalePx = BASE_SCALE_PX;
-  if (gutter) {
-    const room = gutter === "right" ? vw - r.right : r.left;
-    if (room < 90) return dockAnchor(vw, vh);
-    if (room < 124) scalePx = BASE_SCALE_PX * 0.75;
-  }
-
-  const refX = ref === "right-bottom" || ref === "top-right" ? r.right : r.left;
-  const refY = ref === "top-right" || ref === "top-left" ? r.top : r.bottom;
-
-  const halfW = (scalePx * ROBOT_W_RATIO) / 2;
-  const x = clamp(refX + offset.x, 12 + halfW, vw - 12 - halfW);
-  return { x, y: refY + sy + offset.y, space: "doc", facing, scalePx, docked: false };
+  const refY = r.top + r.height / 2 + sy + offsetY;
+  return {
+    x: railXForSide(lane, side),
+    y: refY,
+    space: "doc",
+    facing: side === "left" ? 1 : -1,
+    scalePx: lane.scalePx,
+    docked: false,
+  };
 }
 
-export function resolveAnchor(
-  spec: AnchorSpec,
-  vw: number,
-  vh: number,
-): ResolvedAnchor {
+export function resolveAnchor(spec: AnchorSpec, vw: number, vh: number): ResolvedAnchor {
   if (vw < DOCK_BELOW_VW) return dockAnchor(vw, vh);
   const el = document.querySelector(spec.selector);
   if (!el) return dockAnchor(vw, vh);
-  return resolveElementAnchor(el, spec.ref, spec.offset, spec.facing, spec.gutter, vw, vh);
+  return resolveElementAnchor(el, spec.offset.y, spec.side, vw, vh);
 }
 
 /** Ordered doc-space section tops (hysteresis boundaries live in the director). */

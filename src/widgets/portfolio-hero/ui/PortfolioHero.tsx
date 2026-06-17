@@ -100,6 +100,9 @@ export function PortfolioHero() {
       <div className="container">
         <div className="hero-grid">
           <div>
+            <div className="hud-coord reveal" aria-hidden>
+              OBS · 42.27°N 42.70°E · Kutaisi
+            </div>
             <div className="status-pill reveal">
               <span className="status-dot" />
               Open to remote full-stack roles
@@ -117,8 +120,8 @@ export function PortfolioHero() {
             <p className="hero-tag reveal" data-delay="3">
               I&apos;ve been building things with React since I was 15. Now I
               work full-stack at{" "}
-              <span style={{ color: "#cbb6ff" }}>Ruby Labs</span>, and I take
-              the craft seriously.
+              <span className="hl-warm">Ruby Labs</span>, and I take the craft
+              seriously.
             </p>
             <div className="hero-cta reveal" data-delay="4">
               <ResumePrintButton className="btn btn-primary">
@@ -163,7 +166,7 @@ export function PortfolioHero() {
                 <span className="term-dot r" />
                 <span className="term-dot y" />
                 <span className="term-dot g" />
-                <span className="term-title">~/luka — about.ts</span>
+                <span className="term-title">~/luka — telemetry.ts</span>
               </div>
               <div className="term-body">
                 <span className="c">{"// quick facts"}</span>

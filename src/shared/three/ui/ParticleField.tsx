@@ -88,11 +88,12 @@ export function ParticleField({ tier }: { tier: Tier }) {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uPositions: { value: null },
-        uSize: { value: tier === "high" ? 3.4 : 2.8 },
+        uSize: { value: tier === "high" ? 2.6 : 2.2 },
         uScale: { value: 30 },
-        uColorNear: { value: new THREE.Color("#38bdf8") },
-        uColorFar: { value: new THREE.Color("#7c3aed") },
-        uOpacity: { value: 0.3 },
+        uColorNear: { value: new THREE.Color("#cff8ff") },
+        uColorFar: { value: new THREE.Color("#143a66") },
+        uOpacity: { value: 0.34 },
+        uTime: { value: 0 },
       },
       vertexShader: particlesVertex,
       fragmentShader: particlesFragment,
@@ -188,7 +189,8 @@ export function ParticleField({ tier }: { tier: Tier }) {
     u.uFlow.value = 0.22;
     // Recede behind content: fade the field down to a faint ambient texture as
     // the hero scrolls away, so the copy is always the focus.
-    material.uniforms.uOpacity.value = 0.3 * (1 - heroProg * 0.78);
+    material.uniforms.uOpacity.value = 0.34 * (1 - heroProg * 0.78);
+    material.uniforms.uTime.value = t;
 
     // Pointer → world point on the z=0 plane → particle-local space.
     const persp = state.camera as THREE.PerspectiveCamera;

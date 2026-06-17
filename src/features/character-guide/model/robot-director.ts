@@ -309,15 +309,7 @@ function refreshExperienceSubAnchor(vw: number, vh: number) {
   }
   if (!best) return;
   const spec = ANCHORS.experience;
-  const resolved = resolveElementAnchor(
-    best,
-    spec.ref,
-    spec.offset,
-    spec.facing,
-    spec.gutter,
-    vw,
-    vh,
-  );
+  const resolved = resolveElementAnchor(best, spec.offset.y, spec.side, vw, vh);
   robotStore.setTarget(resolved.x, resolved.y, resolved.space, resolved.facing, resolved.scalePx);
 }
 
@@ -408,8 +400,11 @@ function issueDialogue(t: number) {
       const el = document.querySelector(sel);
       if (el) {
         const r = el.getBoundingClientRect();
+        // Reach toward the content's NEAR edge (the side Robi is currently on)
+        // — a lean, not a point across the page.
+        const onRight = robotStore.get().screenX > window.innerWidth / 2;
         robotStore.setPointAt(
-          r.left + r.width / 2,
+          onRight ? r.right : r.left,
           r.top + r.height / 2 + window.scrollY,
           t + 1800,
         );

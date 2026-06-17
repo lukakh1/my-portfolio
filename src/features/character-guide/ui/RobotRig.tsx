@@ -89,12 +89,12 @@ export function RobotRig({ tier }: { tier: "low" | "high" }) {
   return (
     <>
       <StudioEnv />
-      {/* Warm key / cool teal rim / violet kicker — keeps the orange shell
-          saturated while tying him to the site's violet-blue world. */}
+      {/* Warm key / cool teal rim / cyan kicker — keeps the orange shell
+          saturated while tying him to the cold observatory world. */}
       <ambientLight intensity={0.55} color="#cfd8ff" />
       <directionalLight position={[3, 6, 5]} intensity={2.2} color="#fff1e0" />
       <directionalLight position={[-4, 2, -4]} intensity={1.6} color="#22d3ee" />
-      <directionalLight position={[2, 1, -2]} intensity={0.7} color="#7c5cff" />
+      <directionalLight position={[2, 1, -2]} intensity={0.7} color="#38e1ff" />
 
       <Robot refs={refs} withTrail={tier === "high"} />
 

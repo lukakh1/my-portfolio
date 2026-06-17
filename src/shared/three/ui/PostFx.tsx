@@ -19,18 +19,18 @@ export function PostFx() {
     // anyway — the default 8x MSAA buffer was pure cost.
     <EffectComposer multisampling={0}>
       <Bloom
-        intensity={0.3}
-        luminanceThreshold={0.24}
+        intensity={0.4}
+        luminanceThreshold={0.3}
         luminanceSmoothing={0.4}
         mipmapBlur
-        radius={0.7}
+        radius={0.6}
       />
       <ChromaticAberration
-        offset={new THREE.Vector2(0.0006, 0.0006)}
+        offset={new THREE.Vector2(0.0004, 0.0004)}
         radialModulation={false}
         modulationOffset={0}
       />
-      <Vignette eskil={false} offset={0.25} darkness={0.5} />
+      <Vignette eskil={false} offset={0.3} darkness={0.58} />
     </EffectComposer>
   );
 }

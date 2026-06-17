@@ -7,6 +7,7 @@ import { dprFor, sceneStore } from "@/shared/three";
 
 import { clamp } from "../lib/curves";
 import { debugFlags } from "../lib/debug";
+import { laneGeometry } from "../lib/lane";
 import { CAM_FOV, CAM_Z } from "../lib/screen-world";
 import { director } from "../model/robot-director";
 import { robotStore } from "../model/robot-store";
@@ -48,7 +49,6 @@ export function CharacterGuideLayer({ tier }: { tier: "low" | "high" }) {
       director.tick();
       const s = robotStore.get();
       const vw = window.innerWidth;
-      const vh = window.innerHeight;
 
       const hit = hitRef.current;
       if (hit) {
@@ -80,7 +80,28 @@ export function CharacterGuideLayer({ tier }: { tier: "low" | "high" }) {
       if (bub && bub.dataset.state === "shown") {
         const bw = bub.offsetWidth;
         const bh = bub.offsetHeight;
-        const bx = clamp(s.headX - 30, 12, Math.max(12, vw - bw - 12));
+        // Bubble lives in whichever gutter Robi is currently in, so it never
+        // crosses the content column. Docked (narrow) falls back to viewport.
+        const lane = laneGeometry(vw);
+        let bx: number;
+        let maxw = 280;
+        if (!lane.collapsed) {
+          const onLeft = s.headX < vw / 2;
+          if (onLeft) {
+            maxw = clamp(lane.columnLeft - 16, 132, 280);
+            bx = clamp(s.headX - bw / 2, 8, Math.max(8, lane.columnLeft - bw - 8));
+          } else {
+            maxw = clamp(vw - lane.columnRight - 16, 132, 280);
+            bx = clamp(
+              s.headX - bw / 2,
+              lane.columnRight + 8,
+              Math.max(lane.columnRight + 8, vw - bw - 8),
+            );
+          }
+        } else {
+          bx = clamp(s.headX - 30, 12, Math.max(12, vw - bw - 12));
+        }
+        bub.style.setProperty("--rb-maxw", `${Math.round(maxw)}px`);
         let by = s.headY - bh - 14;
         let tail: "down" | "up" = "down";
         if (by < 76) {
