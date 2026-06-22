@@ -8,7 +8,7 @@ export function PortfolioStats() {
           <div key={s.label} className="stat">
             <div className="num">
               <span className="counter" data-to={s.value}>
-                0
+                {s.value}
               </span>
               {s.suffix}
             </div>

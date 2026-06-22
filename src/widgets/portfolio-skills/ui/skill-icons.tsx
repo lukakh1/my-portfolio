@@ -40,6 +40,12 @@ export function SkillIcon({ id }: { id: string }) {
           <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
         </svg>
       );
+    case "mon":
+      return (
+        <svg {...common}>
+          <path d="M3 12h4l3 8 4-16 3 8h4" />
+        </svg>
+      );
     case "cloud":
       return (
         <svg {...common}>

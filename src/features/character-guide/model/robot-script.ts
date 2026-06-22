@@ -49,10 +49,10 @@ export const SCRIPT: Record<RobotSection, SectionScript> = {
     ],
   },
   experience: {
-    greet: L("exp-greet", "Career timeline. He's at Ruby Labs right now — this card."),
+    greet: L("exp-greet", "Career timeline. He's at Alien Lab right now — this card."),
     bonus: [
       L("exp-b1", "Click a card — some of them flip to show the real product."),
-      L("exp-b2", "Seven companies, zero boring bullet points. Almost."),
+      L("exp-b2", "Six companies, zero boring bullet points. Almost."),
       L("exp-b3", "I walk card to card so you don't have to. Teamwork."),
     ],
   },

@@ -29,7 +29,7 @@ export function PortfolioProjects() {
             Some things I&apos;ve built.
           </h2>
           <p className="sub reveal" data-delay="2">
-            A few public projects on GitHub — apps, APIs, and tools.
+            Real work I&apos;ve shipped, plus practice builds on GitHub.
           </p>
         </div>
 

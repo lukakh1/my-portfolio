@@ -11,6 +11,16 @@ import { useEffect } from "react";
 export function StatCounters() {
   useEffect(() => {
     const counters = document.querySelectorAll<HTMLElement>(".counter");
+
+    // Reduced motion: leave the server-rendered final value in place — no
+    // scramble, no count-up. The markup already shows the real number.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      counters.forEach((c) => {
+        c.textContent = c.dataset.to ?? c.textContent;
+      });
+      return;
+    }
+
     const cio = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {

@@ -119,9 +119,8 @@ export function PortfolioHero() {
             </div>
             <p className="hero-tag reveal" data-delay="3">
               I&apos;ve been building things with React since I was 15. Now I
-              work full-stack at{" "}
-              <span className="hl-warm">Ruby Labs</span>, and I take the craft
-              seriously.
+              work at <span className="hl-warm">Alien Lab</span>, and I take the
+              craft seriously.
             </p>
             <div className="hero-cta reveal" data-delay="4">
               <ResumePrintButton className="btn btn-primary">
@@ -192,7 +191,7 @@ export function PortfolioHero() {
                 <span className="s">&quot;Mongo&quot;</span>,{" "}
                 <span className="s">&quot;Supabase&quot;</span>],{"\n  "}
                 <span className="k">now</span>:{" "}
-                <span className="s">&quot;@RubyLabs&quot;</span>,{"\n  "}
+                <span className="s">&quot;@AlienLab&quot;</span>,{"\n  "}
                 <span className="k">edu</span>:{" "}
                 <span className="s">
                   &quot;Kutaisi Intl. University&quot;

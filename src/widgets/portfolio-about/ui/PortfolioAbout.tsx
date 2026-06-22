@@ -51,13 +51,13 @@ export function PortfolioAbout() {
               Most of my work has been in the modern JavaScript ecosystem —
               React and React Native first, then Next.js, Node, and the database
               layer underneath. Over the years I&apos;ve built end-to-end
-              platforms (real estate, ticketing, a personal finance app),
-              admin tooling for TV networks and gyms, and a handful of mobile
-              apps.
+              platforms — a browser-based PDF product and an NFT
+              event-ticketing marketplace — admin tooling for a smart-TV
+              network, and a handful of mobile apps.
             </p>
             <p className="reveal" data-delay="3">
               I&apos;m currently at{" "}
-              <strong style={{ color: "#fff" }}>Ruby Labs</strong> while
+              <strong style={{ color: "#fff" }}>Alien Lab</strong> while
               finishing my CS degree. I like working on products that people
               actually use.
             </p>

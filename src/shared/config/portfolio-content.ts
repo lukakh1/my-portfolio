@@ -1,7 +1,7 @@
 /** Static portfolio copy and links — single source for widgets */
 
 export const contactEmail =
-  process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "hello@lukakhimshiashvili.com";
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "lukakhimshiashvili4@gmail.com";
 
 export const urls = {
   github: "https://github.com/lukakh1",
@@ -40,7 +40,7 @@ export const heroRoles = [
 
 export const stats = [
   { value: 6, suffix: "+", label: "Years writing code professionally" },
-  { value: 7, suffix: "", label: "Companies & teams" },
+  { value: 6, suffix: "", label: "Companies & teams" },
   { value: 10, suffix: "+", label: "Apps & platforms shipped" },
 ] as const;
 
@@ -48,7 +48,7 @@ export const profileRows: { key: string; value: string }[] = [
   { key: "Role", value: "Full-Stack Dev" },
   { key: "Experience", value: "6+ years" },
   { key: "Started", value: "2019, age 15" },
-  { key: "Now", value: "Ruby Labs" },
+  { key: "Now", value: "Alien Lab" },
   { key: "Studying", value: "CS, KIU" },
   { key: "Languages", value: "EN · KA" },
   { key: "Time zone", value: "UTC+4" },
@@ -77,135 +77,104 @@ export type ExperienceEntry = {
 
 export const experience: ExperienceEntry[] = [
   {
-    id: "ruby",
+    id: "alienlab",
     current: true,
     badge: "Current",
-    date: "Oct 2024 — Present",
+    date: "Jun 2026 — Present",
+    title: "Software Engineer",
+    companyAccent: "Alien Lab",
+    companySuffix: " LLC · Tbilisi, Georgia",
+    bullets: [
+      "Building client and in-house web applications end to end with React, Next.js, and Node.",
+    ],
+  },
+  {
+    id: "ruby",
+    date: "Sep 2025 — Jun 2026",
     title: "Software Developer",
     companyAccent: "Ruby Labs",
-    companySuffix: " · International product company · Remote",
+    companySuffix: " · Zendocs · Remote",
     bullets: [
-      "Building and maintaining production Next.js web applications inside a global, distributed product team.",
-      "Working across consumer-facing surfaces with design, backend, and product partners across multiple time zones.",
-      "Operating at the scale of a company that ships large-scale digital products to a global audience.",
+      "Built core product surfaces — the PDF editor, agreements wizard, and reusable templates — on the Nutrient SDK (PSPDFKit).",
+      "Built user workspaces and debugged the end-to-end payment flow (PayNext).",
+      "Made database architecture decisions on Payload CMS + Supabase, modeling the schema for product needs; media storage on Cloudflare R2.",
+      "Drove SEO/GEO improvements to grow organic reach.",
     ],
     product: {
       name: "Zendocs",
       url: "https://zendocs.com",
       blurb:
-        "A documentation product I help build and maintain at Ruby Labs — production Next.js, shipped to a global audience.",
+        "A browser-based PDF platform with 100,000+ monthly users across 40+ countries. I built core surfaces — the PDF editor, agreements wizard, and reusable templates — on the Nutrient SDK (PSPDFKit).",
       images: ["/products/zendocs-1.svg", "/products/zendocs-2.svg"],
     },
   },
   {
     id: "stickets",
-    date: "Sep 2024 — Jun 2025",
+    date: "Feb 2025 — Aug 2025",
     title: "Full-Stack Developer",
     companyAccent: "sTickets",
-    companySuffix: " (contract) · Ticketing platform",
+    companySuffix: " · NFT event ticketing",
     bullets: [
-      "Designed and shipped an end-to-end ticketing platform on Next.js (frontend) and Express.js (backend).",
-      "Modeled the database schema, built the REST API surface, and owned the responsive UI from wireframe to production.",
+      "Built the organizer dashboard (paid and free event publishing with an approval workflow), the customer marketplace, and a ticket resale flow.",
+      "Integrated live payments (Fastoo) and kept the on-chain NFT ticket layer in sync with PostgreSQL.",
+      "Next.js + Express, PostgreSQL, AWS S3, deployed on Render and Vercel. Live with ~10 organizers and thousands of tickets sold.",
     ],
     product: {
       name: "sTickets",
       url: "https://stickets.ge",
       blurb:
-        "An end-to-end ticketing platform — Next.js frontend, Express API, and a database schema I modeled from scratch.",
+        "An NFT-based event ticketing platform built end to end — an organizer dashboard with an approval workflow, a customer marketplace, a ticket resale flow, live payments (Fastoo), and an on-chain ticket layer kept in sync with PostgreSQL.",
       images: ["/products/stickets-1.svg", "/products/stickets-2.svg"],
     },
   },
   {
-    id: "sakhlamde",
-    date: "Feb 2024 — Aug 2024",
-    title: "Full-Stack Developer",
-    companyAccent: "Sakhlamde",
-    companySuffix: " · Real-estate marketplace",
-    bullets: [
-      "Built a real-estate platform for buying, selling, and renting properties — frontend and backend in Next.js, Supabase as the database.",
-      "Owned the listing experience, search, and authenticated user flows top-to-bottom.",
-    ],
-    product: {
-      name: "Sakhlamde",
-      blurb:
-        "A real-estate marketplace for buying, selling, and renting — Next.js + Supabase, with listings, search, and authenticated flows.",
-      images: ["/products/sakhlamde-1.svg", "/products/sakhlamde-2.svg"],
-    },
-  },
-  {
-    id: "artron",
-    date: "Mar 2023 — Dec 2023",
-    title: "Front-End Developer",
-    companyAccent: "Artron",
-    companySuffix: " · Gym management software",
-    bullets: [
-      "Built React-based admin panels for gym operators — schedules, members, billing.",
-      "Focused on dashboard UX, data visualization, and dense responsive layouts.",
-    ],
-    product: {
-      name: "Artron",
-      blurb:
-        "Admin dashboards for gym operators — schedules, members, and billing in dense, data-rich React UIs.",
-      images: ["/products/artron-1.svg", "/products/artron-2.svg"],
-    },
-  },
-  {
     id: "onstream",
-    date: "Feb 2022 — Jun 2022",
-    title: "Front-End Developer",
+    date: "Dec 2023 — May 2024",
+    title: "Frontend Developer",
     companyAccent: "OnStream",
-    companySuffix: " · Television network platform",
+    companySuffix: " · Smart-TV movie platform",
     bullets: [
-      "Developed Angular admin UI for a television network's movie scheduling platform.",
-      "Shipped interfaces for content scheduling, playback control, and channel management.",
+      "Movie scheduling and playback platform for smart TVs.",
+      "Built the entire Angular admin dashboard — uploading content and programming what airs on each channel and when.",
     ],
     product: {
       name: "OnStream",
       blurb:
-        "Angular admin UI for a television network — content scheduling, playback control, and channel management.",
+        "A movie scheduling and playback platform for smart TVs. I built the entire Angular admin dashboard — uploading content and programming what airs on each channel and when.",
       images: ["/products/onstream-1.svg", "/products/onstream-2.svg"],
     },
   },
   {
     id: "burq",
-    date: "Mar 2021 — May 2021",
-    title: "React Developer",
+    date: "Mar 2021 — Feb 2022",
+    title: "Frontend Developer",
     companyAccent: "Burq",
-    companySuffix: " · Goods delivery platform",
+    companySuffix: " (via 4TWIGGERS) · Delivery app",
     bullets: [
-      "Contributed to the customer-facing React web application for a goods-delivery startup.",
+      "Customer-facing app for a delivery company.",
+      "Owned the React frontend — data fetching, filtering, maps, and core UI.",
     ],
     product: {
       name: "Burq",
       blurb:
-        "Customer-facing React web app for a goods-delivery startup.",
+        "A customer-facing app for a delivery company. I owned the React frontend — data fetching, filtering, maps, and core UI.",
       images: ["/products/burq-1.svg", "/products/burq-2.svg"],
     },
   },
   {
     id: "4twiggers",
-    date: "Aug 2019 — Sep 2021 · Where it started, age 15",
-    title: "Software Developer",
-    companyAccent: "4Twiggers",
-    companySuffix: " · Software studio",
+    date: "Jun 2019 — Sep 2022 · Where it started, age 15",
+    title: "Frontend Developer",
+    companyAccent: "4TWIGGERS",
+    companySuffix: " · Software studio · Tbilisi, Georgia",
     bullets: [
-      {
-        strong: "Pravis Testebi",
-        rest: " — React Native mobile app simulating Georgian driver's-license exams.",
-      },
-      {
-        strong: "Realremote",
-        rest: " — React Native app surfacing curated remote-job listings.",
-      },
-      {
-        strong: "Slotstats",
-        rest: " — custom D3.js data visualizations for an analytics product, plus several smaller React Native apps that built deep mobile expertise.",
-      },
+      "Built three production apps: Pravis Testebi (driver's-license exam prep, React Native), Spotlight (maps app with a preference-learning recommendation engine), and RealRemote (remote-jobs platform shipped as web + mobile via React Native Web).",
+      "Built D3.js data visualizations and casino-data integration for SlotStats, a gambling-analytics product; plus smaller mobile apps.",
     ],
     product: {
-      name: "4Twiggers",
+      name: "4TWIGGERS",
       blurb:
-        "Where it started at 15 — Pravis Testebi and Realremote (React Native), plus custom D3.js dashboards for Slotstats.",
+        "A software studio where it started at 15. Built three production apps — Pravis Testebi (driver's-license exam prep, React Native), Spotlight (a maps app with a preference-learning recommender), and RealRemote (a remote-jobs platform shipped as web + mobile via React Native Web) — plus D3.js data visualizations for SlotStats.",
       images: ["/products/4twiggers-1.svg", "/products/4twiggers-2.svg"],
     },
   },
@@ -223,7 +192,7 @@ export const skillCategories: SkillCategory[] = [
   {
     id: "lang",
     title: "Languages",
-    pills: ["JavaScript", "TypeScript", "SQL", "Java", "OCaml"],
+    pills: ["TypeScript", "JavaScript", "SQL"],
   },
   {
     id: "fe",
@@ -233,17 +202,22 @@ export const skillCategories: SkillCategory[] = [
   {
     id: "be",
     title: "Backend",
-    pills: ["Node.js", "Express.js", "REST APIs", "Auth"],
+    pills: ["Node.js", "Express.js", "NestJS", "REST APIs", "Auth"],
   },
   {
     id: "db",
     title: "Databases",
-    pills: ["PostgreSQL", "MongoDB", "Firebase", "Supabase"],
+    pills: ["PostgreSQL", "MongoDB", "Supabase", "Firebase", "Payload CMS"],
+  },
+  {
+    id: "mon",
+    title: "Monitoring & Analytics",
+    pills: ["Sentry", "Mixpanel"],
   },
   {
     id: "cloud",
-    title: "Cloud & Hosting",
-    pills: ["Vercel", "Render", "AWS"],
+    title: "Cloud & Storage",
+    pills: ["Vercel", "Render", "AWS (S3)", "Cloudflare R2"],
   },
   {
     id: "tools",
@@ -251,11 +225,11 @@ export const skillCategories: SkillCategory[] = [
     pills: [
       "Git",
       "Docker",
-      "VS Code",
+      "Nutrient SDK (PSPDFKit)",
+      "Postman",
       "Cursor",
       "Xcode",
       "Android Studio",
-      "Postman",
     ],
   },
   {
@@ -265,12 +239,12 @@ export const skillCategories: SkillCategory[] = [
       "— Kutaisi International University coursework",
     wide: true,
     pills: [
-      "Data Structures & Algorithms",
-      "Software Engineering",
-      "Operating Systems",
+      "Software Engineering & Design",
+      "DevOps",
+      "Product Development",
+      "AI-Powered Applications",
+      "Databases",
       "Computer Architecture",
-      "Discrete Structures",
-      "Theory of Computation",
       "Assembly",
     ],
   },
@@ -286,52 +260,52 @@ export type ProjectItem = {
 
 export const projects: ProjectItem[] = [
   {
+    href: "https://github.com/lukakh1",
+    tag: "Tool · TypeScript",
+    title: "AI Code Reviewer",
+    description:
+      "A tool that analyzes pasted code and returns structured review feedback. Built in TypeScript for a university Software Engineering course.",
+    pills: ["TypeScript", "AI", "Code review"],
+  },
+  {
+    href: "https://kiketischool.ge",
+    tag: "Side project · Live",
+    title: "Kiketi School",
+    description:
+      "A website I built and shipped for Kiketi School — a real production site, live and in active use at kiketischool.ge.",
+    pills: ["Web", "Production", "Shipped"],
+  },
+  {
     href: "https://github.com/lukakh1/next14-blog",
-    tag: "Web app · Next.js 14",
+    tag: "Practice & Learning",
     title: "next14-blog",
     description:
-      "Full-featured blog platform on Next.js 14 — server components, dynamic routing, and first-class markdown rendering. Designed as a clean reference architecture I can fork into real client work.",
-    pills: ["Next.js 14", "RSC", "Markdown"],
+      "A blog built to learn the Next.js App Router — server components, dynamic routing, and markdown rendering.",
+    pills: ["Next.js", "RSC", "Markdown"],
   },
   {
     href: "https://github.com/lukakh1/next14-finance-app",
-    tag: "Web app · Dashboard",
+    tag: "Practice & Learning",
     title: "next14-finance-app",
     description:
-      "A personal-finance tracker with a real dashboard UI, charted spend by category, and the kind of polished data visualization most side projects skip. Next.js 14 end-to-end.",
-    pills: ["Next.js 14", "Charts", "UX"],
-  },
-  {
-    href: "https://github.com/lukakh1/nodejs-expressjs-mongodb",
-    tag: "Backend · API boilerplate",
-    title: "nodejs-expressjs-mongodb",
-    description:
-      "A production-ready REST API boilerplate — full CRUD, auth middleware, structured error handling, and Mongo integration. The starting point I reach for whenever a new backend is needed.",
-    pills: ["Node.js", "Express", "MongoDB", "Auth"],
+      "A personal-finance dashboard built to practice charts and data visualization in Next.js — spend by category, end to end.",
+    pills: ["Next.js", "Charts", "UX"],
   },
   {
     href: "https://github.com/lukakh1/react-quiz",
-    tag: "Web app · React",
+    tag: "Practice & Learning",
     title: "react-quiz",
     description:
-      "An interactive quiz app with score tracking and category filtering — small enough to be a study, polished enough to feel like a product. Built to nail React state patterns.",
-    pills: ["React", "State", "UX"],
+      "An interactive quiz app built to practice React state patterns — score tracking, category filtering, and a reducer-driven flow.",
+    pills: ["React", "Reducer", "State"],
   },
   {
     href: "https://github.com/lukakh1/usepopcorn",
-    tag: "Web app · API",
+    tag: "Practice & Learning",
     title: "usepopcorn",
     description:
-      "A movie-tracking app that pulls from the OMDB API — search, rate, and manage a personal watched list. A complete app in miniature: data fetching, persistence, custom hooks.",
+      "A movie-tracking app built against the OMDB API while learning React — search, rate, and keep a watched list. A study in data fetching and custom hooks.",
     pills: ["React", "OMDB", "Hooks"],
-  },
-  {
-    href: "https://github.com/lukakh1",
-    tag: "Tool · Collaboration",
-    title: "Interactive Code-Guide Maker",
-    description:
-      "A TypeScript tool for authoring interactive coding guides — collaborative project I helped build, focused on a clean editor surface and a learner-first reading experience.",
-    pills: ["TypeScript", "Editor", "Collab"],
   },
 ];
 
