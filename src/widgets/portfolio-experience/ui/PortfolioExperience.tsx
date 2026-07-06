@@ -13,7 +13,7 @@ function Bullet({
   }
   return (
     <li>
-      <strong style={{ color: "#fff" }}>{item.strong}</strong>
+      <strong style={{ color: "var(--ink)" }}>{item.strong}</strong>
       {item.rest}
     </li>
   );

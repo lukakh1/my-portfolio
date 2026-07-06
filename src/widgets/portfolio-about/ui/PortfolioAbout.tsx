@@ -38,10 +38,10 @@ export function PortfolioAbout() {
             </p>
             <p className="reveal" data-delay="1">
               I went to{" "}
-              <strong style={{ color: "#fff" }}>Komarovi School Pansion</strong>{" "}
+              <strong style={{ color: "var(--ink)" }}>Komarovi School Pansion</strong>{" "}
               in Tbilisi for high school, specializing in mathematics and
               physics. After national exams I went to{" "}
-              <strong style={{ color: "#fff" }}>
+              <strong style={{ color: "var(--ink)" }}>
                 Kutaisi International University
               </strong>{" "}
               on a full scholarship, where I&apos;m finishing a Computer Science
@@ -57,7 +57,7 @@ export function PortfolioAbout() {
             </p>
             <p className="reveal" data-delay="3">
               I&apos;m currently at{" "}
-              <strong style={{ color: "#fff" }}>Alien Lab</strong> while
+              <strong style={{ color: "var(--ink)" }}>Alien Lab</strong> while
               finishing my CS degree. I like working on products that people
               actually use.
             </p>

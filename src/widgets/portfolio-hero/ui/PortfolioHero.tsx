@@ -1,3 +1,4 @@
+import { PhysicsHeadline } from "@/features/hero-physics-text";
 import { ResumePrintButton } from "@/features/print-resume";
 import { RoleRotator } from "@/features/role-rotator";
 import { urls } from "@/shared/config/portfolio-content";
@@ -108,9 +109,12 @@ export function PortfolioHero() {
               Open to remote full-stack roles
             </div>
             <h1 className="reveal" data-delay="1">
-              <span className="grad-name">Luka</span>
-              <br />
-              Khimshiashvili.
+              <PhysicsHeadline
+                lines={[
+                  { text: "Luka", className: "grad-name" },
+                  { text: "Khimshiashvili." },
+                ]}
+              />
             </h1>
             <div className="role-line reveal" data-delay="2">
               <span className="prompt">~ $</span>

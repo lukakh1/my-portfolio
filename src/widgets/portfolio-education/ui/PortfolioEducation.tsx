@@ -64,7 +64,7 @@ export function PortfolioEducation() {
             <div className="scholarship">
               <IconGradCap />
               <span>
-                <strong style={{ color: "#fff" }}>
+                <strong style={{ color: "var(--ink)" }}>
                   100% tuition scholarship
                 </strong>{" "}
                 — earned via national exam results.

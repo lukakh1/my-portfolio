@@ -1,3 +1,4 @@
+import { SkillsPlayground } from "@/features/skills-physics";
 import { skillCategories } from "@/shared/config/portfolio-content";
 
 import { SkillIcon } from "./skill-icons";
@@ -56,6 +57,8 @@ export function PortfolioSkills() {
             </div>
           ))}
         </div>
+
+        <SkillsPlayground />
       </div>
     </section>
   );

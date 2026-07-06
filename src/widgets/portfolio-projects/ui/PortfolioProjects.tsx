@@ -30,7 +30,14 @@ export function PortfolioProjects() {
           </h2>
           <p className="sub reveal" data-delay="2">
             Real work I&apos;ve shipped, plus practice builds on GitHub.
+            <span className="proj-hint" aria-hidden>
+              {" "}
+              Psst — on desktop you can toss these cards around.
+            </span>
           </p>
+          <button className="btn tidy-btn" data-tidy hidden type="button">
+            Tidy up
+          </button>
         </div>
 
         <div className="proj-grid" id="projGrid">

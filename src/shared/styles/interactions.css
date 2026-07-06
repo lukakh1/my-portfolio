@@ -1,0 +1,302 @@
+/* Styles for the playful interaction layer (physics text, draggable cards,
+   skills bin, cursor states, easter egg). Kept separate from the base design
+   system in portfolio.css. */
+
+/* ── physics hero letters ── */
+/* Hide the gradient name until the display font is ready (data-fonts is flipped
+   by the pre-paint script in layout). Kills the one-frame fallback-glyph ghost
+   on the first letter without any layout shift; JS-off visitors never get the
+   attribute, so the name is always visible for them. */
+.phys-headline {
+  transition: opacity 0.3s ease;
+}
+html[data-fonts="loading"] .phys-headline {
+  opacity: 0;
+}
+/* Letters are inline-blocks (transformable), which would let the browser
+   break lines mid-word — keep each line atomic instead. */
+.phys-headline > span {
+  white-space: nowrap;
+}
+.phys-letter {
+  display: inline-block;
+  white-space: pre;
+  will-change: transform;
+}
+.grad-name .phys-letter {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── draggable project cards ── */
+.proj-grid--loose {
+  position: relative;
+}
+.proj-grid--loose .proj {
+  margin: 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.proj-grid--loose .proj.is-dragging {
+  box-shadow: 0 24px 48px -16px rgba(94, 62, 8, 0.32);
+}
+.proj-hint {
+  color: var(--ink-mute);
+  font-size: 0.92em;
+}
+.tidy-btn {
+  margin-top: 14px;
+}
+
+/* ── skills physics bin ── */
+.skills-bin-wrap {
+  margin-top: 26px;
+}
+.skills-bin-label {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  margin-bottom: 10px;
+}
+.skills-bin {
+  position: relative;
+  height: 340px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-2);
+  overflow: hidden;
+  touch-action: none;
+}
+.phys-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+  box-shadow: 0 2px 8px -2px rgba(94, 62, 8, 0.12);
+}
+.phys-pill.is-grabbed {
+  cursor: grabbing;
+  box-shadow: 0 10px 24px -8px rgba(94, 62, 8, 0.3);
+}
+/* category tints */
+.phys-pill[data-cat="lang"] { background: var(--signal-soft); border-color: rgba(255, 92, 56, 0.3); }
+.phys-pill[data-cat="fe"] { background: var(--amber-soft); border-color: rgba(255, 176, 0, 0.35); }
+.phys-pill[data-cat="be"],
+.phys-pill[data-cat="db"] { background: rgba(36, 82, 255, 0.08); border-color: rgba(36, 82, 255, 0.25); }
+.phys-pill[data-cat="cloud"],
+.phys-pill[data-cat="mon"] { background: var(--grad-soft); }
+
+/* ── cursor states & trail ── */
+.cursor-trail-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--signal);
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0;
+  will-change: transform;
+}
+html.cursor-on .cursor-trail-dot {
+  opacity: inherit;
+}
+.cursor-ring {
+  display: grid;
+  place-items: center;
+}
+.cursor-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.cursor-ring[data-mode="drag"] {
+  border-style: dashed;
+  border-color: var(--signal);
+}
+.cursor-ring[data-mode="drag"] .cursor-label::after {
+  content: "✥";
+  font-size: 12px;
+}
+.cursor-ring[data-mode="drag"] .cursor-label {
+  opacity: 1;
+}
+.cursor-ring[data-mode="text"] {
+  border-radius: 2px;
+  width: 3px;
+  height: 28px;
+  border-width: 0;
+  background: var(--signal);
+}
+html.egg-rainbow .cursor-trail-dot {
+  animation: egg-hue 1.2s linear infinite;
+}
+@keyframes egg-hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+/* ── marquee (seamless, full-width, drag-to-scrub) ── */
+.marquee2 {
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 16px 0;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  /* Vertical scroll still passes through; horizontal drags scrub the strip. */
+  touch-action: pan-y;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+}
+.marquee2.is-dragging {
+  cursor: grabbing;
+}
+.marquee2-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.marquee2-unit {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+.marquee2-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 40px;
+  padding-right: 40px;
+}
+.marquee2-sep {
+  display: inline-block;
+  color: var(--signal);
+  transition: transform 0.3s ease;
+}
+.marquee2:hover .marquee2-sep {
+  transform: rotate(90deg) scale(1.15);
+}
+
+/* ── pressable feedback ──
+   Magnetic elements get their squash via JS (inline transform would beat a
+   CSS rule); this covers everything else, incl. touch devices. */
+.tl-card:active,
+.exp-thumb:active,
+.brand:active {
+  transform: scale(0.95);
+}
+.exp-thumb,
+.brand {
+  transition: transform 0.15s ease;
+}
+/* Pills use a springy overshoot curve so hovers/presses feel bouncy. A lone
+   pill (education coursework) tilts up on hover; inside skill cards the card's
+   own higher-specificity cascade takes over. */
+.pill {
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s,
+    border-color 0.2s, background 0.2s;
+}
+.pill:hover {
+  transform: translateY(-2px) rotate(-1.5deg);
+  border-color: rgba(255, 92, 56, 0.4);
+  color: var(--ink);
+}
+.pill:active {
+  transform: scale(0.92);
+}
+.phys-pill:hover {
+  box-shadow: 0 6px 16px -4px rgba(94, 62, 8, 0.25);
+}
+
+/* ── easter egg ── */
+.egg-confetti {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  z-index: 10001;
+  pointer-events: none;
+  will-change: transform;
+}
+.egg-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translate(-50%, 16px);
+  opacity: 0;
+  z-index: 10002;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.egg-toast.in {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phys-letter {
+    transform: none !important;
+  }
+  .skills-bin-wrap {
+    display: none;
+  }
+}
+
+@media print {
+  .skills-bin-wrap,
+  .tidy-btn,
+  .proj-hint,
+  .marquee2,
+  .cursor-trail-dot,
+  .egg-toast,
+  .egg-confetti {
+    display: none !important;
+  }
+}

@@ -3,21 +3,21 @@
 import Lenis from "lenis";
 import { useEffect } from "react";
 
-import { sceneStore } from "@/shared/three";
+import { gsap, ScrollTrigger } from "@/shared/lib/gsap";
 
 import { lenisInstance } from "../lib/lenis-instance";
 
 /**
  * Owns the single Lenis instance (the premium smooth-scroll feel) and is the
  * one scroll authority on the page:
- *  - publishes smoothed scroll progress into the scene store for the WebGL layer
- *  - handles `#anchor` links via `lenis.scrollTo` (replaces SmoothAnchorScroll)
+ *  - bridges Lenis to GSAP ScrollTrigger (shared ticker, synced updates)
+ *  - handles `#anchor` links via `lenis.scrollTo`
  *
  * Lenis scrolls the real document, so window `scroll` events still fire — the
- * existing IntersectionObserver reveals, stat counters, and scroll-spy keep
- * working untouched. Disabled on touch (native momentum is better) and under
- * reduced-motion (native scroll); anchor offset is then covered by CSS
- * `scroll-padding-top`.
+ * stat counters and scroll-spy keep working untouched. Disabled on touch
+ * (native momentum is better) and under reduced-motion (native scroll);
+ * ScrollTrigger then runs off native scroll and the anchor offset is covered
+ * by CSS `scroll-padding-top`.
  */
 export function SmoothScroll() {
   useEffect(() => {
@@ -32,17 +32,14 @@ export function SmoothScroll() {
     });
     lenisInstance.set(lenis);
 
-    let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(loop);
+    // Drive Lenis from GSAP's ticker so ScrollTrigger and Lenis share one
+    // clock, and keep ScrollTrigger in sync with the smoothed scroll.
+    lenis.on("scroll", ScrollTrigger.update);
+    const tick = (time: number) => {
+      lenis.raf(time * 1000);
     };
-    raf = requestAnimationFrame(loop);
-
-    const onScroll = (inst: Lenis) => {
-      sceneStore.setScroll(inst.scroll, inst.progress, inst.velocity);
-    };
-    lenis.on("scroll", onScroll);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
 
     const onClick = (e: MouseEvent) => {
       const a = (e.target as HTMLElement | null)?.closest?.(
@@ -57,12 +54,11 @@ export function SmoothScroll() {
       // Lenis honors CSS scroll-padding-top, so that's the single offset source
       // (also covers the native-scroll fallback) — no extra offset here.
       lenis.scrollTo(el as HTMLElement);
-      if (id === "#top") sceneStore.triggerRecondense();
     };
     document.addEventListener("click", onClick);
 
     return () => {
-      cancelAnimationFrame(raf);
+      gsap.ticker.remove(tick);
       document.removeEventListener("click", onClick);
       lenisInstance.set(null);
       lenis.destroy();
