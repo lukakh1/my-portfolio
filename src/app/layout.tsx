@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Familjen_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next"
 
 // globals.css (Tailwind) first: its preflight lives in `@layer base`, and the
 // unlayered design system below must come after it in source order too, so the
