@@ -1,0 +1,108 @@
+/* WebGL layer contract.
+ *
+ * Layering, bottom to top:
+ *   0  .fx-liquid   raymarched lava lamp (canvas)
+ *   0  .bg-fx       CSS fallback, painted underneath and faded out once the
+ *                   canvas confirms a real frame
+ *   1  body::before low-frequency paper mottle
+ *   2  main         content (already position:relative z-index:2)
+ *   4  .grain       film grain, over everything readable
+ *
+ * The canvas is pointer-events:none, permanently. The page's DOM
+ * interactions — draggable cards, magnetic buttons, the [data-cursor]
+ * protocol — must hit-test straight through as if the canvases weren't there.
+ */
+
+.fx-liquid {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: var(--z-gl-back);
+  pointer-events: none;
+  /* NOT `contain: strict` — that includes SIZE containment, which makes the
+     box compute its height as if it were empty and collapses the layer to
+     zero. Layout/paint/style containment gives the isolation without the
+     sizing side effect. */
+  contain: layout paint style;
+  /* Fade in only after the first successful frame, so a garbage first paint
+     or a failed context is never visible. */
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+html[data-gl-liquid="on"] .fx-liquid {
+  opacity: 1;
+}
+
+
+/* ── the canvas-free fallback ──────────────────────────────────────────
+   These rules already existed but nothing ever rendered the element, which
+   is why the page had no ambient backdrop and no grain at all. */
+.bg-fx {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-gl-back);
+  pointer-events: none;
+  background:
+    radial-gradient(closest-side at 18% 12%, var(--amber-soft), transparent 70%),
+    radial-gradient(closest-side at 82% 18%, var(--signal-soft), transparent 72%),
+    radial-gradient(closest-side at 50% 100%, rgb(36 82 255 / 6%), transparent 70%);
+  transition: opacity 0.6s ease;
+}
+/* Once the shader is live it draws the same three washes itself. */
+html[data-gl-liquid="on"] .bg-fx {
+  opacity: 0;
+}
+
+/* Very low-frequency warmth variation. This is what stops the grain reading
+   as a uniform filter laid over a flat colour. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-mottle);
+  pointer-events: none;
+  background:
+    radial-gradient(70% 50% at 12% 8%, rgb(240 214 168 / 22%), transparent 62%),
+    radial-gradient(60% 45% at 88% 30%, rgb(255 232 205 / 18%), transparent 60%),
+    radial-gradient(90% 60% at 45% 92%, rgb(226 214 190 / 16%), transparent 66%);
+}
+
+/* ── film grain ────────────────────────────────────────────────────────
+   feTurbulence at ~420 bytes, versus ~33 KB for a tiled PNG — noise is
+   incompressible. Note there is deliberately NO mix-blend-mode: on a fixed
+   full-viewport layer it forces the compositor to read back the entire
+   viewport every frame anything underneath moves, and there are three
+   animated blurred blobs under here. The darkness is baked into the
+   turbulence's own alpha instead. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-grain);
+  pointer-events: none;
+  opacity: var(--grain-op, 0.03);
+  contain: strict;
+  transform: translateZ(0);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.62 0.78' numOctaves='3' seed='7' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23p)' opacity='0.42'/></svg>");
+  background-size: 200px 200px;
+}
+/* The shader carries its own dither, so the CSS grain steps back when it runs. */
+html[data-gl-liquid="on"] .grain {
+  --grain-op: 0.018;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain {
+    --grain-op: 0.02;
+  }
+}
+
+@media print {
+  .fx-liquid,
+  .bg-fx,
+  .grain,
+  body::before {
+    display: none !important;
+  }
+}

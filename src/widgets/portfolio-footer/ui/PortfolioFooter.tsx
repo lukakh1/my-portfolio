@@ -6,7 +6,7 @@ export function PortfolioFooter() {
       <div className="container foot-telemetry" aria-hidden>
         <span>● Signal nominal</span>
         <span>End of transmission</span>
-        <span>42.27°N 42.70°E</span>
+        <span>41.72°N 44.78°E</span>
       </div>
       <div className="container foot-inner">
         <div>

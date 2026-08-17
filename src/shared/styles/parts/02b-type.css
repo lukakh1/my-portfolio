@@ -1,0 +1,51 @@
+/* Display typography — the 1970s voice.
+ *
+ * One loud voice, everything else disciplined: Keep on Truckin' appears at
+ * display sizes and nowhere else. Familjen Grotesk, Inter and JetBrains Mono
+ * keep doing exactly what they did before.
+ *
+ * Two decisions came from setting the face and looking at it rather than from
+ * the spec:
+ *
+ * 1. SENTENCE CASE, not uppercase. This face's character lives in its
+ *    lowercase — the bulbous k, a and s. Set as caps, "KHIMSHIASHVILI" is a
+ *    dense wall of near-identical widths that is genuinely hard to read.
+ * 2. GENTLE tracking. The outlines already have very tight sidebearings, so
+ *    the aggressive negative tracking a display face usually wants makes
+ *    letters collide here. Measured advances (em at 100px, no tracking):
+ *      "Luka" 2.2781   "Khimshiashvili" 7.2250   ratio 0.3153
+ */
+
+/* The consumer list is here, in one place, rather than sprinkled as a utility
+   class through the widgets — the whole point is that this face has exactly
+   four homes and adding a fifth should be a deliberate edit to this line. */
+.u-groovy,
+.hero h1 .grad-name,
+.hero h1 .surname,
+.section-head h2,
+.contact-card h2,
+.marquee2-unit,
+.foot-mark {
+  font-family: var(--font-groovy), var(--font-display), sans-serif;
+  /* The face has a single weight; 600 would make the browser fake a bold and
+     smear an already-heavy design into mud. */
+  font-weight: 400;
+  font-synthesis: none;
+  font-kerning: normal;
+  /* -0.006em at 40px easing to -0.022em at 260px. Consumers set --sz. */
+  letter-spacing: calc(-0.006em - 0.016em * (var(--sz, 100px) - 40px) / 220px);
+  text-wrap: balance;
+}
+
+/* The pre-paint gate in layout.tsx hides display type until the real glyphs
+   have loaded, so the metric-matched fallback never flashes in its place.
+   No-JS visitors never get the attribute, so they always see the text. */
+html[data-fonts="loading"] .phys-headline,
+html[data-fonts="loading"] .section-head h2,
+html[data-fonts="loading"] .contact-card h2 {
+  opacity: 0;
+}
+.section-head h2,
+.contact-card h2 {
+  transition: opacity 0.3s ease;
+}

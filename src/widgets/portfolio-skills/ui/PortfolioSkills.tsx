@@ -1,3 +1,4 @@
+import { PhysicsText } from "@/features/physics-text";
 import { SkillsPlayground } from "@/features/skills-physics";
 import { skillCategories } from "@/shared/config/portfolio-content";
 
@@ -12,7 +13,7 @@ export function PortfolioSkills() {
         <div className="section-head">
           <div className="eyebrow reveal">Skills · 03</div>
           <h2 className="reveal" data-delay="1">
-            My stack.
+            <PhysicsText lines={[{ text: "My stack." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
             The tools I reach for day-to-day.

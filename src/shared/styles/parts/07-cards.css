@@ -1,0 +1,518 @@
+/* Experience cards flip on hover to reveal a product screenshot; clicking opens
+   the detail modal. The front (in flow) sets the height; the back fills it. */
+.tl-card {
+  position: relative;
+  perspective: 1800px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tl-card:hover {
+  transform: translateY(-4px);
+  z-index: 5;
+}
+/* The card itself is no longer focusable; .tl-open carries the focus ring.
+   Kept as a focus-within cue so the whole card still reads as the target. */
+.tl-card:focus-within {
+  outline: none;
+}
+.tl-card-inner {
+  position: relative;
+  border-radius: var(--radius);
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.6s ease;
+}
+.tl-card:hover .tl-card-inner {
+  transform: rotateY(180deg);
+  box-shadow: 0 24px 56px -32px rgb(var(--sh) / 28%);
+}
+.tl-card-face {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+.tl-card-front {
+  position: relative;
+  padding: 24px 26px;
+  background: var(--panel);
+}
+.tl-card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  background: var(--espresso);
+}
+.tl-card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.tl-back-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(0deg, rgba(26, 23, 18, 0.92), rgba(26, 23, 18, 0));
+}
+.tl-back-name {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #fff;
+}
+.tl-back-cta {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  color: #ffcf9e;
+}
+/* Rendered as a real <button> — the card's keyboard affordance — so it needs
+   the UA button styling stripped back to what the old <span> looked like. */
+.tl-hint {
+  display: block;
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+  transition: color 0.2s ease;
+}
+.tl-open:hover {
+  color: var(--rust);
+}
+.tl-open:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+  border-radius: 4px;
+  color: var(--rust);
+}
+.tl-item.current .tl-card-front {
+  border-color: rgba(255, 92, 56, 0.4);
+  background: linear-gradient(
+      180deg,
+      rgba(255, 92, 56, 0.07),
+      rgba(255, 176, 0, 0.04)
+    ),
+    var(--panel);
+}
+.tl-item.current .tl-card-inner {
+  box-shadow: 0 20px 44px -28px rgb(var(--sh) / 30%);
+}
+.tl-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.tl-date {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--ink-mute);
+}
+.tl-badge {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  /* White over the coral->amber gradient measures 3.07:1 at the coral stop and
+     1.70:1 at the amber one — unreadable at 10.5px. */
+  background: var(--espresso);
+  color: var(--on-dark);
+  font-weight: 600;
+}
+.tl-card h3 {
+  font-size: 21px;
+  letter-spacing: -0.015em;
+  margin-bottom: 2px;
+}
+.tl-company {
+  font-size: 14.5px;
+  color: var(--ink-dim);
+  margin-bottom: 14px;
+}
+.tl-company .org {
+  /* --signal-2 is 3.71:1 at this 14.5px size; --rust is 6.51:1. */
+  color: var(--rust);
+}
+.tl-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.tl-list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 14.5px;
+  color: var(--ink-body);
+  line-height: 1.6;
+}
+.tl-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--grad);
+  opacity: 0.85;
+}
+
+.skills-grid {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.skill-card {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 22px;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.skill-card:hover {
+  border-color: rgba(255, 92, 56, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px -22px rgb(var(--sh) / 28%);
+}
+.skill-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.skill-ic {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--grad-soft);
+  border: 1px solid rgba(255, 92, 56, 0.25);
+  color: var(--signal-2);
+}
+.skill-ic svg {
+  width: 18px;
+  height: 18px;
+}
+.skill-card h3 {
+  font-size: 16.5px;
+  letter-spacing: -0.01em;
+}
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.pill {
+  font-size: 12.5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  background: var(--bg-2);
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.skill-card:hover .pill {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.proj-grid {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.proj {
+  position: relative;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 24px;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+}
+.proj::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 0%),
+    rgba(255, 176, 0, 0.14),
+    transparent 45%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.proj:hover {
+  border-color: rgba(255, 92, 56, 0.45);
+  transform: translateY(-3px);
+  box-shadow: 0 24px 48px -26px rgb(var(--sh) / 30%);
+}
+.proj:hover::before {
+  opacity: 1;
+}
+.proj-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.proj-tag {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.proj h3 {
+  font-size: 19px;
+  letter-spacing: -0.015em;
+  margin-bottom: 8px;
+}
+.proj p {
+  color: var(--ink-dim);
+  font-size: 14.5px;
+  line-height: 1.55;
+  flex: 1;
+}
+.proj-foot {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.proj .pill-row {
+  flex: 1;
+}
+.proj-link {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.proj-link:hover {
+  background: var(--grad);
+  border-color: transparent;
+  color: #fff;
+  transform: rotate(-8deg);
+}
+.proj-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+.edu-grid {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.edu {
+  position: relative;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.edu:hover {
+  border-color: rgba(255, 92, 56, 0.4);
+  transform: translateY(-2px);
+}
+.edu .badge-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.edu-badge {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-dim);
+}
+.edu-badge.gold {
+  background: linear-gradient(135deg, rgba(255, 176, 0, 0.18), rgba(255, 176, 0, 0.06));
+  border-color: rgba(255, 176, 0, 0.45);
+  color: var(--gold-ink);
+}
+.edu-badge.grad {
+  background: rgba(36, 82, 255, 0.07);
+  border-color: rgba(36, 82, 255, 0.3);
+  color: var(--blue);
+}
+.edu h3 {
+  font-size: 22px;
+  letter-spacing: -0.015em;
+  margin-bottom: 4px;
+}
+.edu .deg {
+  font-size: 14.5px;
+  color: var(--ink-dim);
+  margin-bottom: 18px;
+}
+.edu .note {
+  font-size: 14px;
+  color: var(--ink-body);
+  line-height: 1.65;
+}
+.edu .note strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.edu .scholarship {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 176, 0, 0.35);
+  background: linear-gradient(135deg, rgba(255, 176, 0, 0.12), rgba(255, 176, 0, 0.04));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--gold-deep);
+}
+.edu .scholarship svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--gold-ink);
+}
+
+.courses {
+  margin-top: 18px;
+}
+.courses .label {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.contact {
+  padding: 100px 0 80px;
+}
+.contact-card {
+  position: relative;
+  border: 1px solid var(--line);
+  background: radial-gradient(ellipse 60% 80% at 90% 0%, rgba(255, 176, 0, 0.14), transparent 60%),
+    radial-gradient(ellipse 60% 80% at 10% 100%, rgba(255, 92, 56, 0.1), transparent 60%),
+    var(--panel);
+  border-radius: 24px;
+  padding: 64px 56px;
+  overflow: hidden;
+  box-shadow: var(--shadow-glow);
+}
+/* Size and family come from 02b-type.css + 06-sections.css; this file loads
+   later, so it must not restate font-size or it would win. */
+.contact-card h2 {
+  max-width: 16ch;
+}
+.contact-card .sub {
+  margin-top: 18px;
+  font-size: 17px;
+  color: var(--ink-dim);
+  max-width: 560px;
+}
+.contact-actions {
+  margin-top: 36px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.contact-grid {
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.contact-item {
+  border-right: 1px solid var(--line);
+  padding: 4px 24px;
+}
+.contact-item:first-child {
+  padding-left: 0;
+}
+.contact-item:last-child {
+  border-right: 0;
+  padding-right: 0;
+}
+.contact-item .k {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.contact-item .v {
+  color: var(--ink);
+  font-size: 14.5px;
+  word-break: break-word;
+}
+.contact-item a:hover .v {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+footer {
+  padding: 36px 0 60px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-mute);
+  font-size: 13px;
+}
+.foot-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.foot-right {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.foot-right a:hover {
+  color: var(--ink);
+}
+

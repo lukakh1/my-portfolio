@@ -1,0 +1,33 @@
+/* Portfolio design system — the single stylesheet layout.tsx imports.
+ *
+ * Split out of a former 2,336-line portfolio.css. The order below IS the
+ * cascade: everything here is deliberately UNLAYERED so it keeps beating
+ * Tailwind's preflight, which lives inside `@layer base` (see
+ * node_modules/tailwindcss/index.css). Unlayered CSS outranks every layer
+ * regardless of import order, which is why headings render at their intended
+ * weight today. Wrapping these files in `@layer` would silently hand that
+ * fight to preflight — and naming a layer `base` or `components` would merge
+ * it into Tailwind's own same-named layer. Don't.
+ *
+ * Ordering rules:
+ *   01-09  design system, general -> specific
+ *   10     the playful interaction layer (physics text, cursor, marquee, egg)
+ *   11     card elevation, after components so it grounds every panel
+ *   12-13  escape hatches, last so they win: reduced-motion, then print
+ */
+
+@import "./parts/01-tokens.css";
+@import "./parts/02-base.css";
+@import "./parts/02b-type.css";
+@import "./parts/03-nav.css";
+@import "./parts/04-buttons.css";
+@import "./parts/05-hero.css";
+@import "./parts/06-sections.css";
+@import "./parts/07-cards.css";
+@import "./parts/08-choreography.css";
+@import "./parts/09-responsive.css";
+@import "./parts/10-interactions.css";
+@import "./parts/10c-gl.css";
+@import "./parts/11-elevation.css";
+@import "./parts/12-reduced-motion.css";
+@import "./parts/13-print.css";

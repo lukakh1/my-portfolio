@@ -46,6 +46,10 @@ export function SmoothScroll() {
         'a[href^="#"]',
       ) as HTMLAnchorElement | null;
       if (!a) return;
+      // The skip link must do a native jump: preventDefault here would scroll
+      // the page but leave focus stranded on the link, which defeats the point
+      // of having one.
+      if (a.classList.contains("skip-link")) return;
       const id = a.getAttribute("href");
       if (!id || id === "#") return;
       const el = document.querySelector(id);

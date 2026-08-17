@@ -4,7 +4,10 @@ import { DraggableProjectsRoot } from "@/features/draggable-projects";
 import { Marquee } from "@/features/marquee";
 import { EasterEggRoot } from "@/features/easter-egg";
 import { ExperienceModalRoot } from "@/features/experience-modal";
+import { LiquidBackdrop } from "@/features/liquid-backdrop";
 import { MagneticRoot } from "@/features/magnetic";
+import { MobileNavRoot } from "@/features/nav-mobile";
+import { PhysicsTextRoot } from "@/features/physics-text";
 import { ProjectCardGlowRoot } from "@/features/project-card-glow";
 import { ScrollFxRoot } from "@/features/scroll-fx";
 import { ScrollProgress } from "@/features/scroll-progress";
@@ -38,7 +41,16 @@ const MARQUEE_ITEMS = [
 export function PortfolioHomePage() {
   return (
     <>
+      {/* First focusable node in the document — every root above renders null. */}
+      <a className="skip-link" href="#top">
+        Skip to content
+      </a>
       <SmoothScroll />
+      {/* Ambient layers. .bg-fx is the canvas-free fallback and paints first;
+          the shader fades in over it once it has a real frame. */}
+      <div className="bg-fx" aria-hidden />
+      <LiquidBackdrop />
+      <div className="grain" aria-hidden />
       <ScrollFxRoot />
       <ScrollSpyNav />
       <StatCounters />
@@ -50,11 +62,16 @@ export function PortfolioHomePage() {
       <ClipboardRoot />
       <ExperienceModalRoot />
       <MagneticRoot />
+      <MobileNavRoot />
+      {/* Drives the hero lockup AND all six section titles from one loop. */}
+      <PhysicsTextRoot />
       <ScrollProgress />
       <CustomCursor />
       <PortfolioPrintHeader />
       <PortfolioNav />
-      <main id="top">
+      {/* tabIndex -1 so the skip link can actually move focus here, not just
+          scroll. It stays out of the tab order for everyone else. */}
+      <main id="top" tabIndex={-1}>
         <PortfolioHero />
         <PortfolioStats />
         <Marquee items={MARQUEE_ITEMS} />

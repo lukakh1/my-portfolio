@@ -1,0 +1,12 @@
+/* ============================================================
+   Card grounding: warm paper panels with a soft warm drop-shadow
+   so cards sit gently on the cream page.
+   ============================================================ */
+.stats-grid,
+.about-card,
+.tl-card-front,
+.skill-card,
+.proj,
+.edu {
+  box-shadow: 0 1px 0 rgba(26, 23, 18, 0.04), 0 10px 28px -14px rgb(var(--sh) / 16%);
+}

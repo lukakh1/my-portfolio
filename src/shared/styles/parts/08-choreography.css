@@ -1,0 +1,291 @@
+/* Reveals are progressive enhancement: content is fully visible by default
+   (no-JS, crawlers, reduced-motion) — GSAP ScrollTrigger hides elements only
+   after mount and animates them in. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
+}
+
+/* ── Section choreography ──────────────────────────────────────── */
+
+/* Experience: scroll-drawn timeline thread + node ignition */
+.timeline::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 8px;
+  width: 1px;
+  height: calc(100% - 16px);
+  transform-origin: 50% 0;
+  transform: scaleY(var(--tl-progress, 0));
+  background: linear-gradient(180deg, #ff5c38, #ffb000);
+}
+.tl-dot {
+  transition: background 0.35s ease, border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.tl-item.lit .tl-dot {
+  background: var(--grad);
+  border-color: rgba(255, 92, 56, 0.6);
+  box-shadow: 0 0 0 4px rgba(255, 92, 56, 0.14);
+}
+
+/* Projects: sheen sweep on hover (atop the cursor-follow wash) */
+.proj::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 176, 0, 0.12) 45%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s ease;
+}
+.proj:hover::after {
+  transform: translateX(130%);
+}
+
+/* Skills: pills cascade up on card hover */
+.skill-card .pill {
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease,
+    transform 0.3s ease;
+}
+.skill-card:hover .pill {
+  transform: translateY(-2px);
+}
+.skill-card:hover .pill:nth-child(2) {
+  transition-delay: 0.03s;
+}
+.skill-card:hover .pill:nth-child(3) {
+  transition-delay: 0.06s;
+}
+.skill-card:hover .pill:nth-child(4) {
+  transition-delay: 0.09s;
+}
+.skill-card:hover .pill:nth-child(5) {
+  transition-delay: 0.12s;
+}
+.skill-card:hover .pill:nth-child(n + 6) {
+  transition-delay: 0.15s;
+}
+
+/* Education: periodic gold shimmer across the scholarship callout */
+.edu .scholarship {
+  position: relative;
+  overflow: hidden;
+}
+.edu .scholarship::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 176, 0, 0.22) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+  animation: goldSweep 6s ease-in-out 1.2s infinite;
+}
+@keyframes goldSweep {
+  0% {
+    transform: translateX(-130%);
+  }
+  16%,
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+/* Contact: copy-email confirmation */
+.btn.copied {
+  color: var(--moss);
+  border-color: rgb(var(--moss-rgb) / 45%);
+}
+
+/* Experience detail modal */
+.exp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(26, 23, 18, 0.4);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: modalFade 0.25s ease;
+}
+@keyframes modalFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.exp-modal {
+  position: relative;
+  width: min(940px, 100%);
+  max-height: 88vh;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px -36px rgb(var(--sh) / 40%);
+  /* springy pop with a hint of overshoot */
+  animation: modalRise 0.55s cubic-bezier(0.34, 1.4, 0.44, 1);
+}
+@keyframes modalRise {
+  from {
+    opacity: 0;
+    transform: translateY(56px) scale(0.88) rotate(-1deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* the screenshot side wipes in, then the text column steps up line by line */
+.exp-modal-media {
+  animation: modalMedia 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s backwards;
+}
+@keyframes modalMedia {
+  from {
+    opacity: 0;
+    transform: translateX(-28px) scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.exp-modal-body > * {
+  animation: modalItem 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.exp-modal-body > *:nth-child(1) { animation-delay: 0.16s; }
+.exp-modal-body > *:nth-child(2) { animation-delay: 0.22s; }
+.exp-modal-body > *:nth-child(3) { animation-delay: 0.28s; }
+.exp-modal-body > *:nth-child(4) { animation-delay: 0.34s; }
+.exp-modal-body > *:nth-child(5) { animation-delay: 0.4s; }
+.exp-modal-body > *:nth-child(6) { animation-delay: 0.46s; }
+@keyframes modalItem {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.exp-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(26, 23, 18, 0.5);
+  border: 1px solid var(--line);
+  transition: background 0.2s ease;
+}
+.exp-modal-close:hover {
+  background: rgba(255, 92, 56, 0.85);
+}
+.exp-modal-media {
+  background: var(--espresso);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.exp-modal-img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+}
+.exp-modal-thumbs {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+}
+.exp-thumb {
+  width: 66px;
+  height: 42px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  opacity: 0.55;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.exp-thumb.active,
+.exp-thumb:hover {
+  opacity: 1;
+  border-color: rgba(255, 92, 56, 0.7);
+}
+.exp-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.exp-modal-body {
+  padding: 30px 32px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.exp-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.exp-modal-title {
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+.exp-modal-role {
+  margin-top: 4px;
+  font-size: 14.5px;
+  color: var(--ink-dim);
+}
+.exp-modal-role .org {
+  color: var(--signal-2);
+}
+.exp-modal-blurb {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+.exp-modal-list {
+  margin-top: 16px;
+}
+.exp-modal-link {
+  margin-top: 22px;
+  align-self: flex-start;
+}
+.exp-modal-soon {
+  margin-top: 22px;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--ink-mute);
+}

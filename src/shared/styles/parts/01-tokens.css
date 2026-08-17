@@ -1,0 +1,138 @@
+/* Design tokens — the single source for colour, type, space, elevation, depth.
+ *
+ * Palette intent: warm cream paper, a 1970s accent family, and exactly one cool
+ * pop. Contrast ratios in the comments are measured against --bg (#faf6ef) and
+ * are WCAG 2.1 non-large-text figures unless noted.
+ */
+
+:root {
+  /* ── surfaces ──────────────────────────────────────────────── */
+  --bg: #faf6ef; /* warm cream paper */
+  --bg-2: #f4eee3;
+  --panel: #fffdf8;
+  --void: #f0e9db;
+  --sand: #f0e6d4; /* alternating band fill */
+  --espresso: #2a1f14; /* dark bands: marquee, contact, footer, terminal */
+
+  /* ── hairlines ─────────────────────────────────────────────── */
+  --line: rgba(26, 23, 18, 0.1);
+  --line-strong: rgba(26, 23, 18, 0.2);
+  --line-dark: rgba(250, 246, 239, 0.14); /* on espresso */
+  /* Corner-tick frame. Retired together with the ticks themselves when the
+     two-motif system lands; still referenced by 06-sections.css until then. */
+  --hud: rgba(255, 92, 56, 0.28);
+
+  /* ── ink on cream ──────────────────────────────────────────── */
+  --ink: #1a1712; /* 16.59:1 — headings, emphasis */
+  --ink-body: #3f3a30; /* 10.48:1 — running copy */
+  --ink-dim: #5c554a; /*  6.83:1 — sub-decks, secondary */
+  /* Was #8a8172 at 3.57:1, which failed AA on the 11-13px mono labels that use
+     it most. Darkened just enough to clear 4.5:1 on cream AND on --sand. */
+  --ink-mute: #6f6757; /*  5.19:1 on cream, 4.52:1 on sand */
+
+  /* ── ink on espresso ───────────────────────────────────────── */
+  --on-dark: #f4ece0; /* 13.74:1 */
+  --on-dark-dim: #c9bda9; /*  8.69:1 */
+  --on-dark-mute: #9a8f7d; /*  5.06:1 */
+
+  /* ── accents ───────────────────────────────────────────────── */
+  /* PRIMARY interactive + accent ink. 6.51:1 on cream, 7.02:1 under white. */
+  --rust: #a03410;
+  --rust-deep: #6d2109; /* 10.41:1 — hover / active */
+  /* Coral & sunflower are DECORATIVE ONLY: 2.85:1 and 1.70:1 on cream.
+     Use for fills, dots, rays and borders >=3px. Never for text on cream. */
+  --signal: #ff5c38;
+  --signal-2: #e8431f;
+  --signal-soft: rgba(255, 92, 56, 0.12);
+  --amber: #ffb000; /* 8.79:1 on espresso — text-safe there only */
+  --amber-2: #f09000;
+  --amber-soft: rgba(255, 176, 0, 0.16);
+  --moss: #4f6b2f; /* 5.61:1 — availability, success */
+  --moss-dot: #6f8a3a; /* the lit dot itself, decorative */
+  --moss-rgb: 111 138 58; /* for the pulse rings around that dot */
+  --blue: #2452ff; /* 5.23:1 — links, focus ring on cream */
+
+  /* ── gold tiers (scholarship / achievement) ────────────────── */
+  --gold-ink: #8a5900; /* 5.55:1 — badge text */
+  --gold-deep: #6f4a05; /* 7.33:1 — running copy (AAA) */
+
+  /* ── terminal syntax (all on --espresso) ───────────────────── */
+  --code-fg: #d8d0c2;
+  --code-dim: #9b9182;
+  --code-key: #ff9a7d;
+  --code-str: #ffcf7a;
+  --code-num: #ffb454;
+  --code-cta: #ffcf9e;
+
+  /* ── gradients ─────────────────────────────────────────────── */
+  --grad: linear-gradient(135deg, #ff5c38 0%, #ffb000 100%);
+  --grad-warm: linear-gradient(135deg, #ffb000 0%, #ff5c38 100%);
+  --grad-soft: linear-gradient(135deg, rgba(255, 92, 56, 0.12), rgba(255, 176, 0, 0.12));
+  /* hero name fill, only when WebGL is unavailable */
+  --grad-hero: linear-gradient(118deg, #2a1f14 0%, #a03410 34%, #f09000 66%, #2a1f14 100%);
+
+  /* ── motif: sunburst rays ──────────────────────────────────── */
+  --ray-warm: rgb(255 176 0 / 13%);
+  --ray-dark: rgb(255 207 158 / 9%);
+
+  /* ── elevation ─────────────────────────────────────────────────
+     Warm brown shadow channel, three tiers by role. Hover promotes one
+     step (e2 -> e3); never define a fourth shadow inline. */
+  --sh: 94 62 8;
+  --e1: 0 1px 0 rgb(26 23 18 / 3%), 0 2px 4px -2px rgb(var(--sh) / 8%);
+  --e2: 0 1px 0 rgb(26 23 18 / 4%), 0 6px 14px -8px rgb(var(--sh) / 16%),
+    0 18px 36px -20px rgb(var(--sh) / 22%);
+  --e3: 0 2px 0 rgb(26 23 18 / 5%), 0 18px 40px -14px rgb(var(--sh) / 20%),
+    0 48px 88px -44px rgb(var(--sh) / 36%);
+  --e-lip: inset 0 1px 0 rgb(255 255 255 / 72%); /* warm paper edge, cream panels */
+  --e-press: inset 0 2px 6px rgb(var(--sh) / 18%);
+  --e-dark: 0 20px 48px -20px rgb(12 8 3 / 55%); /* panels on espresso */
+  /* The original single shadow that used to do all the elevation work. Kept at
+     its exact former value while call sites migrate to the tiers above. */
+  --shadow-glow: 0 1px 0 rgba(26, 23, 18, 0.04), 0 12px 32px -12px rgba(94, 62, 8, 0.18);
+
+  /* ── radii ─────────────────────────────────────────────────── */
+  --radius: 14px;
+  --radius-lg: 22px;
+  --r-md: 18px;
+  --r-xl: 28px;
+  /* Arch: `border-radius: 50% 50% x x / <depth> <depth> x x`. Three depths so
+     eight arches across the page read as one system. */
+  --arch-deep: 50%;
+  --arch-mid: 22%;
+  --arch-shallow: 10%;
+  --arch-h: clamp(44px, 5.5vw, 92px); /* how far a band arch rises */
+
+  /* ── space & measure ───────────────────────────────────────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+  --sp-9: 96px;
+  --sp-10: 144px;
+  --band-tall: clamp(112px, 12vw, 184px); /* about, contact */
+  --band: clamp(88px, 9vw, 136px); /* experience, skills, projects, education */
+  --band-tight: clamp(56px, 6vw, 80px); /* stats, marquee */
+  --container: 1180px;
+  --container-wide: 1320px;
+  --gutter: clamp(20px, 4vw, 40px);
+
+  /* ── depth order ───────────────────────────────────────────────
+     One scale so the WebGL layers, grain, nav, sheet and cursor can never
+     be reasoned about in isolation. */
+  --z-gl-back: 0; /* liquid backdrop canvas */
+  --z-mottle: 1; /* low-frequency paper mottle */
+  --z-content: 2; /* <main> */
+  --z-grain: 4; /* film grain, over everything readable */
+  --z-toggle: 45;
+  --z-sheet: 55; /* mobile nav sheet */
+  --z-nav: 60;
+  --z-progress: 70;
+  --z-modal: 200;
+  --z-cursor: 9999;
+  --z-egg: 10001;
+}

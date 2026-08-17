@@ -1,4 +1,5 @@
 import { profileRows } from "@/shared/config/portfolio-content";
+import { PhysicsText } from "@/features/physics-text";
 
 export function PortfolioAbout() {
   return (
@@ -7,7 +8,7 @@ export function PortfolioAbout() {
         <div className="section-head">
           <div className="eyebrow reveal">About · 01</div>
           <h2 className="reveal" data-delay="1">
-            Six years of building. Still learning.
+            <PhysicsText lines={[{ text: "Six years of building. Still learning." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
             A short version of how I got here.

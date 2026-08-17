@@ -1,4 +1,5 @@
 import { kiuCoursePills } from "@/shared/config/portfolio-content";
+import { PhysicsText } from "@/features/physics-text";
 
 function IconGradCap() {
   return (
@@ -40,7 +41,7 @@ export function PortfolioEducation() {
         <div className="section-head">
           <div className="eyebrow reveal">Education · 05</div>
           <h2 className="reveal" data-delay="1">
-            Theory and practice, side by side.
+            <PhysicsText lines={[{ text: "Theory and practice, side by side." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
             A scholarship-funded CS degree built on Georgia&apos;s strongest

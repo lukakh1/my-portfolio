@@ -11,8 +11,10 @@ export function ScrollSpyNav() {
     const nav = document.getElementById("nav");
     if (!nav) return;
 
+    // Strict superset: the mobile sheet's links get `.active` too, so the
+    // current section stays marked whichever menu is on screen.
     const linkEls = document.querySelectorAll<HTMLAnchorElement>(
-      ".nav-links a[href^=\"#\"]",
+      '.nav-links a[href^="#"], .nav-sheet-links a[href^="#"]',
     );
     const sections = sectionIds
       .map((id) => document.getElementById(id))

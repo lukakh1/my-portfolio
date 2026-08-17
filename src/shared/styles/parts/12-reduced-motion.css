@@ -1,0 +1,25 @@
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .grad-name,
+  .edu .scholarship::after {
+    animation: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .tl-card:hover,
+  .tl-card:hover .tl-card-inner {
+    transform: none;
+  }
+  .exp-modal-backdrop,
+  .exp-modal,
+  .exp-modal-media,
+  .exp-modal-body > * {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

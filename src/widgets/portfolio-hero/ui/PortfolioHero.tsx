@@ -1,4 +1,4 @@
-import { PhysicsHeadline } from "@/features/hero-physics-text";
+import { PhysicsText } from "@/features/physics-text";
 import { ResumePrintButton } from "@/features/print-resume";
 import { RoleRotator } from "@/features/role-rotator";
 import { urls } from "@/shared/config/portfolio-content";
@@ -102,17 +102,20 @@ export function PortfolioHero() {
         <div className="hero-grid">
           <div>
             <div className="hud-coord reveal" aria-hidden>
-              OBS · 42.27°N 42.70°E · Kutaisi
+              OBS · 41.72°N 44.78°E · Tbilisi
             </div>
             <div className="status-pill reveal">
               <span className="status-dot" />
               Open to remote full-stack roles
             </div>
             <h1 className="reveal" data-delay="1">
-              <PhysicsHeadline
+              {/* No trailing period: the lockup is flush-set to a shared right
+                  edge and a full stop breaks that edge. */}
+              <PhysicsText
+                className="phys-headline"
                 lines={[
                   { text: "Luka", className: "grad-name" },
-                  { text: "Khimshiashvili." },
+                  { text: "Khimshiashvili", className: "surname" },
                 ]}
               />
             </h1>
@@ -152,7 +155,7 @@ export function PortfolioHero() {
             </div>
             <div className="hero-meta reveal" data-delay="5">
               <span>
-                <IconPin /> Kutaisi, Georgia · UTC+4
+                <IconPin /> Tbilisi, Georgia · UTC+4
               </span>
               <span>
                 <IconClock /> Available June 2026

@@ -1,0 +1,310 @@
+.hero {
+  min-height: 100vh;
+  padding: 140px 0 120px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+/* Left-biased cream wash keeps hero copy crisp over the ambient blobs. */
+.hero .container {
+  position: relative;
+  z-index: 1;
+}
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 78% 68% at 30% 52%,
+    rgba(250, 246, 239, 0.92),
+    rgba(250, 246, 239, 0.55) 42%,
+    transparent 72%
+  );
+}
+.mesh {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.28;
+  will-change: transform;
+}
+.blob.b1 {
+  width: 520px;
+  height: 520px;
+  background: #ffb000;
+  left: -120px;
+  top: -80px;
+  animation: float1 18s ease-in-out infinite;
+}
+.blob.b2 {
+  width: 460px;
+  height: 460px;
+  background: #ff5c38;
+  right: -100px;
+  top: 40px;
+  animation: float2 22s ease-in-out infinite;
+}
+.blob.b3 {
+  width: 360px;
+  height: 360px;
+  background: #2452ff;
+  left: 40%;
+  bottom: -120px;
+  animation: float3 26s ease-in-out infinite;
+  opacity: 0.12;
+}
+@keyframes float1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(60px, 40px) scale(1.08);
+  }
+}
+@keyframes float2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-50px, 30px) scale(1.1);
+  }
+}
+@keyframes float3 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(40px, -30px) scale(1.06);
+  }
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 999px;
+  background: rgb(var(--moss-rgb) / 8%);
+  border: 1px solid rgb(var(--moss-rgb) / 22%);
+  font-size: 12.5px;
+  color: var(--moss);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--moss-dot);
+  box-shadow: 0 0 0 4px rgb(var(--moss-rgb) / 18%);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgb(var(--moss-rgb) / 18%);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgb(var(--moss-rgb) / 0%);
+  }
+}
+
+/* ── the hero lockup ──────────────────────────────────────────────────
+   A flush-set two-line block: both lines land on the same right edge at
+   every width, so the name reads as one poster object rather than two
+   stacked headings.
+     "Luka"           = 2.2781em
+     "Khimshiashvili" = 7.2250em   -> line 2 is 0.3153 of line 1
+   Driven from a container query on the hero's own column so the block fills
+   the measure exactly instead of approximately. 43.5cqw x 2.2781em = 99.1%
+   of the column. */
+.hero-grid > :first-child {
+  container-type: inline-size;
+}
+.hero h1 {
+  --hero-unit: clamp(88px, 43.5cqw, 260px);
+  margin: 26px 0 22px;
+  /* Reserve the block's height from its own type size so the metric-matched
+     fallback -> real-font swap can never shift the page. Measured from the
+     rendered ink at --hero-unit: 260px, the block settles at 1.13 units. */
+  min-block-size: calc(var(--hero-unit) * 1.13);
+}
+@supports not (container-type: inline-size) {
+  .hero h1 {
+    --hero-unit: clamp(88px, 19vw, 240px);
+  }
+}
+.hero h1 .grad-name,
+.hero h1 .surname {
+  display: block;
+}
+/* Line 1 — .grad-name is kept as the hook the JS and fallback CSS bind to,
+   but it is no longer a gradient. Per-letter background-clip gave every
+   letter its own full coral->amber ramp, which reads as a repeating stripe
+   rather than a sweep, and on bulbous 70s type a gradient fill is exactly
+   the retro-costume failure mode. The colour moment moves behind the type. */
+.hero h1 .grad-name {
+  --sz: var(--hero-unit);
+  font-size: var(--sz);
+  line-height: 0.86;
+  color: var(--espresso);
+}
+.hero h1 .surname {
+  --sz: calc(var(--hero-unit) * 0.3153);
+  font-size: var(--sz);
+  line-height: 0.94;
+  /* This face's line box is far taller than its ink (ascent 803, descent 217
+     on a 1000 upem), so stacked lines sit 111px apart at --hero-unit: 260px
+     with no margin at all. Pull them back to an optical ~22px so the two
+     lines read as one lockup. Expressed against --hero-unit so it scales. */
+  margin-top: calc(var(--hero-unit) * -0.327);
+  color: var(--rust);
+}
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.role-line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 15px;
+  color: var(--ink-dim);
+  margin-bottom: 8px;
+}
+/* Real text, so it needs real contrast — --signal is 2.85:1 on cream.
+   The caret below is a 2px border, i.e. UI graphics, and may stay coral. */
+.role-line .prompt {
+  color: var(--rust);
+}
+.role-rotator {
+  display: inline-block;
+  color: var(--ink);
+  border-right: 2px solid var(--signal);
+  padding-right: 2px;
+  animation: caret 1s steps(2) infinite;
+}
+@keyframes caret {
+  50% {
+    border-color: transparent;
+  }
+}
+
+.hero-tag {
+  font-size: clamp(17px, 1.6vw, 19px);
+  color: var(--ink-dim);
+  max-width: 580px;
+  line-height: 1.6;
+  margin: 12px 0 36px;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hero-meta {
+  margin-top: 44px;
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  color: var(--ink-mute);
+  font-size: 13px;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+.hero-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-meta svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+}
+
+/* Hero terminal: a deliberate dark-charcoal contrast card on the cream page. */
+.term {
+  background: var(--espresso);
+  border: 1px solid rgba(26, 23, 18, 0.35);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 30px 70px -32px rgb(var(--sh) / 45%);
+}
+.term-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(250, 246, 239, 0.1);
+  background: rgba(250, 246, 239, 0.03);
+}
+.term-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.term-dot.r {
+  background: #ff5c38;
+}
+.term-dot.y {
+  background: #ffb000;
+}
+.term-dot.g {
+  background: var(--moss-dot);
+}
+.term-title {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  color: #9b9182;
+  margin-left: 10px;
+}
+.term-body {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.75;
+  padding: 22px;
+  color: #d8d0c2;
+  white-space: pre-wrap;
+}
+.term-body .k {
+  color: #ff9a7d;
+}
+.term-body .s {
+  color: #ffcf7a;
+}
+.term-body .n {
+  color: #ffb454;
+}
+.term-body .b {
+  color: #faf6ef;
+}
+.term-body .c {
+  color: #9b9182;
+  font-style: italic;
+}
+

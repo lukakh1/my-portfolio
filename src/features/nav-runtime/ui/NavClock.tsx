@@ -11,7 +11,7 @@ const fmt = new Intl.DateTimeFormat("en-GB", {
 });
 
 /**
- * Live local time in Kutaisi (UTC+4), ticking each second. Renders a stable
+ * Live local time in Tbilisi (UTC+4), ticking each second. Renders a stable
  * placeholder on the server and for the first client paint (state starts null),
  * so there's no hydration mismatch from reading the clock during render.
  */
@@ -28,7 +28,7 @@ export function NavClock() {
   return (
     <span className="nav-clock" aria-hidden>
       <span className="dot" />
-      <span className="nav-clock-label">Kutaisi</span>
+      <span className="nav-clock-label">Tbilisi</span>
       <span className="nav-clock-time">{time ?? "--:--:--"}</span>
     </span>
   );

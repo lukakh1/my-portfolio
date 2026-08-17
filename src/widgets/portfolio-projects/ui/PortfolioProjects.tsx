@@ -1,4 +1,5 @@
 import { projects } from "@/shared/config/portfolio-content";
+import { PhysicsText } from "@/features/physics-text";
 
 function ExternalIcon() {
   return (
@@ -26,7 +27,7 @@ export function PortfolioProjects() {
         <div className="section-head">
           <div className="eyebrow reveal">Projects · 04</div>
           <h2 className="reveal" data-delay="1">
-            Some things I&apos;ve built.
+            <PhysicsText lines={[{ text: "Some things I’ve built." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
             Real work I&apos;ve shipped, plus practice builds on GitHub.

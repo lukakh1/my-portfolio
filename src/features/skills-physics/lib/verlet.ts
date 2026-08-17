@@ -28,6 +28,8 @@ export interface PillBody {
 const ITERATIONS = 5;
 const FRICTION = 0.995;
 const WALL_BOUNCE = 0.4;
+/** Slack kept between a pill's painted edge and the bin wall, in px. */
+const WALL_MARGIN = 3;
 const SLEEP_V = 0.018;
 const SLEEP_FRAMES = 45;
 
@@ -187,21 +189,44 @@ export class VerletWorld {
 
   private constrainWalls(body: PillBody) {
     if (body.grabbed) return;
+
+    /**
+     * The solver simulates a capsule, but the browser paints a rounded
+     * RECTANGLE. Those agree only when the pill is axis-aligned; at any other
+     * angle the rectangle's corners stick out past the capsule by
+     *
+     *     r * (|sin a| + |cos a| - 1)
+     *
+     * peaking at r * 0.414 when the pill sits at 45°. Clamping on the capsule
+     * radius alone therefore let tilted pills poke through the bin's clipped
+     * edge and come out visually sliced. Clamp on the painted extent instead.
+     */
+    const dx = body.b.x - body.a.x;
+    const dy = body.b.y - body.a.y;
+    const d = Math.hypot(dx, dy) || 1e-6;
+    const sin = Math.abs(dy / d);
+    const cos = Math.abs(dx / d);
+
     for (const p of [body.a, body.b]) {
-      if (p.x < p.r) {
-        p.x = p.r;
+      // +MARGIN absorbs transient overshoot: collision resolution can rotate a
+      // body after this frame's clamp, and a pill wedged between neighbours
+      // can be pushed a pixel or two past a wall before the pile relaxes.
+      const padX = p.r * (cos + sin - 1) + p.r + WALL_MARGIN;
+      const padY = padX; // symmetric for a capsule of uniform radius
+      if (p.x < padX) {
+        p.x = padX;
         p.px = p.x + (p.x - p.px) * WALL_BOUNCE;
-      } else if (p.x > this.width - p.r) {
-        p.x = this.width - p.r;
+      } else if (p.x > this.width - padX) {
+        p.x = this.width - padX;
         p.px = p.x + (p.x - p.px) * WALL_BOUNCE;
       }
-      if (p.y > this.height - p.r) {
-        p.y = this.height - p.r;
+      if (p.y > this.height - padY) {
+        p.y = this.height - padY;
         p.py = p.y + (p.y - p.py) * WALL_BOUNCE;
         // ground friction
         p.px = p.x - (p.x - p.px) * 0.92;
-      } else if (p.y < p.r) {
-        p.y = p.r;
+      } else if (p.y < padY) {
+        p.y = padY;
         p.py = p.y + (p.y - p.py) * WALL_BOUNCE;
       }
     }

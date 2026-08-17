@@ -7,8 +7,16 @@ import { fullMotionOk, gsap, ScrollTrigger } from "@/shared/lib/gsap";
 
 import { bodyAngle, bodyCenter, VerletWorld, type PillBody } from "../lib/verlet";
 
-/** Gap kept between the settled pile and the bin's clipped bottom edge (px). */
-const FLOOR_INSET = 24;
+/**
+ * Small aesthetic gap between the settled pile and the bin's bottom edge.
+ *
+ * This used to be 24px and was load-bearing: it was compensating for the bug
+ * fixed in `readBounds()` below, and it still wasn't enough — the pile
+ * regularly sank ~26px past the clipped edge and the bottom row of pills came
+ * out sliced. Now the floor is correct, so this is purely visual breathing
+ * room and can be small.
+ */
+const FLOOR_INSET = 6;
 
 /**
  * The playful skills bin: on capable desktops the static category grid gets a
@@ -77,19 +85,38 @@ export function SkillsPlayground() {
       raf = requestAnimationFrame(frame);
     };
 
+    /**
+     * The bin's own layout box, in the coordinate space the absolutely
+     * positioned pills actually live in.
+     *
+     * `getBoundingClientRect()` is WRONG here and was the cause of the
+     * long-standing "bottom row gets sliced" bug. ScrollFxRoot skews every
+     * `main > section` by up to ±2.2° in proportion to scroll velocity, and
+     * `spawn()` runs from a ScrollTrigger — i.e. precisely while the page is
+     * moving fast. getBoundingClientRect returns the axis-aligned bounds of
+     * the *transformed* box, so on a ~1124px-wide bin a 2.18° skew reported
+     * 382.85px of height for a 340px element. The floor was then set ~43px
+     * below the visible bottom and the pile settled outside the clip.
+     *
+     * clientWidth/clientHeight are layout values: transform-immune, and they
+     * exclude the border, which is exactly the padding box the pills are
+     * positioned against.
+     */
+    const readBounds = () => ({
+      w: bin.clientWidth,
+      h: bin.clientHeight,
+    });
+
     const spawn = () => {
       if (spawned) return;
       spawned = true;
-      const rect = bin.getBoundingClientRect();
-      // Drop the floor a touch above the visible (clipped) bottom edge so a
-      // settled — and often tilted — pill never rests flush against the border
-      // and get its bottom shaved off by the bin's `overflow: hidden`.
-      world.setBounds(rect.width, rect.height - FLOOR_INSET);
+      const { w: binW, h: binH } = readBounds();
+      world.setBounds(binW, binH - FLOOR_INSET);
       pills.forEach((el, i) => {
         setTimeout(() => {
           const w = el.offsetWidth;
           const h = el.offsetHeight;
-          const x = gsap.utils.random(w, rect.width - w);
+          const x = gsap.utils.random(w, binW - w);
           const y = -h - gsap.utils.random(0, 120);
           const body = world.addPill(el, w, h, x, y);
           body.a.px = body.a.x + gsap.utils.random(-3, 3);
@@ -169,6 +196,18 @@ export function SkillsPlayground() {
     };
     window.addEventListener("egg:gravity-flip", onFlip);
 
+    // Bounds were previously set once and never revisited, so resizing the
+    // window left the floor and walls where they were at spawn time — pills
+    // then piled up outside a narrower bin, or floated above a taller one.
+    const ro = new ResizeObserver(() => {
+      if (!spawned) return;
+      const { w, h } = readBounds();
+      if (!w || !h) return;
+      world.setBounds(w, h - FLOOR_INSET);
+      wake(); // let the pile resettle into the new box
+    });
+    ro.observe(bin);
+
     const st = ScrollTrigger.create({
       trigger: bin,
       start: "top 85%",
@@ -192,6 +231,7 @@ export function SkillsPlayground() {
 
     return () => {
       st.kill();
+      ro.disconnect();
       cancelAnimationFrame(raf);
       bin.removeEventListener("pointerdown", onDown);
       bin.removeEventListener("pointermove", onMove);

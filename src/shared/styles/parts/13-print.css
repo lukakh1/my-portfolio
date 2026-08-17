@@ -1,0 +1,311 @@
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  body {
+    font-size: 10.5pt;
+    line-height: 1.42;
+  }
+  .bg-fx,
+  .noise,
+  .scroll-progress,
+  .cursor-dot,
+  .cursor-ring,
+  .sound-toggle,
+  .exp-modal-backdrop,
+  .mesh,
+  .nav,
+  footer,
+  .hero-cta,
+  .contact-actions,
+  .proj-link,
+  .nav-burger,
+  .nav-sheet,
+  .skip-link,
+  canvas {
+    display: none !important;
+  }
+  main {
+    z-index: auto;
+  }
+  .container {
+    max-width: none;
+    padding: 0;
+  }
+  section {
+    padding: 8pt 0;
+    break-inside: avoid;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: #111 !important;
+  }
+  a {
+    color: #1d4ed8 !important;
+    text-decoration: none;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1.5pt solid #111;
+    padding-bottom: 8pt;
+    margin-bottom: 10pt;
+  }
+  .print-header h1 {
+    font-size: 22pt;
+    letter-spacing: -0.02em;
+    margin: 0 0 2pt;
+  }
+  .print-header .role {
+    font-size: 11pt;
+    color: #444;
+    font-weight: 500;
+  }
+  .print-meta {
+    font-size: 9.5pt;
+    text-align: right;
+    color: #333;
+  }
+  .print-meta div {
+    margin-bottom: 2pt;
+  }
+  .print-meta a {
+    color: #1d4ed8 !important;
+  }
+
+  .hero,
+  .stats,
+  #contact .contact-card {
+    display: none !important;
+  }
+
+  #about .about-card {
+    display: none !important;
+  }
+  #about .about-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    margin-top: 4pt !important;
+  }
+  #about .story p {
+    color: #222 !important;
+    font-size: 10.5pt !important;
+    margin-bottom: 4pt !important;
+  }
+  #about .story .pull {
+    display: none !important;
+  }
+  #about .story .accent {
+    color: #111 !important;
+    background: none !important;
+    -webkit-text-fill-color: #111 !important;
+    font-weight: 600;
+  }
+
+  .eyebrow {
+    color: #555 !important;
+    font-size: 8pt !important;
+    margin-bottom: 4pt;
+  }
+  .eyebrow::before {
+    background: #111 !important;
+  }
+  .section-head h2 {
+    font-size: 13pt !important;
+    margin: 0 0 4pt !important;
+  }
+  .section-head .sub {
+    display: none !important;
+  }
+
+  .timeline {
+    margin-top: 6pt;
+  }
+  .timeline::before,
+  .tl-dot {
+    display: none !important;
+  }
+  .tl-item {
+    padding-left: 0 !important;
+    padding-bottom: 8pt !important;
+    break-inside: avoid;
+  }
+  .tl-card {
+    border: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+  .tl-card h3 {
+    font-size: 11pt !important;
+  }
+  .tl-meta {
+    gap: 8pt;
+  }
+  .tl-date {
+    font-size: 9.5pt !important;
+    color: #555 !important;
+  }
+  .tl-badge {
+    background: #111 !important;
+    color: #fff !important;
+    font-size: 7pt !important;
+    padding: 1pt 5pt !important;
+  }
+  .tl-company {
+    font-size: 10pt !important;
+    color: #333 !important;
+    margin-bottom: 4pt !important;
+  }
+  .tl-company .org {
+    color: #1d4ed8 !important;
+  }
+  .tl-list li {
+    font-size: 10pt !important;
+    color: #222 !important;
+    padding-left: 12pt !important;
+  }
+  .tl-list li::before {
+    background: #111 !important;
+    width: 4px !important;
+    height: 4px !important;
+    top: 7pt !important;
+  }
+
+  .skills-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6pt !important;
+    margin-top: 6pt !important;
+  }
+  .skill-card {
+    border: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+  .skill-ic {
+    display: none !important;
+  }
+  .skill-card h3 {
+    font-size: 10pt !important;
+    margin-bottom: 3pt !important;
+  }
+  .pill {
+    border: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    color: #222 !important;
+    font-family: inherit !important;
+    font-size: 9.5pt !important;
+  }
+  .pill::after {
+    content: " · ";
+    color: #999;
+  }
+  .pill:last-child::after {
+    content: "";
+  }
+
+  .proj-grid {
+    grid-template-columns: 1fr !important;
+    gap: 4pt !important;
+    margin-top: 6pt !important;
+  }
+  .proj {
+    border: 0 !important;
+    padding: 0 0 4pt 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    min-height: 0 !important;
+    break-inside: avoid;
+  }
+  .proj::before {
+    display: none !important;
+  }
+  .proj-head {
+    margin-bottom: 2pt !important;
+  }
+  .proj-tag {
+    display: none !important;
+  }
+  .proj h3 {
+    font-size: 10.5pt !important;
+    margin-bottom: 2pt !important;
+  }
+  .proj p {
+    font-size: 9.5pt !important;
+    color: #333 !important;
+  }
+  .proj-foot {
+    margin-top: 3pt !important;
+  }
+
+  .edu-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8pt !important;
+    margin-top: 6pt !important;
+  }
+  .edu {
+    border: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+  }
+  .edu h3 {
+    font-size: 11pt !important;
+  }
+  .edu .deg,
+  .edu .note {
+    font-size: 9.5pt !important;
+    color: #222 !important;
+  }
+  .edu-badge {
+    border-color: #999 !important;
+    color: #333 !important;
+    background: none !important;
+    font-size: 8pt !important;
+  }
+  .edu-badge.gold {
+    background: none !important;
+    color: #92580d !important;
+    border-color: #c9a04a !important;
+  }
+  .edu-badge.grad {
+    background: none !important;
+    color: #4338ca !important;
+    border-color: #6366f1 !important;
+  }
+  .edu .scholarship {
+    background: none !important;
+    border: 1px dashed #c9a04a !important;
+    color: #6b4a07 !important;
+    padding: 6pt 8pt !important;
+    margin-top: 6pt !important;
+    font-size: 9pt !important;
+  }
+
+  section + section {
+    border-top: 0.5pt solid #ddd;
+    padding-top: 8pt !important;
+  }
+}
+.print-only {
+  display: none;
+}
+

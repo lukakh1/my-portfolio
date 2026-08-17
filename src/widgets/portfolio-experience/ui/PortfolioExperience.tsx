@@ -1,3 +1,4 @@
+import { PhysicsText } from "@/features/physics-text";
 import {
   experience,
   type ExperienceEntry,
@@ -37,17 +38,11 @@ function TimelineItem({
   return (
     <li className={className} data-delay={revealDelay}>
       <span className="tl-dot" />
-      <div
-        className="tl-card"
-        data-exp={product ? entry.id : undefined}
-        role={product ? "button" : undefined}
-        tabIndex={product ? 0 : undefined}
-        aria-label={
-          product
-            ? `${entry.title} at ${entry.companyAccent} — open ${product.name} details`
-            : undefined
-        }
-      >
+      {/* The card keeps [data-exp] so a click anywhere on it still opens the
+          modal, but it is no longer a fake button: it contains an <h3> and a
+          <ul>, which a real <button> may not. The keyboard affordance is the
+          real button rendered in place of .tl-hint below. */}
+      <div className="tl-card" data-exp={product ? entry.id : undefined}>
         <div className="tl-card-inner">
           <div className="tl-card-face tl-card-front">
             <div className="tl-meta">
@@ -74,7 +69,14 @@ function TimelineItem({
               ))}
             </ul>
             {product ? (
-              <span className="tl-hint">Hover to preview · click for details →</span>
+              <button
+                type="button"
+                className="tl-hint tl-open"
+                data-exp={entry.id}
+                aria-label={`Open ${product.name} details — ${entry.title} at ${entry.companyAccent}`}
+              >
+                Hover to preview · click for details →
+              </button>
             ) : null}
           </div>
           {product ? (
@@ -103,7 +105,7 @@ export function PortfolioExperience() {
         <div className="section-head">
           <div className="eyebrow reveal">Experience · 02</div>
           <h2 className="reveal" data-delay="1">
-            Where I&apos;ve worked.
+            <PhysicsText lines={[{ text: "Where I’ve worked." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
             From mobile apps at 15, to full-stack work today.

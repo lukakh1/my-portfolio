@@ -1,4 +1,5 @@
 import { contactEmail, urls } from "@/shared/config/portfolio-content";
+import { PhysicsText } from "@/features/physics-text";
 
 function IconMail() {
   return (
@@ -24,7 +25,9 @@ export function PortfolioContact() {
       <div className="container">
         <div className="contact-card reveal">
           <div className="eyebrow">Contact · 06</div>
-          <h2>Want to work together?</h2>
+          <h2>
+            <PhysicsText lines={[{ text: "Want to work together?" }]} />
+          </h2>
           <p className="sub">
             I&apos;m open to remote full-stack roles and freelance work. Email
             is the fastest way to reach me.
@@ -76,7 +79,7 @@ export function PortfolioContact() {
             </div>
             <div className="contact-item">
               <div className="k">Location</div>
-              <div className="v">Kutaisi, Georgia · UTC+4</div>
+              <div className="v">Tbilisi, Georgia · UTC+4</div>
             </div>
           </div>
         </div>

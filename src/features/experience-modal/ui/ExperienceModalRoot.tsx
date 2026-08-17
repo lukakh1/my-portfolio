@@ -35,9 +35,12 @@ export function ExperienceModalRoot() {
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Enter" && e.key !== " ") return;
-      const card = (e.target as HTMLElement | null)?.closest<HTMLElement>(
-        "[data-exp]",
-      );
+      const target = e.target as HTMLElement | null;
+      // The card's keyboard affordance is a real <button> (.tl-open), which
+      // already fires a click on Enter/Space. Only synthesize activation for
+      // non-button carriers of [data-exp].
+      if (target?.tagName === "BUTTON") return;
+      const card = target?.closest<HTMLElement>("[data-exp]");
       if (card?.dataset.exp) {
         e.preventDefault();
         open(card.dataset.exp);
@@ -51,20 +54,52 @@ export function ExperienceModalRoot() {
     };
   }, [open]);
 
-  // Scroll-lock + ESC while open.
+  // Scroll-lock, ESC, focus trap and focus restore while open.
   useEffect(() => {
     if (!entry) return;
     const lenis = lenisInstance.get();
     lenis?.stop();
     document.documentElement.style.overflow = "hidden";
+
+    // Remember who opened it so focus can go home on close.
+    const opener = document.activeElement as HTMLElement | null;
+    const dialog = document.querySelector<HTMLElement>(".exp-modal");
+    const focusables = () =>
+      Array.from(
+        dialog?.querySelectorAll<HTMLElement>(
+          "a[href], button:not([disabled]), [tabindex]:not([tabindex='-1'])",
+        ) ?? [],
+      ).filter((el) => el.offsetParent !== null);
+
+    focusables()[0]?.focus();
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") {
+        close();
+        return;
+      }
+      // aria-modal="true" hides the rest of the page from AT, but sighted
+      // keyboard users would still tab into content they cannot see.
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !dialog?.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       lenis?.start();
       document.documentElement.style.overflow = "";
+      opener?.focus?.();
     };
   }, [entry, close]);
 

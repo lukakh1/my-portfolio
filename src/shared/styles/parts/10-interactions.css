@@ -13,18 +13,34 @@
 html[data-fonts="loading"] .phys-headline {
   opacity: 0;
 }
-/* Letters are inline-blocks (transformable), which would let the browser
-   break lines mid-word — keep each line atomic instead. */
+/* The HERO lockup only: its two lines are sized to a shared right edge, so
+   each must stay atomic. Section titles must be free to wrap — scoping this
+   to .phys-headline (which only the hero carries) is what allows both. */
 .phys-headline > span {
+  white-space: nowrap;
+}
+/* Each letter is its own inline-block, which means the browser may break a
+   line between ANY two of them. Grouping them per word and pinning the word
+   to nowrap is what stops headings splitting mid-word. */
+.phys-word {
+  display: inline-block;
   white-space: nowrap;
 }
 .phys-letter {
   display: inline-block;
-  white-space: pre;
+}
+/* Promote to a layer only while a headline is actually being pushed around.
+   With seven headlines on the page that is ~180 letter spans; giving them all
+   a permanent `will-change` would hand the compositor 180 idle layers. */
+.phys-text.is-phys-live .phys-letter {
   will-change: transform;
 }
-.grad-name .phys-letter {
-  background: var(--grad);
+/* The hero name is solid now (see 05-hero.css). The per-letter gradient is
+   kept only as the consolation prize when the WebGL layer can't run, where
+   the page has no other colour moment behind the type. */
+html[data-gl="off"] .grad-name .phys-letter {
+  background: var(--grad-hero);
+  background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -41,7 +57,7 @@ html[data-fonts="loading"] .phys-headline {
   -webkit-user-select: none;
 }
 .proj-grid--loose .proj.is-dragging {
-  box-shadow: 0 24px 48px -16px rgba(94, 62, 8, 0.32);
+  box-shadow: 0 24px 48px -16px rgb(var(--sh) / 32%);
 }
 .proj-hint {
   color: var(--ink-mute);
@@ -89,11 +105,11 @@ html[data-fonts="loading"] .phys-headline {
   user-select: none;
   -webkit-user-select: none;
   will-change: transform;
-  box-shadow: 0 2px 8px -2px rgba(94, 62, 8, 0.12);
+  box-shadow: 0 2px 8px -2px rgb(var(--sh) / 12%);
 }
 .phys-pill.is-grabbed {
   cursor: grabbing;
-  box-shadow: 0 10px 24px -8px rgba(94, 62, 8, 0.3);
+  box-shadow: 0 10px 24px -8px rgb(var(--sh) / 30%);
 }
 /* category tints */
 .phys-pill[data-cat="lang"] { background: var(--signal-soft); border-color: rgba(255, 92, 56, 0.3); }
@@ -192,12 +208,12 @@ html.egg-rainbow .cursor-trail-dot {
   width: max-content;
   will-change: transform;
 }
+/* Family comes from 02b-type.css; --sz drives its tracking curve. */
 .marquee2-unit {
+  --sz: clamp(26px, 3.2vw, 42px);
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 600;
-  font-size: 20px;
+  font-size: var(--sz);
   color: var(--ink-dim);
   white-space: nowrap;
 }
@@ -244,7 +260,7 @@ html.egg-rainbow .cursor-trail-dot {
   transform: scale(0.92);
 }
 .phys-pill:hover {
-  box-shadow: 0 6px 16px -4px rgba(94, 62, 8, 0.25);
+  box-shadow: 0 6px 16px -4px rgb(var(--sh) / 25%);
 }
 
 /* ── easter egg ── */

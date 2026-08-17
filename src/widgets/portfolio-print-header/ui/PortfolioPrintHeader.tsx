@@ -13,7 +13,7 @@ export function PortfolioPrintHeader() {
         <div>
           <a href={urls.mailto}>{contactEmail}</a>
         </div>
-        <div>(+995) 591 193 540 · Kutaisi, Georgia</div>
+        <div>(+995) 591 193 540 · Tbilisi, Georgia</div>
         <div>
           <a href={urls.github}>github.com/lukakh1</a>
           {" · "}
