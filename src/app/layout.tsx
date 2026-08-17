@@ -96,6 +96,7 @@ export default function RootLayout({
       <body>
         <script dangerouslySetInnerHTML={{ __html: FONT_GATE }} />
         {children}
+        <Analytics />
       </body>
     </html>
   );
