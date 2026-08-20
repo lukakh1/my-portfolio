@@ -39,28 +39,38 @@ export function PortfolioEducation() {
     <section id="education">
       <div className="container">
         <div className="section-head">
-          <div className="eyebrow reveal">Education · 05</div>
+          <div className="eyebrow reveal">Education · 06</div>
           <h2 className="reveal" data-delay="1">
             <PhysicsText lines={[{ text: "Theory and practice, side by side." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
             A scholarship-funded CS degree built on Georgia&apos;s strongest
-            math-and-physics foundation.
+            math-and-physics foundation — and where I built infrastructure from
+            scratch.
           </p>
         </div>
 
         <div className="edu-grid">
           <div className="edu reveal">
             <div className="badge-row">
-              <span className="edu-badge grad">Expected 2026</span>
+              <span className="edu-badge grad">Graduated 2026</span>
               <span className="edu-badge">B.Sc. Computer Science</span>
             </div>
             <h3>Kutaisi International University</h3>
             <div className="deg">B.Sc. Computer Science · Kutaisi, Georgia</div>
             <p className="note">
-              Building a rigorous CS foundation alongside the day job — DSA,
-              software engineering, OS, computer architecture, and theory of
-              computation, taught in English.
+              A rigorous CS foundation built alongside the day job — algorithms
+              and data structures, software engineering, operating systems and
+              systems programming, computer architecture, databases and theory
+              of computation, taught in English.
+            </p>
+            <p className="note" style={{ marginTop: 12 }}>
+              For the{" "}
+              <strong>DevOps and Software Engineering practical courses</strong>{" "}
+              I set up and ran a complete AWS deployment stack from scratch —
+              EC2 on Ubuntu, nginx as reverse proxy, a load balancer,
+              CloudFront, RDS MySQL, Memcached and Docker — in use by students
+              and faculty across the year.
             </p>
             <div className="scholarship">
               <IconGradCap />

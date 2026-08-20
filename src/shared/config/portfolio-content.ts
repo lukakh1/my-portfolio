@@ -17,6 +17,7 @@ export const navLinks: NavLink[] = [
   { href: "#about", label: "About" },
   { href: "#experience", label: "Experience" },
   { href: "#skills", label: "Skills" },
+  { href: "#shipping", label: "How I ship" },
   { href: "#projects", label: "Projects" },
   { href: "#education", label: "Education" },
   { href: "#contact", label: "Get in touch", className: "nav-cta" },
@@ -26,16 +27,17 @@ export const sectionIds = [
   "about",
   "experience",
   "skills",
+  "shipping",
   "projects",
   "education",
   "contact",
 ] as const;
 
 export const heroRoles = [
-  "Full-Stack Developer",
+  "Full-Stack Software Engineer",
   "React & React Native Engineer",
-  "Next.js Specialist",
-  "Building since age 15",
+  "Next.js & Node",
+  "Shipping since age 15",
 ] as const;
 
 export const stats = [
@@ -45,11 +47,11 @@ export const stats = [
 ] as const;
 
 export const profileRows: { key: string; value: string }[] = [
-  { key: "Role", value: "Full-Stack Dev" },
+  { key: "Role", value: "Full-Stack Engineer" },
   { key: "Experience", value: "6+ years" },
   { key: "Started", value: "2019, age 15" },
   { key: "Now", value: "Alien Lab" },
-  { key: "Studying", value: "CS, KIU" },
+  { key: "Degree", value: "B.Sc. CS, KIU" },
   { key: "Languages", value: "EN · KA" },
   { key: "Time zone", value: "UTC+4" },
 ];
@@ -85,7 +87,16 @@ export const experience: ExperienceEntry[] = [
     companyAccent: "Alien Lab",
     companySuffix: " LLC · Tbilisi, Georgia",
     bullets: [
-      "Building client and in-house web applications end to end with React, Next.js, and Node.",
+      {
+        strong: "MeetReferral (meetreferral.com)",
+        rest: " — a referral platform connecting brands, built solo. Auth, roles and permissions, file uploads, real-time updates, and third-party API integrations.",
+      },
+      {
+        strong: "MyBusiness (mybusiness.ge)",
+        rest: " — an e-commerce platform for businesses, built solo, including the payment flow and the multi-tenant data model.",
+      },
+      "Wrote the GitLab CI pipelines both products run on — lint, typecheck and tests on every merge request, plus dependency scanning and secret detection.",
+      "Next.js on Vercel with Supabase underneath; separate dev and prod environments, deploying from Git on merge.",
     ],
   },
   {
@@ -97,7 +108,7 @@ export const experience: ExperienceEntry[] = [
     bullets: [
       "Built core product surfaces — the PDF editor, agreements wizard, and reusable templates — on the Nutrient SDK (PSPDFKit).",
       "Built user workspaces and debugged the end-to-end payment flow (PayNext).",
-      "Made database architecture decisions on Payload CMS + Supabase, modeling the schema for product needs; media storage on Cloudflare R2.",
+      "Owned database architecture decisions on Payload CMS + Supabase, modeling the schema for product needs; media storage on Cloudflare R2.",
       "Drove SEO/GEO improvements to grow organic reach.",
     ],
     product: {
@@ -117,13 +128,14 @@ export const experience: ExperienceEntry[] = [
     bullets: [
       "Built the organizer dashboard (paid and free event publishing with an approval workflow), the customer marketplace, and a ticket resale flow.",
       "Integrated live payments (Fastoo) and kept the on-chain NFT ticket layer in sync with PostgreSQL.",
-      "Next.js + Express, PostgreSQL, AWS S3, deployed on Render and Vercel. Live with ~10 organizers and thousands of tickets sold.",
+      "Next.js + Express, PostgreSQL, AWS S3, deployed to Render and Vercel from GitLab. Live with ~10 organizers and thousands of tickets sold.",
+      "Diagnosed a production API failure across the frontend/backend boundary — a frontend request loop was tripping the rate limiter and getting the endpoint blocked — and fixed the request pattern rather than only lifting the block.",
     ],
     product: {
       name: "sTickets",
       url: "https://stickets.ge",
       blurb:
-        "An NFT-based event ticketing platform built end to end — an organizer dashboard with an approval workflow, a customer marketplace, a ticket resale flow, live payments (Fastoo), and an on-chain ticket layer kept in sync with PostgreSQL.",
+        "An NFT-based event ticketing platform built end to end — an organizer dashboard with an approval workflow, a customer marketplace, a ticket resale flow, live payments (Fastoo), and an on-chain ticket layer kept in sync with PostgreSQL. I built it, deployed it, and kept it running.",
       images: ["/products/stickets-1.svg", "/products/stickets-2.svg"],
     },
   },
@@ -207,27 +219,58 @@ export const skillCategories: SkillCategory[] = [
   {
     id: "db",
     title: "Databases",
-    pills: ["PostgreSQL", "MongoDB", "Supabase", "Firebase", "Payload CMS"],
+    pills: [
+      "PostgreSQL",
+      "MySQL",
+      "Supabase",
+      "MongoDB",
+      "Firebase",
+      "Payload CMS",
+    ],
+  },
+  {
+    id: "test",
+    title: "Testing",
+    pills: ["Playwright", "Jest", "Vitest"],
+  },
+  {
+    id: "cicd",
+    title: "CI/CD & Deployment",
+    pills: [
+      "GitLab CI/CD",
+      "Docker",
+      "Vercel",
+      "Render",
+      "AWS S3",
+      "Cloudflare R2",
+    ],
+  },
+  {
+    id: "infra",
+    title: "Infrastructure",
+    subtitle: "— built from scratch for university coursework",
+    pills: [
+      "AWS EC2",
+      "nginx",
+      "Load balancing",
+      "CloudFront",
+      "RDS MySQL",
+      "Memcached",
+      "Linux (Ubuntu)",
+    ],
   },
   {
     id: "mon",
     title: "Monitoring & Analytics",
-    pills: ["Sentry", "Mixpanel"],
-  },
-  {
-    id: "cloud",
-    title: "Cloud & Storage",
-    pills: ["Vercel", "Render", "AWS (S3)", "Cloudflare R2"],
+    pills: ["Sentry", "Mixpanel", "PostHog"],
   },
   {
     id: "tools",
     title: "Tools",
     pills: [
       "Git",
-      "Docker",
       "Nutrient SDK (PSPDFKit)",
       "Postman",
-      "Cursor",
       "Xcode",
       "Android Studio",
     ],
@@ -235,23 +278,65 @@ export const skillCategories: SkillCategory[] = [
   {
     id: "cs",
     title: "CS Foundations",
-    subtitle:
-      "— Kutaisi International University coursework",
+    subtitle: "— Kutaisi International University coursework",
     wide: true,
     pills: [
-      "Software Engineering & Design",
-      "DevOps",
-      "Product Development",
-      "AI-Powered Applications",
+      "Algorithms & Data Structures",
+      "Operating Systems & Systems Programming",
+      "Computer Organization & Architecture",
+      "Theory of Computation",
       "Databases",
-      "Computer Architecture",
-      "Assembly",
+      "Software Engineering",
+      "DevOps Engineering",
+      "Backend Programming with JavaScript",
+      "Scripting Languages",
+      "AI-Powered Applications",
+      "Discrete Structures",
+      "Linear Algebra",
     ],
   },
 ];
 
+/** The "How I ship" section — what happens to the code after it is written. */
+export type ShipStep = {
+  id: string;
+  title: string;
+  body: string;
+  pills: string[];
+  wide?: boolean;
+};
+
+export const shipSteps: ShipStep[] = [
+  {
+    id: "vcs",
+    title: "Version control",
+    body: "GitLab, with a merge-request workflow. Nothing reaches main without review and a green pipeline behind it.",
+    pills: ["GitLab", "Merge requests", "Git"],
+  },
+  {
+    id: "ci",
+    title: "CI",
+    body: "Pipelines I wrote myself: lint, typecheck and tests on every merge request, plus dependency scanning and secret detection. I used to find those problems at deploy time, which is too late.",
+    pills: ["GitLab CI/CD", "Playwright", "Jest", "Vitest"],
+  },
+  {
+    id: "deploy",
+    title: "Deployment",
+    body: "Separate dev and prod environments, Docker container builds, and automatic deploys from Git to Vercel and Render on merge.",
+    pills: ["Docker", "Vercel", "Render", "dev / prod"],
+  },
+  {
+    id: "incident",
+    title: "When it breaks",
+    wide: true,
+    body: "The sTickets API started failing in production. I checked whether the request was even leaving the frontend before touching the backend — isolating which side of the boundary had actually broken — then looked at what Render was returning. A frontend request loop was firing enough calls to trip the rate limiter, which blocked the endpoint. I unblocked it and fixed the request pattern that caused it, instead of leaving the limiter switched off.",
+    pills: ["Production debugging", "Rate limiting", "Vercel", "Render"],
+  },
+];
+
 export type ProjectItem = {
-  href: string;
+  /** Omitted for work with no public URL — the card renders unlinked. */
+  href?: string;
   tag: string;
   title: string;
   description: string;
@@ -260,65 +345,68 @@ export type ProjectItem = {
 
 export const projects: ProjectItem[] = [
   {
-    href: "https://github.com/lukakh1",
-    tag: "Tool · TypeScript",
-    title: "AI Code Reviewer",
+    href: "https://mybusiness.ge",
+    tag: "Alien Lab · Live",
+    title: "MyBusiness",
     description:
-      "A tool that analyzes pasted code and returns structured review feedback. Built in TypeScript for a university Software Engineering course.",
-    pills: ["TypeScript", "AI", "Code review"],
+      "An e-commerce platform for businesses, built solo — including the payment flow and the multi-tenant data model. Next.js on Vercel with Supabase underneath.",
+    pills: ["Next.js", "Supabase", "Payments"],
+  },
+  {
+    href: "https://meetreferral.com",
+    tag: "Alien Lab · Live",
+    title: "MeetReferral",
+    description:
+      "A referral platform connecting brands, built solo. Auth, roles and permissions, file uploads, real-time updates, and third-party API integrations.",
+    pills: ["Next.js", "Supabase", "Real-time"],
+  },
+  {
+    href: "https://stickets.ge",
+    tag: "Built, deployed & run solo · Live",
+    title: "sTickets",
+    description:
+      "An NFT event ticketing platform I built end to end and operated myself — organizer dashboard, marketplace, resale flow, live payments, and an on-chain ticket layer synced to Postgres.",
+    pills: ["Next.js", "Express", "PostgreSQL"],
+  },
+  {
+    tag: "Coursework · KIU 2025–26",
+    title: "AWS deployment stack",
+    description:
+      "Set up and ran the full deployment stack for a coursework application from scratch — EC2 on Ubuntu, nginx as reverse proxy, a load balancer, CloudFront, RDS MySQL and Memcached, containerized with Docker. In use by students and faculty across the year.",
+    pills: ["EC2", "nginx", "Load balancer", "RDS"],
   },
   {
     href: "https://kiketischool.ge",
     tag: "Side project · Live",
     title: "Kiketi School",
     description:
-      "A website I built and shipped for Kiketi School — a real production site, live and in active use at kiketischool.ge.",
-    pills: ["Web", "Production", "Shipped"],
+      "A website I built and shipped for Kiketi School — a real production site, live and in active use. Payload CMS + Supabase, media on Vercel Blob.",
+    pills: ["Payload CMS", "Supabase", "Production"],
   },
   {
-    href: "https://github.com/lukakh1/next14-blog",
-    tag: "Practice & Learning",
-    title: "next14-blog",
+    href: "https://github.com/lukakh1",
+    tag: "University · TypeScript",
+    title: "AI Code Reviewer",
     description:
-      "A blog built to learn the Next.js App Router — server components, dynamic routing, and markdown rendering.",
-    pills: ["Next.js", "RSC", "Markdown"],
-  },
-  {
-    href: "https://github.com/lukakh1/next14-finance-app",
-    tag: "Practice & Learning",
-    title: "next14-finance-app",
-    description:
-      "A personal-finance dashboard built to practice charts and data visualization in Next.js — spend by category, end to end.",
-    pills: ["Next.js", "Charts", "UX"],
-  },
-  {
-    href: "https://github.com/lukakh1/react-quiz",
-    tag: "Practice & Learning",
-    title: "react-quiz",
-    description:
-      "An interactive quiz app built to practice React state patterns — score tracking, category filtering, and a reducer-driven flow.",
-    pills: ["React", "Reducer", "State"],
-  },
-  {
-    href: "https://github.com/lukakh1/usepopcorn",
-    tag: "Practice & Learning",
-    title: "usepopcorn",
-    description:
-      "A movie-tracking app built against the OMDB API while learning React — search, rate, and keep a watched list. A study in data fetching and custom hooks.",
-    pills: ["React", "OMDB", "Hooks"],
+      "A tool that analyzes submitted code and returns structured review feedback. Built in TypeScript for a university Software Engineering course.",
+    pills: ["TypeScript", "AI", "Code review"],
   },
 ];
 
 export const kiuCoursePills = [
-  "DSA",
-  "Software Engineering",
-  "Operating Systems",
-  "Computer Architecture",
-  "Discrete Structures",
+  "Algorithms & Data Structures",
+  "Operating Systems & Systems Programming",
+  "Computer Organization & Architecture",
   "Theory of Computation",
-  "SQL",
-  "PostgreSQL",
-  "Java",
-  "OCaml",
-  "Assembly",
+  "Databases",
+  "Software Engineering (theory + practical)",
+  "DevOps Engineering",
+  "Backend Programming with JavaScript",
+  "Scripting Languages",
+  "AI-Powered Applications",
+  "Product Development for Software Engineers",
+  "Discrete Structures",
+  "Discrete Probability",
+  "Linear Algebra",
+  "Analysis for Informatics",
 ] as const;

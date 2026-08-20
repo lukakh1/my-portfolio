@@ -25,6 +25,7 @@ import { PortfolioHero } from "@/widgets/portfolio-hero";
 import { PortfolioNav } from "@/widgets/portfolio-nav";
 import { PortfolioPrintHeader } from "@/widgets/portfolio-print-header";
 import { PortfolioProjects } from "@/widgets/portfolio-projects";
+import { PortfolioShipping } from "@/widgets/portfolio-shipping";
 import { PortfolioSkills } from "@/widgets/portfolio-skills";
 import { PortfolioStats } from "@/widgets/portfolio-stats";
 
@@ -35,6 +36,8 @@ const MARQUEE_ITEMS = [
   "TypeScript",
   "Node.js",
   "PostgreSQL",
+  "GitLab CI",
+  "Docker",
   "shipping since 2019",
 ];
 
@@ -63,7 +66,7 @@ export function PortfolioHomePage() {
       <ExperienceModalRoot />
       <MagneticRoot />
       <MobileNavRoot />
-      {/* Drives the hero lockup AND all six section titles from one loop. */}
+      {/* Drives the hero lockup AND all seven section titles from one loop. */}
       <PhysicsTextRoot />
       <ScrollProgress />
       <CustomCursor />
@@ -78,6 +81,7 @@ export function PortfolioHomePage() {
         <PortfolioAbout />
         <PortfolioExperience />
         <PortfolioSkills />
+        <PortfolioShipping />
         <PortfolioProjects />
         <PortfolioEducation />
         <PortfolioContact />

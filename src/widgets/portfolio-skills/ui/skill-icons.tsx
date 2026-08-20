@@ -66,6 +66,32 @@ export function SkillIcon({ id }: { id: string }) {
           <path d="m2 12 10 5 10-5" />
         </svg>
       );
+    case "test":
+      return (
+        <svg {...common}>
+          <path d="M9 3h6" />
+          <path d="M10 3v6.5L4.6 18a2 2 0 0 0 1.7 3h11.4a2 2 0 0 0 1.7-3L14 9.5V3" />
+          <path d="M7 15h10" />
+        </svg>
+      );
+    case "cicd":
+      return (
+        <svg {...common}>
+          <path d="M21 12a9 9 0 1 1-3.2-6.9" />
+          <polyline points="21 3 21 9 15 9" />
+          <polyline points="9 12 11 14 15 10" />
+        </svg>
+      );
+    case "infra":
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="18" height="6" rx="2" />
+          <rect x="3" y="15" width="18" height="6" rx="2" />
+          <line x1="7" y1="6" x2="7.01" y2="6" />
+          <line x1="7" y1="18" x2="7.01" y2="18" />
+          <path d="M12 9v6" />
+        </svg>
+      );
     default:
       return null;
   }

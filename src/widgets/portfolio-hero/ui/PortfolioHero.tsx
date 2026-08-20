@@ -125,9 +125,10 @@ export function PortfolioHero() {
               <RoleRotator />
             </div>
             <p className="hero-tag reveal" data-delay="3">
-              I&apos;ve been building things with React since I was 15. Now I
-              work at <span className="hl-warm">Alien Lab</span>, and I take the
-              craft seriously.
+              I&apos;ve been building products since I was 15 — and shipping,
+              deploying and debugging them since not long after. Currently at{" "}
+              <span className="hl-warm">Alien Lab</span>, where I&apos;ve built
+              two products on my own.
             </p>
             <div className="hero-cta reveal" data-delay="4">
               <ResumePrintButton className="btn btn-primary">
@@ -158,7 +159,7 @@ export function PortfolioHero() {
                 <IconPin /> Tbilisi, Georgia · UTC+4
               </span>
               <span>
-                <IconClock /> Available June 2026
+                <IconClock /> B.Sc. Computer Science, 2026
               </span>
               <span>
                 <IconCheck /> Remote-first
@@ -181,7 +182,7 @@ export function PortfolioHero() {
                 = {"{"}
                 {"\n  "}
                 <span className="k">role</span>:{" "}
-                <span className="s">&quot;Full-Stack Developer&quot;</span>,
+                <span className="s">&quot;Full-Stack Software Engineer&quot;</span>,
                 {"\n  "}
                 <span className="k">since</span>:{" "}
                 <span className="n">2019</span>,{" "}
@@ -195,8 +196,12 @@ export function PortfolioHero() {
                 <span className="s">&quot;Node&quot;</span>],{"\n  "}
                 <span className="k">db</span>: [
                 <span className="s">&quot;Postgres&quot;</span>,{" "}
-                <span className="s">&quot;Mongo&quot;</span>,{" "}
+                <span className="s">&quot;MySQL&quot;</span>,{" "}
                 <span className="s">&quot;Supabase&quot;</span>],{"\n  "}
+                <span className="k">ships</span>: [
+                <span className="s">&quot;GitLab CI&quot;</span>,{" "}
+                <span className="s">&quot;Docker&quot;</span>,{" "}
+                <span className="s">&quot;AWS&quot;</span>],{"\n  "}
                 <span className="k">now</span>:{" "}
                 <span className="s">&quot;@AlienLab&quot;</span>,{"\n  "}
                 <span className="k">edu</span>:{" "}

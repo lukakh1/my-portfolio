@@ -30,7 +30,7 @@ export function PortfolioAbout() {
 
           <div className="story">
             <p className="reveal">
-              I&apos;m a full-stack developer with{" "}
+              I&apos;m a full-stack software engineer with{" "}
               <span className="accent">
                 six years of professional experience
               </span>{" "}
@@ -45,8 +45,7 @@ export function PortfolioAbout() {
               <strong style={{ color: "var(--ink)" }}>
                 Kutaisi International University
               </strong>{" "}
-              on a full scholarship, where I&apos;m finishing a Computer Science
-              degree.
+              on a full scholarship, where I earned a Computer Science degree.
             </p>
             <p className="reveal" data-delay="2">
               Most of my work has been in the modern JavaScript ecosystem —
@@ -57,10 +56,21 @@ export function PortfolioAbout() {
               network, and a handful of mobile apps.
             </p>
             <p className="reveal" data-delay="3">
+              What I&apos;ve picked up alongside that is{" "}
+              <span className="accent">what happens after the merge</span>. I
+              write the GitLab pipelines that gate my own code — lint,
+              typecheck, tests, dependency scanning, secret detection — because
+              I used to find those problems at deploy time instead. I&apos;ve
+              deployed to Vercel, Render and Supabase in production, and
+              I&apos;ve built the whole stack myself on AWS: EC2, nginx, a load
+              balancer, CloudFront, RDS and Memcached.
+            </p>
+            <p className="reveal" data-delay="4">
               I&apos;m currently at{" "}
-              <strong style={{ color: "var(--ink)" }}>Alien Lab</strong> while
-              finishing my CS degree. I like working on products that people
-              actually use.
+              <strong style={{ color: "var(--ink)" }}>Alien Lab</strong>, where
+              I&apos;ve built two of the company&apos;s products on my own. When
+              something breaks in production, I know how to work out which side
+              of the boundary it broke on.
             </p>
           </div>
         </div>

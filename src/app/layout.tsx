@@ -55,9 +55,9 @@ const keepOnTruckin = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Luka Khimshiashvili — Full-Stack Developer",
+  title: "Luka Khimshiashvili — Full-Stack Software Engineer",
   description:
-    "Luka Khimshiashvili — Full-Stack Developer. React, React Native, Next.js. Building production software since age 15.",
+    "Luka Khimshiashvili — Full-Stack Software Engineer. React, Next.js, React Native, Node and PostgreSQL, shipped through GitLab CI and Docker. Building production software since age 15.",
 };
 
 /**

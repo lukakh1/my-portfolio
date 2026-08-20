@@ -24,7 +24,7 @@ export function PortfolioContact() {
     <section className="contact" id="contact">
       <div className="container">
         <div className="contact-card reveal">
-          <div className="eyebrow">Contact · 06</div>
+          <div className="eyebrow">Contact · 07</div>
           <h2>
             <PhysicsText lines={[{ text: "Want to work together?" }]} />
           </h2>

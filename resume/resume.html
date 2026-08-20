@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Luka Khimshiashvili — Full-Stack Software Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  @page { size: Letter; margin: 0.45in 0.5in; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #14181d;
+    --body: #33404b;
+    --mute: #6b7885;
+    --rule: #d7dee4;
+    --accent: #174f7a;
+  }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.1pt; line-height: 1.38; color: var(--body);
+    background: #fff;
+  }
+  a { color: var(--accent); text-decoration: none; }
+
+  /* ---- header ---- */
+  header { border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-bottom: 9px; }
+  h1 { font-size: 19.5pt; font-weight: 700; letter-spacing: -0.025em; color: var(--ink); line-height: 1.05; }
+  .role { font-size: 10.4pt; font-weight: 600; color: var(--accent); margin-top: 2px; letter-spacing: -0.005em; }
+  .contact { margin-top: 6px; font-size: 8.2pt; color: var(--mute); }
+  .contact span::after { content: " · "; color: var(--rule); }
+  .contact span:last-child::after { content: ""; }
+
+  /* ---- sections ---- */
+  section { margin-top: 9px; }
+  h2 {
+    font-size: 8.2pt; font-weight: 700; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--ink);
+    border-bottom: 1px solid var(--rule); padding-bottom: 3px; margin-bottom: 7px;
+  }
+  .summary { font-size: 9.1pt; }
+
+  /* ---- jobs ---- */
+  .job { margin-bottom: 7px; break-inside: avoid; }
+  .job:last-child { margin-bottom: 0; }
+  .jobline { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .jobtitle { font-size: 10pt; font-weight: 600; color: var(--ink); letter-spacing: -0.005em; }
+  .jobtitle .org { color: var(--accent); }
+  .dates { font-size: 8.5pt; color: var(--mute); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .context { font-size: 8.8pt; color: var(--mute); margin: 1px 0 3px; }
+  ul { list-style: none; }
+  li { position: relative; padding-left: 10px; margin-bottom: 1.5px; }
+  li::before {
+    content: ""; position: absolute; left: 2px; top: 0.52em;
+    width: 3px; height: 3px; border-radius: 50%; background: var(--mute);
+  }
+  li strong, .context strong { color: var(--ink); font-weight: 600; }
+
+  /* ---- skills ---- */
+  .skill { display: flex; gap: 8px; margin-bottom: 2.5px; }
+  .skill .k { flex: 0 0 116px; font-weight: 600; color: var(--ink); font-size: 8.9pt; }
+  .skill .v { flex: 1; font-size: 8.9pt; }
+  .skill .note { color: var(--mute); font-style: italic; }
+
+  /* ---- projects / education ---- */
+  .row { margin-bottom: 4px; break-inside: avoid; }
+  section { break-inside: avoid; }
+  .row:last-child { margin-bottom: 0; }
+  .rowhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .rowtitle { font-size: 9.4pt; font-weight: 600; color: var(--ink); }
+  .rowbody { font-size: 8.9pt; margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Luka Khimshiashvili</h1>
+  <div class="role">Full-Stack Software Engineer</div>
+  <div class="contact">
+    <span>Tbilisi, Georgia</span>
+    <span>(+995) 591 193 540</span>
+    <span>lukakhimshiashvili4@gmail.com</span>
+    <span>github.com/lukakh1</span>
+    <!-- Replace with linkedin.com/in/lukakhimshiashvili once the vanity URL is claimed. -->
+    <span>linkedin.com/in/luka-khimshiashvili-57283224b</span>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p class="summary">Full-stack engineer with six years shipping production software, starting at fifteen. Built Zendocs at Ruby Labs — a browser-based PDF platform serving 100,000+ people a month across 40+ countries — and built, deployed and operated sTickets end to end alone. I write the CI that gates my own code, and I have stood up a full deployment stack on AWS from scratch.</p>
+</section>
+
+<section>
+  <h2>Experience</h2>
+
+  <div class="job">
+    <div class="jobline">
+      <div class="jobtitle">Software Engineer — <span class="org">Alien Lab LLC</span></div>
+      <div class="dates">Jun 2026 – Present · Tbilisi</div>
+    </div>
+    <ul>
+      <li><strong>MeetReferral</strong> (meetreferral.com) — built a brand referral platform solo on Next.js, Vercel and Supabase: authentication, roles and permissions, file uploads, real-time updates and third-party API integrations.</li>
+      <li><strong>MyBusiness</strong> (mybusiness.ge) — built an e-commerce platform for businesses solo, including the payment flow and the multi-tenant data model.</li>
+      <li>Wrote the GitLab CI pipelines both products run on — lint, typecheck and tests on every merge request, plus dependency scanning and secret detection — moving failures that previously surfaced at deploy time to before merge.</li>
+      <li>Maintain separate dev and prod environments with automatic deploys from Git on merge.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="jobline">
+      <div class="jobtitle">Software Developer — <span class="org">Ruby Labs</span></div>
+      <div class="dates">Sep 2025 – Jun 2026 · Remote</div>
+    </div>
+    <div class="context">Zendocs — browser-based PDF platform, <strong>100,000+ monthly users across 40+ countries</strong>.</div>
+    <ul>
+      <li>Built core product surfaces — the PDF editor, agreements wizard and reusable templates — on the Nutrient SDK (PSPDFKit).</li>
+      <li>Built user workspaces and debugged the end-to-end payment flow (PayNext).</li>
+      <li>Owned database architecture decisions on Payload CMS + Supabase, modeling the schema against product requirements; media storage on Cloudflare R2.</li>
+      <li>Drove SEO/GEO improvements to grow organic reach.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="jobline">
+      <div class="jobtitle">Full-Stack Developer — <span class="org">sTickets</span></div>
+      <div class="dates">Feb 2025 – Aug 2025 · Remote</div>
+    </div>
+    <div class="context">NFT event ticketing platform — <strong>built, deployed and operated single-handedly</strong>.</div>
+    <ul>
+      <li>Built the organizer dashboard (paid and free event publishing with an approval workflow), the customer marketplace and the ticket resale flow.</li>
+      <li>Integrated live payments (Fastoo) and kept the on-chain NFT ticket layer in sync with PostgreSQL.</li>
+      <li>Next.js + Express on PostgreSQL, media on AWS S3, deployed to Render and Vercel from GitLab. Live with ~10 organizers and thousands of tickets sold.</li>
+      <li>Diagnosed a production API failure across the frontend/backend boundary — a frontend request loop was tripping the rate limiter and getting the endpoint blocked — and fixed the request pattern rather than only lifting the block.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="jobline">
+      <div class="jobtitle">Frontend Developer — <span class="org">OnStream</span></div>
+      <div class="dates">Dec 2023 – May 2024 · Remote</div>
+    </div>
+    <ul>
+      <li>Built the entire Angular admin dashboard for a smart-TV movie scheduling and playback platform — content upload and programming what airs on each channel and when.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="jobline">
+      <div class="jobtitle">Frontend Developer — <span class="org">4TWIGGERS</span></div>
+      <div class="dates">Jun 2019 – Sep 2022 · Tbilisi</div>
+    </div>
+    <div class="context">Software studio building web and mobile products. First job, age 15.</div>
+    <ul>
+      <li>Shipped three production applications: Pravis Testebi (driver's-license exam prep, React Native), Spotlight (maps app with a preference-learning recommendation engine) and RealRemote (remote-jobs platform shipped as web and mobile from a single React Native Web codebase).</li>
+      <li>Built D3.js data visualizations and casino-data integration for SlotStats, a gambling-analytics product.</li>
+      <li><strong>Burq</strong> (client placement, Mar 2021 – Feb 2022) — owned the React frontend of a delivery company's customer-facing app: data fetching, filtering, maps and core UI.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Technical Skills</h2>
+  <div class="skill"><div class="k">Languages</div><div class="v">TypeScript, JavaScript, SQL</div></div>
+  <div class="skill"><div class="k">Frontend</div><div class="v">React, Next.js, React Native, Angular, Expo</div></div>
+  <div class="skill"><div class="k">Backend</div><div class="v">Node.js, Express.js, NestJS, REST APIs</div></div>
+  <div class="skill"><div class="k">Databases</div><div class="v">PostgreSQL, MySQL, Supabase, MongoDB, Firebase, Payload CMS</div></div>
+  <div class="skill"><div class="k">Testing</div><div class="v">Playwright (frontend), Jest &amp; Vitest (backend)</div></div>
+  <div class="skill"><div class="k">CI/CD &amp; Deployment</div><div class="v">GitLab CI/CD, Docker, Git, Vercel, Render — pipelines with lint, typecheck, tests, dependency scanning and secret detection</div></div>
+  <div class="skill"><div class="k">Infrastructure</div><div class="v">AWS EC2, RDS, S3, CloudFront · nginx · load balancing · Memcached · Linux (Ubuntu) <span class="note">— see Projects</span></div></div>
+  <div class="skill"><div class="k">Monitoring</div><div class="v">Sentry, Mixpanel, PostHog</div></div>
+  <div class="skill"><div class="k">Tools</div><div class="v">Nutrient SDK (PSPDFKit), Cloudflare R2, Postman, Xcode, Android Studio</div></div>
+</section>
+
+<section>
+  <h2>Projects</h2>
+  <div class="row">
+    <div class="rowhead">
+      <div class="rowtitle">AWS deployment stack</div>
+      <div class="dates">KIU coursework, 2025–26</div>
+    </div>
+    <div class="rowbody">Set up and ran the full deployment stack for a coursework application from scratch: EC2 on Ubuntu, nginx as reverse proxy, a load balancer across instances, CloudFront, RDS MySQL and Memcached, containerized with Docker. In use by students and faculty across the academic year.</div>
+  </div>
+  <div class="row">
+    <div class="rowhead">
+      <div class="rowtitle">Kiketi School — kiketischool.ge</div>
+      <div class="dates">Live</div>
+    </div>
+    <div class="rowbody">Built and shipped a live production website for a school. Payload CMS + Supabase, media on Vercel Blob.</div>
+  </div>
+  <div class="row">
+    <div class="rowhead">
+      <div class="rowtitle">AI Code Reviewer</div>
+      <div class="dates">TypeScript</div>
+    </div>
+    <div class="rowbody">A tool that analyzes submitted code and returns structured review feedback. Built for a university Software Engineering course.</div>
+  </div>
+</section>
+
+<section>
+  <h2>Education</h2>
+  <div class="row">
+    <div class="rowhead">
+      <div class="rowtitle">Kutaisi International University — B.Sc. Computer Science</div>
+      <div class="dates">Sep 2022 – Jun 2026</div>
+    </div>
+    <div class="rowbody"><strong>Full tuition scholarship</strong>, earned on national exam results. Coursework: Algorithms &amp; Data Structures, Software Engineering (theory and practical), Databases &amp; PostgreSQL, Operating Systems &amp; Systems Programming, Computer Architecture, Theory of Computation, DevOps Engineering, Backend Programming with JavaScript, Discrete Structures, Linear Algebra.</div>
+  </div>
+  <div class="row">
+    <div class="rowhead">
+      <div class="rowtitle">Komarovi Campus School — High School Diploma, Mathematics &amp; Physics</div>
+      <div class="dates">2016 – 2022</div>
+    </div>
+    <div class="rowbody">One of Georgia's most selective schools; ten mathematics and physics examinations a year. Results translated directly into a full university scholarship.</div>
+  </div>
+</section>
+
+</body>
+</html>

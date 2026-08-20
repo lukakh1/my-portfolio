@@ -25,12 +25,12 @@ export function PortfolioProjects() {
     <section id="projects">
       <div className="container">
         <div className="section-head">
-          <div className="eyebrow reveal">Projects · 04</div>
+          <div className="eyebrow reveal">Projects · 05</div>
           <h2 className="reveal" data-delay="1">
             <PhysicsText lines={[{ text: "Some things I’ve built." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
-            Real work I&apos;ve shipped, plus practice builds on GitHub.
+            Products I built and shipped — most of them on my own.
             <span className="proj-hint" aria-hidden>
               {" "}
               Psst — on desktop you can toss these cards around.
@@ -42,34 +42,53 @@ export function PortfolioProjects() {
         </div>
 
         <div className="proj-grid" id="projGrid">
-          {projects.map((proj, index) => (
-            <a
-              key={proj.href + proj.title}
-              className="proj reveal"
-              data-delay={DELAY_INDICES.has(index) ? "1" : undefined}
-              href={proj.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div className="proj-head">
-                <span className="proj-tag">{proj.tag}</span>
-              </div>
-              <h3>{proj.title}</h3>
-              <p>{proj.description}</p>
-              <div className="proj-foot">
-                <div className="pill-row">
-                  {proj.pills.map((p) => (
-                    <span key={p} className="pill">
-                      {p}
-                    </span>
-                  ))}
+          {projects.map((proj, index) => {
+            const delay = DELAY_INDICES.has(index) ? "1" : undefined;
+            const body = (
+              <>
+                <div className="proj-head">
+                  <span className="proj-tag">{proj.tag}</span>
                 </div>
-                <span className="proj-link" aria-label="View on GitHub">
-                  <ExternalIcon />
-                </span>
+                <h3>{proj.title}</h3>
+                <p>{proj.description}</p>
+                <div className="proj-foot">
+                  <div className="pill-row">
+                    {proj.pills.map((p) => (
+                      <span key={p} className="pill">
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                  {proj.href ? (
+                    <span className="proj-link" aria-label="Open project">
+                      <ExternalIcon />
+                    </span>
+                  ) : null}
+                </div>
+              </>
+            );
+
+            // Coursework and unpublished work have no public URL. Rendering a
+            // plain <div> keeps the card in .proj-grid — and in the drag and
+            // glow features, which both query .proj — without shipping an
+            // anchor that goes nowhere.
+            return proj.href ? (
+              <a
+                key={proj.href + proj.title}
+                className="proj reveal"
+                data-delay={delay}
+                href={proj.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {body}
+              </a>
+            ) : (
+              <div key={proj.title} className="proj reveal" data-delay={delay}>
+                {body}
               </div>
-            </a>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
