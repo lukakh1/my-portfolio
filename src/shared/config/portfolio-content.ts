@@ -89,11 +89,11 @@ export const experience: ExperienceEntry[] = [
     bullets: [
       {
         strong: "MeetReferral (meetreferral.com)",
-        rest: " — a referral platform connecting brands, built solo. Auth, roles and permissions, file uploads, real-time updates, and third-party API integrations.",
+        rest: " — an affiliate and creator-marketing marketplace for Georgia and the South Caucasus, built solo. Brands run campaigns, creators promote through referral links, and commissions settle against a ledger. Auth, roles and permissions, file uploads, real-time updates, and third-party API integrations.",
       },
       {
         strong: "MyBusiness (mybusiness.ge)",
-        rest: " — an e-commerce platform for businesses, built solo, including the payment flow and the multi-tenant data model.",
+        rest: " — a marketplace for buying, selling and renting businesses in Georgia, built solo, including the payment flow and the multi-tenant data model.",
       },
       "Wrote the GitLab CI pipelines both products run on — lint, typecheck and tests on every merge request, plus dependency scanning and secret detection.",
       "Next.js on Vercel with Supabase underneath; separate dev and prod environments, deploying from Git on merge.",
@@ -349,7 +349,7 @@ export const projects: ProjectItem[] = [
     tag: "Alien Lab · Live",
     title: "MyBusiness",
     description:
-      "An e-commerce platform for businesses, built solo — including the payment flow and the multi-tenant data model. Next.js on Vercel with Supabase underneath.",
+      "A marketplace for buying, selling and renting businesses in Georgia — restaurants, hotels, shops and offices. Built solo, including the payment flow and the multi-tenant data model.",
     pills: ["Next.js", "Supabase", "Payments"],
   },
   {
@@ -357,8 +357,8 @@ export const projects: ProjectItem[] = [
     tag: "Alien Lab · Live",
     title: "MeetReferral",
     description:
-      "A referral platform connecting brands, built solo. Auth, roles and permissions, file uploads, real-time updates, and third-party API integrations.",
-    pills: ["Next.js", "Supabase", "Real-time"],
+      "An affiliate and creator-marketing marketplace for Georgia and the South Caucasus. Brands run campaigns, creators promote through referral links, and commissions settle against a ledger. Built solo.",
+    pills: ["Next.js", "Supabase", "Ledger"],
   },
   {
     href: "https://stickets.ge",
