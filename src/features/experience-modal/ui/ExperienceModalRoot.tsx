@@ -171,7 +171,11 @@ export function ExperienceModalRoot() {
                 <li key={b}>{b}</li>
               ) : (
                 <li key={b.strong}>
-                  <strong style={{ color: "#fff" }}>{b.strong}</strong>
+                  {/* var(--ink), not #fff: .exp-modal-body is a light panel.
+                      The hard-coded white was invisible here — it only ever
+                      went unnoticed because no entry with a product modal used
+                      the {strong, rest} bullet form until Alien Lab did. */}
+                  <strong style={{ color: "var(--ink)" }}>{b.strong}</strong>
                   {b.rest}
                 </li>
               ),

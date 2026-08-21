@@ -98,6 +98,18 @@ export const experience: ExperienceEntry[] = [
       "Wrote the GitLab CI pipelines both products run on — lint, typecheck and tests on every merge request, plus dependency scanning and secret detection.",
       "Next.js on Vercel with Supabase underneath; separate dev and prod environments, deploying from Git on merge.",
     ],
+    product: {
+      name: "MeetReferral & MyBusiness",
+      url: "https://meetreferral.com",
+      blurb:
+        "Two live products, both built solo. MeetReferral is an affiliate and creator-marketing marketplace for Georgia and the South Caucasus — brands run campaigns, creators promote through referral links, and commissions settle against a ledger; the interface ships in English, Georgian and Russian. MyBusiness is a marketplace for buying, selling and renting businesses — restaurants, hotels, shops and offices. Next.js on Vercel with Supabase underneath, shipped through GitLab CI.",
+      images: [
+        "/products/meetreferral-1.jpg",
+        "/products/meetreferral-2.jpg",
+        "/products/mybusiness-1.jpg",
+        "/products/mybusiness-2.jpg",
+      ],
+    },
   },
   {
     id: "ruby",
@@ -116,7 +128,7 @@ export const experience: ExperienceEntry[] = [
       url: "https://zendocs.com",
       blurb:
         "A browser-based PDF platform with 100,000+ monthly users across 40+ countries. I built core surfaces — the PDF editor, agreements wizard, and reusable templates — on the Nutrient SDK (PSPDFKit).",
-      images: ["/products/zendocs-1.svg", "/products/zendocs-2.svg"],
+      images: ["/products/zendocs-1.jpg", "/products/zendocs-2.jpg"],
     },
   },
   {
@@ -136,7 +148,7 @@ export const experience: ExperienceEntry[] = [
       url: "https://stickets.ge",
       blurb:
         "An NFT-based event ticketing platform built end to end — an organizer dashboard with an approval workflow, a customer marketplace, a ticket resale flow, live payments (Fastoo), and an on-chain ticket layer kept in sync with PostgreSQL. I built it, deployed it, and kept it running.",
-      images: ["/products/stickets-1.svg", "/products/stickets-2.svg"],
+      images: ["/products/stickets-1.jpg", "/products/stickets-2.jpg"],
     },
   },
   {
@@ -149,12 +161,6 @@ export const experience: ExperienceEntry[] = [
       "Movie scheduling and playback platform for smart TVs.",
       "Built the entire Angular admin dashboard — uploading content and programming what airs on each channel and when.",
     ],
-    product: {
-      name: "OnStream",
-      blurb:
-        "A movie scheduling and playback platform for smart TVs. I built the entire Angular admin dashboard — uploading content and programming what airs on each channel and when.",
-      images: ["/products/onstream-1.svg", "/products/onstream-2.svg"],
-    },
   },
   {
     id: "burq",
@@ -166,12 +172,6 @@ export const experience: ExperienceEntry[] = [
       "Customer-facing app for a delivery company.",
       "Owned the React frontend — data fetching, filtering, maps, and core UI.",
     ],
-    product: {
-      name: "Burq",
-      blurb:
-        "A customer-facing app for a delivery company. I owned the React frontend — data fetching, filtering, maps, and core UI.",
-      images: ["/products/burq-1.svg", "/products/burq-2.svg"],
-    },
   },
   {
     id: "4twiggers",
@@ -183,12 +183,6 @@ export const experience: ExperienceEntry[] = [
       "Built three production apps: Pravis Testebi (driver's-license exam prep, React Native), Spotlight (maps app with a preference-learning recommendation engine), and RealRemote (remote-jobs platform shipped as web + mobile via React Native Web).",
       "Built D3.js data visualizations and casino-data integration for SlotStats, a gambling-analytics product; plus smaller mobile apps.",
     ],
-    product: {
-      name: "4TWIGGERS",
-      blurb:
-        "A software studio where it started at 15. Built three production apps — Pravis Testebi (driver's-license exam prep, React Native), Spotlight (a maps app with a preference-learning recommender), and RealRemote (a remote-jobs platform shipped as web + mobile via React Native Web) — plus D3.js data visualizations for SlotStats.",
-      images: ["/products/4twiggers-1.svg", "/products/4twiggers-2.svg"],
-    },
   },
 ];
 
