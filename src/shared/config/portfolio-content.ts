@@ -161,6 +161,12 @@ export const experience: ExperienceEntry[] = [
       "Movie scheduling and playback platform for smart TVs.",
       "Built the entire Angular admin dashboard — uploading content and programming what airs on each channel and when.",
     ],
+    product: {
+      name: "OnStream",
+      blurb:
+        "A movie scheduling and playback platform for smart TVs. I built the entire Angular admin dashboard — uploading content and programming what airs on each channel and when. The platform has no public site, so this is a title card rather than a screenshot.",
+      images: ["/products/onstream-1.jpg"],
+    },
   },
   {
     id: "burq",
@@ -190,6 +196,12 @@ export const experience: ExperienceEntry[] = [
       "Built three production apps: Pravis Testebi (driver's-license exam prep, React Native), Spotlight (maps app with a preference-learning recommendation engine), and RealRemote (remote-jobs platform shipped as web + mobile via React Native Web).",
       "Built D3.js data visualizations and casino-data integration for SlotStats, a gambling-analytics product; plus smaller mobile apps.",
     ],
+    product: {
+      name: "4TWIGGERS",
+      blurb:
+        "The software studio where it started, at 15. Three production apps shipped from here — Pravis Testebi (driver's-license exam prep, React Native), Spotlight (a maps app with a preference-learning recommender) and RealRemote (a remote-jobs platform shipped as web and mobile from one React Native Web codebase) — plus D3.js data visualizations for SlotStats, and the Burq placement.",
+      images: ["/products/4twiggers-1.jpg"],
+    },
   },
 ];
 

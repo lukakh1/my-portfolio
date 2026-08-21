@@ -4,6 +4,17 @@
     max-height: 90vh;
     overflow-y: auto;
   }
+  /* Single column here, and the modal itself scrolls — so hand the scroll back
+     to it rather than nesting a second scroller inside the body. */
+  .exp-modal-body {
+    overflow-y: visible;
+  }
+  /* The column has no bounded height in this layout, so flex-grow has nothing
+     to grow into — pin the image back to a fixed ratio. */
+  .exp-modal-img {
+    flex: 0 0 auto;
+    aspect-ratio: 16 / 10;
+  }
 }
 
 @media (max-width: 980px) {

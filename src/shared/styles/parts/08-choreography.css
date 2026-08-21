@@ -138,6 +138,10 @@
   max-height: 88vh;
   display: grid;
   grid-template-columns: 1.05fr 1fr;
+  /* The single row must be bounded by the modal, not by its content. Left as
+     the default `auto` it sizes to max-content, so a long body pushed the row
+     past max-height and the overflow was simply clipped away. */
+  grid-template-rows: minmax(0, 1fr);
   background: var(--panel);
   border: 1px solid var(--line-strong);
   border-radius: 20px;
@@ -208,17 +212,41 @@
 .exp-modal-close:hover {
   background: rgba(255, 92, 56, 0.85);
 }
+/* Grid children default to min-height:auto, which refuses to shrink below their
+   content. With .exp-modal capped at max-height:88vh and overflow:hidden, that
+   meant a tall body laid out past the cap and had its last bullets clipped away
+   with no way to scroll — while this column stretched to that same content
+   height and centred the screenshot inside it, pushing the image ~280px down
+   the modal. min-height:0 lets both columns respect the cap; the body scrolls
+   and the media sits at the top. */
+.exp-modal-media,
+.exp-modal-body {
+  min-height: 0;
+}
+.exp-modal-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .exp-modal-media {
   background: var(--espresso);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 10px;
+  padding: 14px 14px 0;
   min-width: 0;
 }
 .exp-modal-img {
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  /* Fill whatever height the bounded column has, rather than sitting at a fixed
+     16:10 and leaving the rest of the dark column empty. Anchored to the top so
+     a site screenshot keeps its header and hero in frame when it is cropped. */
+  flex: 1 1 auto;
+  min-height: 0;
+  /* contain, not cover: the column is portrait and these are landscape site
+     screenshots, so cover crops the hero clean off. Whole page visible wins. */
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
 .exp-modal-thumbs {
