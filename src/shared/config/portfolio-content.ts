@@ -127,7 +127,7 @@ export const experience: ExperienceEntry[] = [
       name: "Zendocs",
       url: "https://zendocs.com",
       blurb:
-        "A browser-based PDF platform with 100,000+ monthly users across 40+ countries. I built core surfaces — the PDF editor, agreements wizard, and reusable templates — on the Nutrient SDK (PSPDFKit).",
+        "A browser-based PDF platform: 2.8M+ PDFs edited, 2.7M converted and 600K forms filled, with 100,000+ monthly users across 40+ countries. I built core surfaces — the PDF editor, agreements wizard, and reusable templates — on the Nutrient SDK (PSPDFKit).",
       images: ["/products/zendocs-1.jpg", "/products/zendocs-2.jpg"],
     },
   },
@@ -172,6 +172,13 @@ export const experience: ExperienceEntry[] = [
       "Customer-facing app for a delivery company.",
       "Owned the React frontend — data fetching, filtering, maps, and core UI.",
     ],
+    product: {
+      name: "Burq",
+      url: "https://burqup.com",
+      blurb:
+        "A last-mile delivery platform. On a placement from 4TWIGGERS I owned the React frontend of the customer-facing app — data fetching, filtering, maps and core UI. The screenshots are the product as it stands today; it has grown a long way since 2021–22.",
+      images: ["/products/burq-1.jpg", "/products/burq-2.jpg"],
+    },
   },
   {
     id: "4twiggers",
