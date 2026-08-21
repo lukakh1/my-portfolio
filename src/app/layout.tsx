@@ -54,10 +54,38 @@ const keepOnTruckin = localFont({
   adjustFontFallback: "Arial",
 });
 
+const SITE_URL = "https://www.luria.life";
+const TITLE = "Luka Khimshiashvili — Full-Stack Software Engineer";
+const DESCRIPTION =
+  "Luka Khimshiashvili — Full-Stack Software Engineer. React, Next.js, React Native, Node and PostgreSQL, shipped through GitLab CI and Docker. Building production software since age 15.";
+
+/**
+ * metadataBase + openGraph are load-bearing, not decoration: without any OG
+ * tags LinkedIn's scraper rejects the URL outright ("Please enter a valid
+ * link"), so the site cannot be added to a Featured card or shared with a
+ * preview. og.png is a 1200x630 capture of the hero — regenerate it if the
+ * hero changes.
+ */
 export const metadata: Metadata = {
-  title: "Luka Khimshiashvili — Full-Stack Software Engineer",
-  description:
-    "Luka Khimshiashvili — Full-Stack Software Engineer. React, Next.js, React Native, Node and PostgreSQL, shipped through GitLab CI and Docker. Building production software since age 15.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "Luka Khimshiashvili",
+    title: TITLE,
+    description: DESCRIPTION,
+    locale: "en_US",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og.png"],
+  },
 };
 
 /**

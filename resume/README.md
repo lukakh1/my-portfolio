@@ -30,10 +30,9 @@ import("playwright").then(async ({ chromium }) => {
 If you print from Chrome by hand instead, open **More settings** and turn
 **Headers and footers** OFF before saving.
 
-## Open edits
+## Contact line
 
-- The contact line still carries the auto-generated LinkedIn slug
-  (`luka-khimshiashvili-57283224b`). Claim `linkedin.com/in/lukakhimshiashvili`
-  and swap it in — there is a comment marking the spot.
-- The portfolio URL is deliberately absent: `lukakhimshiashvili.com` has no DNS
-  record. Add it back once the domain resolves.
+Both links are live and current: `luria.life` (the portfolio, served from Vercel)
+and `linkedin.com/in/lukakhimshiashvili` (the claimed vanity URL). If the domain
+ever changes, update it here **and** in `src/app/layout.tsx` (`SITE_URL`, which
+feeds `metadataBase` and the OpenGraph tags).
