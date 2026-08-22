@@ -1,4 +1,7 @@
-import { profileRows } from "@/shared/config/portfolio-content";
+import {
+  profileRows,
+  yearsShippingWord,
+} from "@/shared/config/portfolio-content";
 import { PhysicsText } from "@/features/physics-text";
 
 export function PortfolioAbout() {
@@ -8,10 +11,10 @@ export function PortfolioAbout() {
         <div className="section-head">
           <div className="eyebrow reveal">About · 01</div>
           <h2 className="reveal" data-delay="1">
-            <PhysicsText lines={[{ text: "Six years of building. Still learning." }]} />
+            <PhysicsText lines={[{ text: "Building since 2019." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
-            A short version of how I got here.
+            The short version of how I got here.
           </p>
         </div>
 
@@ -32,45 +35,45 @@ export function PortfolioAbout() {
             <p className="reveal">
               I&apos;m a full-stack software engineer with{" "}
               <span className="accent">
-                six years of professional experience
-              </span>{" "}
-              — I started at 15, writing React Native apps for a small studio in
-              Georgia, and just kept going from there.
+                {yearsShippingWord()} years of professional experience
+              </span>
+              . I started at 15, writing React Native apps for a studio in
+              Tbilisi, and haven&apos;t stopped shipping since.
             </p>
             <p className="reveal" data-delay="1">
-              I went to{" "}
-              <strong style={{ color: "var(--ink)" }}>Komarovi School Pansion</strong>{" "}
-              in Tbilisi for high school, specializing in mathematics and
-              physics. After national exams I went to{" "}
+              Most of my work is in the JavaScript ecosystem: Next.js and React
+              on the front, Node with Express or NestJS behind it, PostgreSQL
+              underneath. I&apos;ve built the core surfaces of a browser-based
+              PDF platform used by 100,000 people a month, an NFT ticketing
+              marketplace end to end, the admin tooling for a smart-TV network,
+              and a handful of mobile apps.
+            </p>
+            <p className="reveal" data-delay="2">
+              I work the way a team works — merge requests both ways, reviewing
+              other people&apos;s code as well as having mine reviewed, building
+              from designer handoffs, and being the one who gets called when
+              production breaks. What I&apos;ve picked up alongside the product
+              work is <span className="accent">what happens after the merge</span>
+              : I write the GitLab pipelines that gate my own code — lint,
+              typecheck, tests, dependency scanning, secret detection — because
+              I used to find those problems at deploy time instead.
+            </p>
+            <p className="reveal" data-delay="3">
+              I&apos;ve deployed to Vercel, Render and Supabase in production.
+              I&apos;ve also stood up a full server stack from scratch — EC2,
+              nginx, a load balancer, CloudFront, RDS and Memcached — though
+              that one was university coursework rather than a production
+              system.
+            </p>
+            <p className="reveal" data-delay="4">
+              I studied Computer Science at{" "}
               <strong style={{ color: "var(--ink)" }}>
                 Kutaisi International University
               </strong>{" "}
-              on a full scholarship, where I earned a Computer Science degree.
-            </p>
-            <p className="reveal" data-delay="2">
-              Most of my work has been in the modern JavaScript ecosystem —
-              React and React Native first, then Next.js, Node, and the database
-              layer underneath. Over the years I&apos;ve built end-to-end
-              platforms — a browser-based PDF product and an NFT
-              event-ticketing marketplace — admin tooling for a smart-TV
-              network, and a handful of mobile apps.
-            </p>
-            <p className="reveal" data-delay="3">
-              What I&apos;ve picked up alongside that is{" "}
-              <span className="accent">what happens after the merge</span>. I
-              write the GitLab pipelines that gate my own code — lint,
-              typecheck, tests, dependency scanning, secret detection — because
-              I used to find those problems at deploy time instead. I&apos;ve
-              deployed to Vercel, Render and Supabase in production, and
-              I&apos;ve built the whole stack myself on AWS: EC2, nginx, a load
-              balancer, CloudFront, RDS and Memcached.
-            </p>
-            <p className="reveal" data-delay="4">
-              I&apos;m currently at{" "}
+              on a full scholarship, finishing in 2026, alongside the day job
+              rather than instead of it. I&apos;m currently at{" "}
               <strong style={{ color: "var(--ink)" }}>Alien Lab</strong>, where
-              I&apos;ve built two of the company&apos;s products on my own. When
-              something breaks in production, I know how to work out which side
-              of the boundary it broke on.
+              I&apos;ve built two of the company&apos;s products on my own.
             </p>
           </div>
         </div>

@@ -44,9 +44,8 @@ export function PortfolioEducation() {
             <PhysicsText lines={[{ text: "Theory and practice, side by side." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
-            A scholarship-funded CS degree built on Georgia&apos;s strongest
-            math-and-physics foundation — and where I built infrastructure from
-            scratch.
+            A CS degree earned alongside the day job — and where the
+            infrastructure work happened.
           </p>
         </div>
 
@@ -91,10 +90,10 @@ export function PortfolioEducation() {
                 <strong>
                   DevOps and Software Engineering practical courses
                 </strong>{" "}
-                I set up and ran a complete AWS deployment stack from scratch —
-                EC2 on Ubuntu, nginx as reverse proxy, a load balancer,
-                CloudFront, RDS MySQL, Memcached and Docker — in use by students
-                and faculty across the year.
+                I set up and ran an AWS deployment stack from scratch — EC2 on
+                Ubuntu, nginx as reverse proxy, a load balancer, CloudFront,
+                RDS MySQL, Memcached and Docker — used by students and faculty
+                across the year.
               </p>
               <div className="courses">
                 <div className="label">Coursework</div>
@@ -117,7 +116,7 @@ export function PortfolioEducation() {
                 </span>
                 <span className="edu-badge">Graduated 2022</span>
               </div>
-              <h3>Komarovi School Pansion</h3>
+              <h3>Komarovi Physics &amp; Mathematics School</h3>
               <div className="deg">High School Diploma · Tbilisi, Georgia</div>
               <div className="scholarship">
                 <IconStar />
@@ -129,15 +128,30 @@ export function PortfolioEducation() {
             </div>
             <div className="edu-body">
               <p className="note">
-                Specialization in{" "}
+                Six years in the{" "}
                 {/* Explicit {" "} after </strong>: the text node that follows
                     spans several lines, and the JSX transform trims its leading
-                    whitespace — which rendered "Physicsat Komarovi". */}
+                    whitespace — which rendered "Physicsstream at Komarovi". */}
                 <strong>Mathematics &amp; Physics</strong>{" "}
-                at Komarovi — widely regarded as the most prestigious boarding
-                school in Georgia, and the country&apos;s strongest pipeline
-                into competitive STEM programs.
+                stream at Komarovi — public school N199, one of Georgia&apos;s
+                most selective. Entry is by examination from the seventh grade,
+                and the specialization runs ten mathematics and physics
+                examinations a year.
               </p>
+              <p className="note" style={{ marginTop: 12 }}>
+                I took my first developer job in 2019, three years before
+                finishing here, and worked through the rest of school. The
+                national exams at the end of it covered my university tuition
+                in full.
+              </p>
+              <div className="courses">
+                <div className="label">Focus</div>
+                <div className="pill-row">
+                  <span className="pill">Mathematics</span>
+                  <span className="pill">Physics</span>
+                  <span className="pill">National exams, 2022</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

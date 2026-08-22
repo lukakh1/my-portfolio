@@ -3,6 +3,8 @@ import { Familjen_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next"
 
+import { yearsShippingWord } from "@/shared/config/portfolio-content";
+
 // globals.css (Tailwind) first: its preflight lives in `@layer base`, and the
 // unlayered design system below must come after it in source order too, so the
 // intent is unambiguous no matter how layers evolve.
@@ -56,8 +58,10 @@ const keepOnTruckin = localFont({
 
 const SITE_URL = "https://www.luria.life";
 const TITLE = "Luka Khimshiashvili — Full-Stack Software Engineer";
+const YEARS = yearsShippingWord();
+const YEARS_TITLE_CASE = YEARS.charAt(0).toUpperCase() + YEARS.slice(1);
 const DESCRIPTION =
-  "Luka Khimshiashvili — Full-Stack Software Engineer. React, Next.js, React Native, Node and PostgreSQL, shipped through GitLab CI and Docker. Building production software since age 15.";
+  `Luka Khimshiashvili — Full-Stack Software Engineer. Next.js, React, React Native, Node and PostgreSQL, shipped through GitLab CI and Docker. ${YEARS_TITLE_CASE} years building production software, currently at Alien Lab.`;
 
 /**
  * metadataBase + openGraph are load-bearing, not decoration: without any OG

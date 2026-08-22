@@ -30,9 +30,9 @@ import { PortfolioSkills } from "@/widgets/portfolio-skills";
 import { PortfolioStats } from "@/widgets/portfolio-stats";
 
 const MARQUEE_ITEMS = [
+  "Next.js",
   "React",
   "React Native",
-  "Next.js",
   "TypeScript",
   "Node.js",
   "PostgreSQL",

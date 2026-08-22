@@ -21,15 +21,17 @@ section {
 }
 /* Section headings are the display face's second home. Sizing is per-section
    rather than one token: posters size type to its line length, and these
-   headings run from 9 characters ("My stack.") to 38 ("Six years of building.
-   Still learning."). A single clamp would leave the short ones timid and the
-   long ones cramped. Measured widths at 100px, in em:
-     My stack.                              4.35
-     Where I've worked.                     8.83
-     Some things I've built.               10.18
-     Want to work together?                10.74
-     Theory and practice, side by side.    14.90
-     Six years of building. Still learning. 16.10 */
+   headings run from 9 characters ("My stack.") to 34 ("Theory and practice,
+   side by side."). A single clamp would leave the short ones timid and the
+   long ones cramped — so if you change a heading, re-measure it and retune
+   its --head-unit below. Measured widths at 100px, in em:
+     My stack.                            4.48
+     Get in touch.                        6.03
+     After the merge.                     7.71
+     Where I've worked.                   9.10
+     Building since 2019.                 9.49
+     Some things I've built.             10.52
+     Theory and practice, side by side.  15.41 */
 .section-head h2,
 .contact-card h2 {
   --sz: var(--head-unit, clamp(38px, 5vw, 56px));
@@ -37,8 +39,11 @@ section {
   line-height: 0.98;
   max-width: 16ch;
 }
+/* 9.49em — essentially the same line length as #experience (9.10em), so it
+   takes essentially the same scale. The old value here was clamp(34px, 4.4vw,
+   54px), tuned for a 16.10em heading that no longer exists. */
 #about .section-head h2 {
-  --head-unit: clamp(34px, 4.4vw, 54px);
+  --head-unit: clamp(40px, 5.8vw, 78px);
 }
 #experience .section-head h2 {
   --head-unit: clamp(42px, 6.2vw, 82px);

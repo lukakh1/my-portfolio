@@ -6,7 +6,7 @@ export function PortfolioPrintHeader() {
       <div>
         <h1>Luka Khimshiashvili</h1>
         <div className="role">
-          Full-Stack Software Developer · Building since age 15
+          Full-Stack Software Engineer · Tbilisi, Georgia
         </div>
       </div>
       <div className="print-meta">

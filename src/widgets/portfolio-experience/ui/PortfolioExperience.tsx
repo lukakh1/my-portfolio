@@ -128,7 +128,7 @@ export function PortfolioExperience() {
             <PhysicsText lines={[{ text: "Where I’ve worked." }]} />
           </h2>
           <p className="sub reveal" data-delay="2">
-            From mobile apps at 15, to full-stack work today.
+            Six teams since 2019 — mobile apps first, full-stack products now.
           </p>
         </div>
 

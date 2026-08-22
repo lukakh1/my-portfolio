@@ -11,7 +11,7 @@ export interface PhysicsLine {
  * Letters are grouped into WORDS, and this is load-bearing rather than tidy:
  * every letter is its own `inline-block`, which hands the browser a line-break
  * opportunity between each pair of them. Without a nowrap wrapper per word,
- * headings break mid-word ("Six years of buildi / ng."). The break
+ * headings break mid-word ("Building sin / ce 2019."). The break
  * opportunities are the real spaces emitted between the word spans.
  *
  * Deliberately hook-free, so it can be used directly inside the server-rendered

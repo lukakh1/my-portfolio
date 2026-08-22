@@ -33,7 +33,7 @@ export function PortfolioProjects() {
             Products I built and shipped — most of them on my own.
             <span className="proj-hint" aria-hidden>
               {" "}
-              Psst — on desktop you can toss these cards around.
+              Drag them around, if you like.
             </span>
           </p>
           <button className="btn tidy-btn" data-tidy hidden type="button">

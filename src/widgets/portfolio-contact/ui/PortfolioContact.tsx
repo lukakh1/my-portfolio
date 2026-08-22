@@ -26,11 +26,11 @@ export function PortfolioContact() {
         <div className="contact-card reveal">
           <div className="eyebrow">Contact · 07</div>
           <h2>
-            <PhysicsText lines={[{ text: "Want to work together?" }]} />
+            <PhysicsText lines={[{ text: "Get in touch." }]} />
           </h2>
           <p className="sub">
-            I&apos;m open to remote full-stack roles and freelance work. Email
-            is the fastest way to reach me.
+            Open to remote full-stack roles and freelance work. Email is the
+            fastest way to reach me.
           </p>
           <div className="contact-actions">
             <a className="btn btn-primary" href={urls.mailto}>

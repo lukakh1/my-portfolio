@@ -1,5 +1,31 @@
 /** Static portfolio copy and links — single source for widgets */
 
+/**
+ * Years shipping professionally, derived rather than hardcoded — the number
+ * was stale in five places at once before this existed.
+ *
+ * Anchored to the month of the first job (4TWIGGERS, June 2019), not just the
+ * year: a plain `getFullYear() - 2019` would claim eight years on 1 Jan 2027
+ * while the true figure was still seven and a half.
+ *
+ * Note this evaluates at build time on a statically rendered page, so it
+ * refreshes on deploy rather than on the anniversary itself.
+ */
+const CAREER_START_UTC = Date.UTC(2019, 5, 1);
+const MS_PER_YEAR = 31_556_952_000;
+
+export const yearsShipping = () =>
+  Math.floor((Date.now() - CAREER_START_UTC) / MS_PER_YEAR);
+
+const NUMBER_WORDS = [
+  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+  "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+];
+
+/** Same number, spelled out — prose reads badly with a numeral mid-sentence. */
+export const yearsShippingWord = () =>
+  NUMBER_WORDS[yearsShipping()] ?? String(yearsShipping());
+
 export const contactEmail =
   process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "lukakhimshiashvili4@gmail.com";
 
@@ -35,20 +61,24 @@ export const sectionIds = [
 
 export const heroRoles = [
   "Full-Stack Software Engineer",
-  "React & React Native Engineer",
-  "Next.js & Node",
-  "Shipping since age 15",
+  "Next.js · Node · PostgreSQL",
+  "React & React Native",
+  "NestJS & Express",
 ] as const;
 
 export const stats = [
-  { value: 6, suffix: "+", label: "Years writing code professionally" },
+  {
+    value: yearsShipping(),
+    suffix: "+",
+    label: "Years writing code professionally",
+  },
   { value: 6, suffix: "", label: "Companies & teams" },
   { value: 10, suffix: "+", label: "Apps & platforms shipped" },
 ] as const;
 
 export const profileRows: { key: string; value: string }[] = [
   { key: "Role", value: "Full-Stack Engineer" },
-  { key: "Experience", value: "6+ years" },
+  { key: "Experience", value: `${yearsShipping()}+ years` },
   { key: "Started", value: "2019, age 15" },
   { key: "Now", value: "Alien Lab" },
   { key: "Degree", value: "B.Sc. CS, KIU" },
@@ -222,12 +252,12 @@ export const skillCategories: SkillCategory[] = [
   {
     id: "fe",
     title: "Frontend",
-    pills: ["React", "React Native", "Next.js", "Angular", "Expo"],
+    pills: ["Next.js", "React", "React Native", "Angular", "Expo"],
   },
   {
     id: "be",
     title: "Backend",
-    pills: ["Node.js", "Express.js", "NestJS", "REST APIs", "Auth"],
+    pills: ["Node.js", "NestJS", "Express.js", "REST APIs", "Auth"],
   },
   {
     id: "db",
@@ -323,8 +353,8 @@ export const shipSteps: ShipStep[] = [
   {
     id: "vcs",
     title: "Version control",
-    body: "GitLab, with a merge-request workflow. Nothing reaches main without review and a green pipeline behind it.",
-    pills: ["GitLab", "Merge requests", "Git"],
+    body: "GitLab, with a merge-request workflow. I review other people's merge requests and mine get reviewed the same way — nothing reaches main without both that and a green pipeline behind it.",
+    pills: ["GitLab", "Merge requests", "Code review", "Git"],
   },
   {
     id: "ci",
@@ -342,7 +372,7 @@ export const shipSteps: ShipStep[] = [
     id: "incident",
     title: "When it breaks",
     wide: true,
-    body: "The sTickets API started failing in production. I checked whether the request was even leaving the frontend before touching the backend — isolating which side of the boundary had actually broken — then looked at what Render was returning. A frontend request loop was firing enough calls to trip the rate limiter, which blocked the endpoint. I unblocked it and fixed the request pattern that caused it, instead of leaving the limiter switched off.",
+    body: "I operated sTickets myself, so when the API started failing in production I was the one who got the call. I checked whether the request was even leaving the frontend before touching the backend — isolating which side of the boundary had actually broken — then looked at what Render was returning. A frontend request loop was firing enough calls to trip the rate limiter, which blocked the endpoint. I unblocked it and fixed the request pattern that caused it, instead of leaving the limiter switched off.",
     pills: ["Production debugging", "Rate limiting", "Vercel", "Render"],
   },
 ];
@@ -382,19 +412,19 @@ export const projects: ProjectItem[] = [
     pills: ["Next.js", "Express", "PostgreSQL"],
   },
   {
-    tag: "Coursework · KIU 2025–26",
-    title: "AWS deployment stack",
-    description:
-      "Set up and ran the full deployment stack for a coursework application from scratch — EC2 on Ubuntu, nginx as reverse proxy, a load balancer, CloudFront, RDS MySQL and Memcached, containerized with Docker. In use by students and faculty across the year.",
-    pills: ["EC2", "nginx", "Load balancer", "RDS"],
-  },
-  {
     href: "https://kiketischool.ge",
     tag: "Side project · Live",
     title: "Kiketi School",
     description:
       "A website I built and shipped for Kiketi School — a real production site, live and in active use. Payload CMS + Supabase, media on Vercel Blob.",
     pills: ["Payload CMS", "Supabase", "Production"],
+  },
+  {
+    tag: "Coursework · KIU 2025–26",
+    title: "AWS deployment stack",
+    description:
+      "Set up and ran the deployment stack for a coursework application from scratch — EC2 on Ubuntu, nginx as reverse proxy, a load balancer, CloudFront, RDS MySQL and Memcached, containerized with Docker. Used by students and faculty across the year.",
+    pills: ["EC2", "nginx", "Load balancer", "RDS"],
   },
   {
     href: "https://github.com/lukakh1",

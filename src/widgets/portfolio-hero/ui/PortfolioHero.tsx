@@ -106,7 +106,7 @@ export function PortfolioHero() {
             </div>
             <div className="status-pill reveal">
               <span className="status-dot" />
-              Open to remote full-stack roles
+              Open to remote work
             </div>
             <h1 className="reveal" data-delay="1">
               {/* No trailing period: the lockup is flush-set to a shared right
@@ -125,10 +125,11 @@ export function PortfolioHero() {
               <RoleRotator />
             </div>
             <p className="hero-tag reveal" data-delay="3">
-              I&apos;ve been building products since I was 15 — and shipping,
-              deploying and debugging them since not long after. Currently at{" "}
+              I build web and mobile products end to end — Next.js and React on
+              the front, Node and PostgreSQL behind them, and the CI and deploys
+              that get them into production. Currently at{" "}
               <span className="hl-warm">Alien Lab</span>, where I&apos;ve built
-              two products on my own.
+              two of the company&apos;s products on my own.
             </p>
             <div className="hero-cta reveal" data-delay="4">
               <ResumePrintButton className="btn btn-primary">
@@ -185,14 +186,12 @@ export function PortfolioHero() {
                 <span className="s">&quot;Full-Stack Software Engineer&quot;</span>,
                 {"\n  "}
                 <span className="k">since</span>:{" "}
-                <span className="n">2019</span>,{" "}
-                <span className="c">{"// age 15"}</span>
-                {"\n  "}
+                <span className="n">2019</span>,{"\n  "}
                 <span className="k">stack</span>: [
                 <span className="s">&quot;TS&quot;</span>,{" "}
+                <span className="s">&quot;Next&quot;</span>,{" "}
                 <span className="s">&quot;React&quot;</span>,{" "}
                 <span className="s">&quot;RN&quot;</span>,{" "}
-                <span className="s">&quot;Next&quot;</span>,{" "}
                 <span className="s">&quot;Node&quot;</span>],{"\n  "}
                 <span className="k">db</span>: [
                 <span className="s">&quot;Postgres&quot;</span>,{" "}
@@ -201,7 +200,7 @@ export function PortfolioHero() {
                 <span className="k">ships</span>: [
                 <span className="s">&quot;GitLab CI&quot;</span>,{" "}
                 <span className="s">&quot;Docker&quot;</span>,{" "}
-                <span className="s">&quot;AWS&quot;</span>],{"\n  "}
+                <span className="s">&quot;Vercel&quot;</span>],{"\n  "}
                 <span className="k">now</span>:{" "}
                 <span className="s">&quot;@AlienLab&quot;</span>,{"\n  "}
                 <span className="k">edu</span>:{" "}
@@ -209,12 +208,8 @@ export function PortfolioHero() {
                   &quot;Kutaisi Intl. University&quot;
                 </span>
                 ,{"\n  "}
-                <span className="k">scholarship</span>:{" "}
-                <span className="n">100</span>,{" "}
-                <span className="c">{"// percent"}</span>
-                {"\n  "}
-                <span className="k">openTo</span>:{" "}
-                <span className="s">&quot;remote, ambitious teams&quot;</span>,
+                <span className="k">based</span>:{" "}
+                <span className="s">&quot;Tbilisi, UTC+4&quot;</span>,
                 {"\n"}
                 {"}"}
                 {";"}
