@@ -78,6 +78,27 @@ export function LiquidBackdrop() {
 
         let last = 0;
         let first = true;
+
+        /**
+         * Scroll progress needs the page height, and reading `scrollHeight`
+         * FORCES A LAYOUT FLUSH. Doing that inside the ticker meant every
+         * frame on every device recalculated layout for the whole document —
+         * the single most expensive line in the render loop, and pure waste,
+         * since the page height only changes when the page reflows.
+         *
+         * Cache it, and let a ResizeObserver on <body> refresh it instead.
+         */
+        let maxScroll = 1;
+        const measure = () => {
+          maxScroll = Math.max(
+            1,
+            document.documentElement.scrollHeight - window.innerHeight,
+          );
+        };
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(document.body);
+
         tick = (time: number) => {
           // gsap.ticker hands out SECONDS and already runs Lenis, so reading
           // velocity here is guaranteed to see this frame's value, not the
@@ -87,11 +108,7 @@ export function LiquidBackdrop() {
 
           const lenis = lenisInstance.get();
           glStore.velocity = lenis ? lenis.velocity * 0.03 : 0;
-          glStore.scroll =
-            document.documentElement.scrollHeight > window.innerHeight
-              ? window.scrollY /
-                (document.documentElement.scrollHeight - window.innerHeight)
-              : 0;
+          glStore.scroll = window.scrollY / maxScroll;
           stepPointer(dt);
           engine!.draw(time, dt);
 
@@ -106,9 +123,15 @@ export function LiquidBackdrop() {
         // so Lenis and ScrollTrigger always update before this reads them.
         gsap.ticker.add(tick, false, false);
 
-        const onResize = () => engine?.resize();
+        const onResize = () => {
+          measure();
+          engine?.resize();
+        };
         window.addEventListener("resize", onResize, { passive: true });
-        cleanupResize = () => window.removeEventListener("resize", onResize);
+        cleanupResize = () => {
+          ro.disconnect();
+          window.removeEventListener("resize", onResize);
+        };
       })
       .catch((err) => {
         if (process.env.NODE_ENV !== "production") console.warn(err);

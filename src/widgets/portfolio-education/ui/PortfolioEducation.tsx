@@ -50,71 +50,94 @@ export function PortfolioEducation() {
           </p>
         </div>
 
+        {/*
+          Stacked full-width rows, NOT two columns.
+          Side by side, the two cards were stretched to a common 867px while the
+          school card's content ended at 317px — 550px of dead white space, 63%
+          of the card empty. Stacked, each row is only as tall as it needs to be.
+          Inside each row, .edu-head / .edu-body split into two columns on wide
+          screens so the full-width rows don't produce unreadable line lengths.
+        */}
         <div className="edu-grid">
           <div className="edu reveal">
-            <div className="badge-row">
-              <span className="edu-badge grad">Graduated 2026</span>
-              <span className="edu-badge">B.Sc. Computer Science</span>
+            <div className="edu-head">
+              <div className="badge-row">
+                <span className="edu-badge grad">Graduated 2026</span>
+                <span className="edu-badge">B.Sc. Computer Science</span>
+              </div>
+              <h3>Kutaisi International University</h3>
+              <div className="deg">
+                B.Sc. Computer Science · Kutaisi, Georgia
+              </div>
+              <div className="scholarship">
+                <IconGradCap />
+                <span>
+                  <strong style={{ color: "var(--ink)" }}>
+                    100% tuition scholarship
+                  </strong>{" "}
+                  — earned via national exam results.
+                </span>
+              </div>
             </div>
-            <h3>Kutaisi International University</h3>
-            <div className="deg">B.Sc. Computer Science · Kutaisi, Georgia</div>
-            <p className="note">
-              A rigorous CS foundation built alongside the day job — algorithms
-              and data structures, software engineering, operating systems and
-              systems programming, computer architecture, databases and theory
-              of computation, taught in English.
-            </p>
-            <p className="note" style={{ marginTop: 12 }}>
-              For the{" "}
-              <strong>DevOps and Software Engineering practical courses</strong>{" "}
-              I set up and ran a complete AWS deployment stack from scratch —
-              EC2 on Ubuntu, nginx as reverse proxy, a load balancer,
-              CloudFront, RDS MySQL, Memcached and Docker — in use by students
-              and faculty across the year.
-            </p>
-            <div className="scholarship">
-              <IconGradCap />
-              <span>
-                <strong style={{ color: "var(--ink)" }}>
-                  100% tuition scholarship
+            <div className="edu-body">
+              <p className="note">
+                A rigorous CS foundation built alongside the day job —
+                algorithms and data structures, software engineering, operating
+                systems and systems programming, computer architecture,
+                databases and theory of computation, taught in English.
+              </p>
+              <p className="note" style={{ marginTop: 12 }}>
+                For the{" "}
+                <strong>
+                  DevOps and Software Engineering practical courses
                 </strong>{" "}
-                — earned via national exam results.
-              </span>
-            </div>
-            <div className="courses">
-              <div className="label">Coursework</div>
-              <div className="pill-row">
-                {kiuCoursePills.map((pill) => (
-                  <span key={pill} className="pill">
-                    {pill}
-                  </span>
-                ))}
+                I set up and ran a complete AWS deployment stack from scratch —
+                EC2 on Ubuntu, nginx as reverse proxy, a load balancer,
+                CloudFront, RDS MySQL, Memcached and Docker — in use by students
+                and faculty across the year.
+              </p>
+              <div className="courses">
+                <div className="label">Coursework</div>
+                <div className="pill-row">
+                  {kiuCoursePills.map((pill) => (
+                    <span key={pill} className="pill">
+                      {pill}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
           <div className="edu reveal" data-delay="1">
-            <div className="badge-row">
-              <span className="edu-badge gold">
-                ★ National exam high achiever
-              </span>
-              <span className="edu-badge">Graduated 2022</span>
+            <div className="edu-head">
+              <div className="badge-row">
+                <span className="edu-badge gold">
+                  ★ National exam high achiever
+                </span>
+                <span className="edu-badge">Graduated 2022</span>
+              </div>
+              <h3>Komarovi School Pansion</h3>
+              <div className="deg">High School Diploma · Tbilisi, Georgia</div>
+              <div className="scholarship">
+                <IconStar />
+                <span>
+                  National-exam results that translated directly into a full
+                  university scholarship.
+                </span>
+              </div>
             </div>
-            <h3>Komarovi School Pansion</h3>
-            <div className="deg">High School Diploma · Tbilisi, Georgia</div>
-            <p className="note">
-              Specialization in{" "}
-              <strong>Mathematics & Physics</strong> at Komarovi — widely
-              regarded as the most prestigious boarding school in Georgia, and
-              the country&apos;s strongest pipeline into competitive STEM
-              programs.
-            </p>
-            <div className="scholarship">
-              <IconStar />
-              <span>
-                National-exam results that translated directly into a full
-                university scholarship.
-              </span>
+            <div className="edu-body">
+              <p className="note">
+                Specialization in{" "}
+                {/* Explicit {" "} after </strong>: the text node that follows
+                    spans several lines, and the JSX transform trims its leading
+                    whitespace — which rendered "Physicsat Komarovi". */}
+                <strong>Mathematics &amp; Physics</strong>{" "}
+                at Komarovi — widely regarded as the most prestigious boarding
+                school in Georgia, and the country&apos;s strongest pipeline
+                into competitive STEM programs.
+              </p>
             </div>
           </div>
         </div>

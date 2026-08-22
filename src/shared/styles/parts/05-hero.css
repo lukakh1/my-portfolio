@@ -1,5 +1,9 @@
 .hero {
+  /* svh = the SMALL viewport (URL bar visible). `vh` resolves against the LARGE
+     viewport on mobile, so the hero was always taller than the visible screen
+     and its height changed as the URL bar collapsed. svh is stable. */
   min-height: 100vh;
+  min-height: 100svh;
   padding: 140px 0 120px;
   display: flex;
   align-items: center;
@@ -60,31 +64,38 @@
   animation: float3 26s ease-in-out infinite;
   opacity: 0.12;
 }
+/* Translate ONLY — deliberately no scale().
+   These are 360-520px layers under `filter: blur(80px)`. A composited layer
+   can be translated for free, but scaling one changes its rasterisation
+   scale, so the browser must RE-RENDER the 80px blur every frame, three
+   layers at once, forever. That is a periodic main-thread/GPU spike with
+   nothing on screen moving — exactly the "little jumps while idle" symptom.
+   The translate distances are widened to keep the same amount of drift. */
 @keyframes float1 {
   0%,
   100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate(60px, 40px) scale(1.08);
+    transform: translate3d(80px, 54px, 0);
   }
 }
 @keyframes float2 {
   0%,
   100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate(-50px, 30px) scale(1.1);
+    transform: translate3d(-70px, 44px, 0);
   }
 }
 @keyframes float3 {
   0%,
   100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate(40px, -30px) scale(1.06);
+    transform: translate3d(56px, -42px, 0);
   }
 }
 
@@ -199,8 +210,25 @@
 .role-line .prompt {
   color: var(--rust);
 }
+/* Grid-stack the invisible sizer and the live text in one cell, so the box is
+   always as wide/tall as the WIDEST role and the typewriter never reflows the
+   line. See RoleRotator.tsx for why this is load-bearing rather than cosmetic. */
 .role-rotator {
-  display: inline-block;
+  display: grid;
+  min-width: 0;
+}
+.role-rotator > * {
+  grid-area: 1 / 1;
+}
+.role-rotator-sizer {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+/* justify-self keeps the box shrink-to-fit around the TYPED text, so the caret
+   hugs the last character instead of parking at the sizer's right edge. */
+.role-rotator-text {
+  justify-self: start;
   color: var(--ink);
   border-right: 2px solid var(--signal);
   padding-right: 2px;

@@ -118,6 +118,13 @@ export function createLiquid(canvas: HTMLCanvasElement, tier: Tier): LiquidEngin
     const nw = Math.max(1, Math.round(window.innerWidth * q.liquidDpr * q.liquidScale));
     const nh = Math.max(1, Math.round(window.innerHeight * q.liquidDpr * q.liquidScale));
     if (nw === w && nh === h) return;
+    // Mobile browsers fire `resize` every time the URL bar collapses or
+    // expands — i.e. constantly, mid-scroll, with a height delta of ~10%.
+    // Reallocating the drawing buffer for that costs a GPU buffer realloc on
+    // the critical path and shows up as a hitch. The field is a soft, blurred,
+    // out-of-focus blob; nobody can see a 10% vertical stretch in it, so
+    // absorb small height-only changes instead of reallocating.
+    if (w && nw === w && Math.abs(nh - h) / h < 0.2) return;
     w = nw;
     h = nh;
     canvas.width = w;

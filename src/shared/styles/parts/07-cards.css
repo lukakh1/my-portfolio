@@ -7,9 +7,26 @@
   cursor: pointer;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.tl-card:hover {
-  transform: translateY(-4px);
-  z-index: 5;
+/* The lift and the flip are BOTH hover affordances, so they are gated on a
+   real hover-capable fine pointer on a real screen. On touch there is no
+   hover — iOS synthesises a sticky one after a tap — and the flip's back face
+   is absolutely positioned to the front's height. On a 390px phone that front
+   is a 294x876 box (aspect 0.34); cropping a 1440x900 screenshot into it with
+   object-fit:cover discards ~79% of the image width and shows a vertical
+   sliver. The touch block further down lays that same screenshot out inline
+   at its true 16:10 instead. */
+@media (hover: hover) and (pointer: fine) and (min-width: 761px) {
+  .tl-card:hover {
+    transform: translateY(-4px);
+    z-index: 5;
+  }
+  .tl-card:hover .tl-card-inner {
+    transform: rotateY(180deg);
+    box-shadow: 0 24px 56px -32px rgb(var(--sh) / 28%);
+  }
+  .tl-open:hover {
+    color: var(--rust);
+  }
 }
 /* The card itself is no longer focusable; .tl-open carries the focus ring.
    Kept as a focus-within cue so the whole card still reads as the target. */
@@ -22,10 +39,6 @@
   transform-style: preserve-3d;
   transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.6s ease;
-}
-.tl-card:hover .tl-card-inner {
-  transform: rotateY(180deg);
-  box-shadow: 0 24px 56px -32px rgb(var(--sh) / 28%);
 }
 .tl-card-face {
   border: 1px solid var(--line);
@@ -74,6 +87,9 @@
 }
 /* Rendered as a real <button> — the card's keyboard affordance — so it needs
    the UA button styling stripped back to what the old <span> looked like. */
+.tl-hint-tap {
+  display: none;
+}
 .tl-hint {
   display: block;
   margin-top: 14px;
@@ -86,9 +102,6 @@
   letter-spacing: 0.04em;
   color: var(--ink-mute);
   transition: color 0.2s ease;
-}
-.tl-open:hover {
-  color: var(--rust);
 }
 .tl-open:focus-visible {
   outline: 2px solid var(--blue);
@@ -331,11 +344,35 @@
   height: 16px;
 }
 
+/* One full-width row per school, stacked — NOT two columns.
+   Side by side, both cards were stretched to a common 867px while the school
+   card's content ended at 317px, leaving 550px of dead white space in it.
+   See PortfolioEducation.tsx. */
 .edu-grid {
   margin-top: 56px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 18px;
+}
+.edu-body {
+  margin-top: 18px;
+}
+/* Wide screens: split each row into a narrow identity rail and a prose column,
+   so a full-width card never sets body text in 1300px-long lines. */
+@media (min-width: 861px) {
+  .edu {
+    display: grid;
+    grid-template-columns: minmax(240px, 330px) minmax(0, 1fr);
+    gap: 44px;
+    align-items: start;
+    padding: 34px 38px;
+  }
+  .edu-body {
+    margin-top: 0;
+  }
+}
+.edu-body .note {
+  max-width: 74ch;
 }
 .edu {
   position: relative;

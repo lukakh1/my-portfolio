@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import { fullMotionOk } from "@/shared/lib/gsap";
+import { prefersReducedMotion } from "@/shared/lib/gsap";
 import { lenisInstance } from "@/features/smooth-scroll";
 
 interface MarqueeProps {
@@ -24,9 +24,10 @@ interface MarqueeProps {
  * so there's never a gap at any width.
  *
  * Interaction: grab and drag to scrub; releasing with speed flings it and the
- * momentum decays back into the idle crawl. Auto-motion is gated on
- * `fullMotionOk()` (off for reduced-motion), but dragging always works since
- * it's user-initiated. Decorative, so the whole thing is aria-hidden.
+ * momentum decays back into the idle crawl. Auto-motion is off only under
+ * reduced-motion, and the loop is parked whenever the strip is off-screen;
+ * dragging always works since it's user-initiated. Decorative, so the whole
+ * thing is aria-hidden.
  */
 export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueeProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -40,7 +41,15 @@ export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueePr
     const unit = track.firstElementChild as HTMLElement | null;
     if (!unit) return;
 
-    const autoOk = fullMotionOk();
+    /**
+     * Auto-crawl is gated on reduced-motion ALONE.
+     *
+     * It used to be gated on `fullMotionOk()`, which also excludes touch and
+     * small screens — so on every phone the strip sat completely frozen while
+     * its rAF loop still ran 60 times a second writing an identical transform.
+     * Worst of both: no motion, full cost.
+     */
+    const autoOk = !prefersReducedMotion();
 
     let unitWidth = 0;
     let clones: HTMLElement[] = [];
@@ -67,6 +76,8 @@ export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueePr
     let fling = 0; // px/frame momentum from a drag release
     let last = 0;
     let raf = 0;
+    let running = false;
+    let inView = false;
 
     const wrap = (x: number) => {
       if (unitWidth <= 0) return x;
@@ -76,6 +87,14 @@ export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueePr
     };
 
     let dragging = false;
+
+    /**
+     * The loop exists to move the strip. If it is off-screen, or there is
+     * nothing left to move, it must not run — an idle rAF that rewrites the
+     * same transform every frame is pure battery burn and keeps the main
+     * thread from ever going quiet.
+     */
+    const needsFrame = () => inView && (autoOk || dragging || fling !== 0);
 
     const frame = (t: number) => {
       const dt = Math.min(0.05, (t - last) / 1000 || 0.016);
@@ -95,11 +114,31 @@ export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueePr
 
       offset = wrap(offset);
       track.style.transform = `translate3d(${offset.toFixed(2)}px, 0, 0)`;
+
+      if (!needsFrame()) {
+        running = false;
+        return;
+      }
       raf = requestAnimationFrame(frame);
     };
 
-    last = performance.now();
-    raf = requestAnimationFrame(frame);
+    const wake = () => {
+      if (running || !needsFrame()) return;
+      running = true;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    };
+
+    // Only animate while the strip is actually on screen. The page is ~19,000px
+    // tall on a phone; the marquee is visible for a few hundred of them.
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        wake();
+      },
+      { rootMargin: "100px" },
+    );
+    io.observe(viewport);
 
     // ── drag to scrub ──
     let lastX = 0;
@@ -112,6 +151,7 @@ export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueePr
       dragging = false;
       fling = Math.max(-40, Math.min(40, vel));
       viewport.classList.remove("is-dragging");
+      wake();
       try {
         viewport.releasePointerCapture(e.pointerId);
       } catch {}
@@ -124,6 +164,7 @@ export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueePr
       vel = 0;
       viewport.setPointerCapture(e.pointerId);
       viewport.classList.add("is-dragging");
+      wake();
     };
     const onMove = (e: PointerEvent) => {
       if (!dragging) return;
@@ -144,6 +185,7 @@ export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueePr
       offset = wrap(offset + dx);
       // Smooth the per-move delta into a frame velocity for the release fling.
       vel = vel * 0.6 + dx * 0.4;
+      wake();
     };
 
     viewport.addEventListener("pointerdown", onDown);
@@ -158,6 +200,7 @@ export function Marquee({ items, sep = "✦", speed = 55, className }: MarqueePr
 
     return () => {
       cancelAnimationFrame(raf);
+      io.disconnect();
       ro.disconnect();
       viewport.removeEventListener("pointerdown", onDown);
       viewport.removeEventListener("pointermove", onMove);

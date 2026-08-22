@@ -261,11 +261,20 @@ html.nav-open .nav-burger-bar:last-child {
      every click falls straight through to the content behind it. */
   pointer-events: auto;
   display: grid;
-  align-content: center;
+  /* `safe` matters: with plain `center`, content taller than the sheet is
+     centred by overflowing BOTH edges, so the first link sat at -16px on a
+     500px-tall viewport and no amount of scrolling could reach it (you cannot
+     scroll above 0). `safe` falls back to start-alignment the moment it
+     overflows, which is the only reachable layout. */
+  align-content: safe center;
   justify-items: start;
   gap: var(--sp-7);
   padding: 22vh var(--gutter) var(--sp-9);
   background: var(--sand);
+  /* Landscape phones and small screens: the links must never be unreachable
+     below the fold of an element that cannot scroll. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   clip-path: ellipse(150% 0% at 50% 0%);
   transition: clip-path 0.52s cubic-bezier(0.22, 1, 0.3, 1);
 }
@@ -312,6 +321,21 @@ html.nav-open .nav-burger-bar:last-child {
 @media (max-width: 880px) {
   .nav-shell {
     grid-template-columns: auto 1fr auto;
+    /*
+     * Keep the shell ABOVE the sheet.
+     *
+     * .nav-sheet is `position: fixed; inset: 0` with an opaque background and
+     * z-index 55, and it lives inside .nav — so it painted over .nav-shell,
+     * which has no z-index of its own. That buried the burger: the one control
+     * that closes the menu. There was no way out on a phone (Escape needs a
+     * keyboard, and the only other exit was tapping a section link, which
+     * navigates). The X-morph in `html.nav-open .nav-burger-bar` above was
+     * written for exactly this and had simply never been visible.
+     *
+     * z-index needs a position to apply, hence relative.
+     */
+    position: relative;
+    z-index: calc(var(--z-sheet) + 1);
   }
   .nav-links,
   .nav-clock {

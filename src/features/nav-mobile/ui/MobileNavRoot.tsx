@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { lenisInstance } from "@/features/smooth-scroll";
+import { lockScroll, unlockScroll } from "@/shared/lib/scroll-lock";
 
 /**
  * Drives the narrow-viewport nav sheet. Headless, like the rest of the feature
@@ -31,6 +32,9 @@ export function MobileNavRoot() {
       if (next === open) return;
       open = next;
       toggle.setAttribute("aria-expanded", String(next));
+      // The burger doubles as the close control (it morphs into an X), so its
+      // label has to say which job it is currently doing.
+      toggle.setAttribute("aria-label", next ? "Close menu" : "Open menu");
       document.documentElement.classList.toggle("nav-open", next);
 
       if (next) {
@@ -38,12 +42,16 @@ export function MobileNavRoot() {
         // The transition can't run in the same frame the element stops being
         // `hidden`, so hand the browser a frame to lay it out first.
         requestAnimationFrame(() => sheet.classList.add("is-open"));
-        // Lenis keeps scrolling the page underneath otherwise.
+        // Lenis keeps scrolling the page underneath otherwise — but Lenis only
+        // exists on desktop, so on a phone this alone locked nothing and the
+        // page scrolled away behind the open menu. lockScroll() covers both.
         lenisInstance.get()?.stop();
+        lockScroll();
         focusables()[0]?.focus();
       } else {
         sheet.classList.remove("is-open");
         lenisInstance.get()?.start();
+        unlockScroll();
         // Keep it in the a11y tree until the wipe finishes, then remove it so
         // it can never be tabbed into while invisible.
         const done = () => {
@@ -87,6 +95,23 @@ export function MobileNavRoot() {
     // it is asked to scroll.
     const onSheetClick = (e: MouseEvent) => {
       const a = (e.target as HTMLElement).closest("a[href^='#']");
+      if (a) {
+        setOpen(false);
+        return;
+      }
+      // Tapping the empty sand around the links dismisses it, the way any
+      // sheet should. Only a direct hit on the sheet itself counts, so taps
+      // that land on a link or the CTA are not double-handled.
+      if (e.target === sheet) setOpen(false);
+    };
+
+    // The shell now sits above the sheet, so its brand/CTA links are live
+    // while the menu is open — they must close it too. Bound to the element
+    // (not the document) so it still runs before SmoothScroll's handler.
+    const shell = document.querySelector<HTMLElement>(".nav-shell");
+    const onShellClick = (e: MouseEvent) => {
+      if (!open) return;
+      const a = (e.target as HTMLElement).closest("a[href^='#']");
       if (a) setOpen(false);
     };
 
@@ -97,16 +122,19 @@ export function MobileNavRoot() {
 
     toggle.addEventListener("click", onToggle);
     sheet.addEventListener("click", onSheetClick);
+    shell?.addEventListener("click", onShellClick);
     document.addEventListener("keydown", onKeyDown);
     desktop.addEventListener("change", onDesktop);
 
     return () => {
       toggle.removeEventListener("click", onToggle);
       sheet.removeEventListener("click", onSheetClick);
+      shell?.removeEventListener("click", onShellClick);
       document.removeEventListener("keydown", onKeyDown);
       desktop.removeEventListener("change", onDesktop);
       document.documentElement.classList.remove("nav-open");
       lenisInstance.get()?.start();
+      if (open) unlockScroll();
     };
   }, []);
 

@@ -52,7 +52,11 @@ export function PortfolioNav() {
           and would otherwise measure this instead of the desktop row.
           `hidden` is cleared by MobileNavRoot one frame before the open
           class lands, so the clip-path transition actually runs. */}
-      <div className="nav-sheet" id="navSheet" hidden>
+      {/* data-lenis-prevent: the sheet scrolls itself on short screens, and a
+          stopped Lenis would otherwise swallow the wheel — same trap the
+          experience modal hit. Relevant between 761-880px, where the sheet is
+          in play but Lenis is still running. */}
+      <div className="nav-sheet" id="navSheet" hidden data-lenis-prevent>
         <nav className="nav-sheet-links" aria-label="Sections">
           {mainLinks.map((link, i) => (
             <a

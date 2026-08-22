@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { lenisInstance } from "@/features/smooth-scroll/lib/lenis-instance";
 import { experience } from "@/shared/config/portfolio-content";
+import { lockScroll, unlockScroll } from "@/shared/lib/scroll-lock";
 
 /**
  * Opens a detail modal when an experience card ([data-exp]) is clicked or
@@ -59,7 +60,10 @@ export function ExperienceModalRoot() {
     if (!entry) return;
     const lenis = lenisInstance.get();
     lenis?.stop();
-    document.documentElement.style.overflow = "hidden";
+
+    // Shared with the mobile nav sheet — see @/shared/lib/scroll-lock for why
+    // <html> overflow alone is not enough on iOS.
+    lockScroll();
 
     // Remember who opened it so focus can go home on close.
     const opener = document.activeElement as HTMLElement | null;
@@ -98,8 +102,12 @@ export function ExperienceModalRoot() {
     return () => {
       document.removeEventListener("keydown", onKey);
       lenis?.start();
-      document.documentElement.style.overflow = "";
-      opener?.focus?.();
+
+      unlockScroll();
+
+      // preventScroll: focus() on a restored element scrolls it into view, which
+      // would undo the restore above on the very next frame.
+      opener?.focus?.({ preventScroll: true });
     };
   }, [entry, close]);
 
@@ -122,6 +130,21 @@ export function ExperienceModalRoot() {
         aria-modal="true"
         aria-label={`${product.name} details`}
         onClick={(e) => e.stopPropagation()}
+        /**
+         * Hands wheel/touch gestures inside the dialog back to the browser.
+         *
+         * Lenis is stopped while the modal is open, and a STOPPED Lenis still
+         * calls preventDefault() on every wheel event it sees (lenis.mjs:613)
+         * — that is how it freezes the page. The side effect is that it also
+         * freezes any scroller layered on top of the page, so the text column
+         * could not be scrolled at all on desktop despite having
+         * `overflow-y: auto` and real overflow.
+         *
+         * Lenis checks this attribute up the composed path and bails out
+         * BEFORE that preventDefault (lenis.mjs:608), which is exactly the
+         * documented escape hatch for nested scrollers.
+         */
+        data-lenis-prevent
       >
         <button
           type="button"

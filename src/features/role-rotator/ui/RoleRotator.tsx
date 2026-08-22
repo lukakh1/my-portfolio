@@ -4,6 +4,14 @@ import { useEffect, useRef } from "react";
 
 import { heroRoles } from "@/shared/config/portfolio-content";
 
+/**
+ * The widest role, used to reserve the box.
+ *
+ * `.role-line` is set in JetBrains Mono, so character count IS width — no
+ * measurement needed, and it stays correct if the roles change.
+ */
+const WIDEST_ROLE = heroRoles.reduce((a, b) => (b.length > a.length ? b : a));
+
 export function RoleRotator() {
   const elRef = useRef<HTMLSpanElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -53,8 +61,23 @@ export function RoleRotator() {
   }, []);
 
   return (
-    <span className="role-rotator" id="rotator" ref={elRef}>
-      {heroRoles[0]}
+    /**
+     * Two grid-stacked cells. The sizer is invisible but holds the WIDEST role
+     * permanently, so the box is the same size no matter how much has been
+     * typed — the typewriter can never change the line count.
+     *
+     * Without it, at phone widths "React & React Native Engineer" wraps to a
+     * second line while "Next.js & Node" does not, so `.role-line` oscillated
+     * between 24px and 48px tall every few hundred ms and shoved the entire
+     * hero below it up and down forever, with no scrolling involved.
+     */
+    <span className="role-rotator">
+      <span className="role-rotator-sizer" aria-hidden>
+        {WIDEST_ROLE}
+      </span>
+      <span className="role-rotator-text" id="rotator" ref={elRef}>
+        {heroRoles[0]}
+      </span>
     </span>
   );
 }

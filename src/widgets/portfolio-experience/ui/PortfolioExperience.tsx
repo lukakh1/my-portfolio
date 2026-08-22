@@ -35,6 +35,14 @@ function TimelineItem({
     .join(" ");
   const product = entry.product;
 
+  /**
+   * Phones show only the first two bullets — the cards were 876px tall on a
+   * 390px screen, which is most of a viewport per job. The rest are not lost:
+   * the modal lists every bullet, and the CTA below says how many are waiting.
+   * Only ever applied to cards that HAVE a modal to hold the remainder.
+   */
+  const hiddenBullets = product ? Math.max(0, entry.bullets.length - 2) : 0;
+
   return (
     <li className={className} data-delay={revealDelay}>
       <span className="tl-dot" />
@@ -69,13 +77,23 @@ function TimelineItem({
               ))}
             </ul>
             {product ? (
+              /* Two labels, swapped in CSS by pointer type rather than by JS:
+                 "Hover to preview" is a lie on a touch device, and picking the
+                 wording at runtime would mean a hydration mismatch. */
               <button
                 type="button"
                 className="tl-hint tl-open"
                 data-exp={entry.id}
                 aria-label={`Open ${product.name} details — ${entry.title} at ${entry.companyAccent}`}
               >
-                Hover to preview · click for details →
+                <span className="tl-hint-hover" aria-hidden>
+                  Hover to preview · click for details →
+                </span>
+                <span className="tl-hint-tap" aria-hidden>
+                  {hiddenBullets > 0
+                    ? `Tap for details · +${hiddenBullets} more →`
+                    : "Tap for details →"}
+                </span>
               </button>
             ) : null}
           </div>
@@ -85,6 +103,8 @@ function TimelineItem({
                 src={product.images[0]}
                 alt={`${product.name} preview`}
                 loading="lazy"
+                width={1440}
+                height={900}
               />
               <div className="tl-back-overlay">
                 <span className="tl-back-name">{product.name}</span>

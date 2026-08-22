@@ -1,19 +1,167 @@
-@media (max-width: 760px) {
-  .exp-modal {
-    grid-template-columns: 1fr;
-    max-height: 90vh;
-    overflow-y: auto;
+/* ── experience cards: no flip on touch, screenshot inline ────────────────
+   The flip is a hover affordance and its back face is absolutely positioned to
+   the FRONT's height. On a 390px phone that front is a 294x876 box (aspect
+   0.34) and the screenshot is 1440x900 (aspect 1.60), so object-fit:cover
+   discarded ~79% of the image width — a vertical sliver of a screenshot.
+   Here the same image is an ordinary block at its true 16:10 instead. */
+@media (hover: none), (max-width: 760px) {
+  .tl-card {
+    perspective: none;
+    cursor: default;
   }
-  /* Single column here, and the modal itself scrolls — so hand the scroll back
-     to it rather than nesting a second scroller inside the body. */
-  .exp-modal-body {
-    overflow-y: visible;
+  /* The 3D machinery is off, so the inner takes over the border and the
+     clipping that the two faces were each carrying. */
+  .tl-card-inner {
+    display: flex;
+    flex-direction: column;
+    transform: none !important;
+    transform-style: flat;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--panel);
   }
-  /* The column has no bounded height in this layout, so flex-grow has nothing
-     to grow into — pin the image back to a fixed ratio. */
-  .exp-modal-img {
-    flex: 0 0 auto;
+  .tl-card-face {
+    border: 0;
+    border-radius: 0;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+  }
+  .tl-card-back {
+    position: relative;
+    order: -1; /* the preview leads the card */
+    inset: auto;
+    transform: none;
+    width: 100%;
     aspect-ratio: 16 / 10;
+  }
+  .tl-card-back img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Site screenshots: keep the header and hero in frame if it ever crops. */
+    object-position: top center;
+  }
+  /* Would duplicate the card's own CTA button one line below it. */
+  .tl-back-overlay {
+    display: none;
+  }
+  .tl-card-front {
+    padding: 20px 20px 18px;
+  }
+  /* The highlight border moved with the border itself. */
+  .tl-item.current .tl-card-inner {
+    border-color: rgba(255, 92, 56, 0.4);
+  }
+  /* Only cards that HAVE a modal may trim bullets — that is where the full
+     text lives. Cards without one keep everything.
+
+     These "bullets" are 150-330 character paragraphs, so even two of them ran
+     to 402px of card on a 390px screen. Clamp each to a three-line teaser: the
+     bolded lead (the product name) always survives, and the CTA directly below
+     says how many complete bullets are one tap away.
+     ::before is absolutely positioned, so the dot survives the -webkit-box. */
+  .tl-card[data-exp] .tl-list li {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  .tl-card[data-exp] .tl-list li:nth-child(n + 3) {
+    display: none;
+  }
+  .tl-hint-hover {
+    display: none;
+  }
+  .tl-hint-tap {
+    display: block;
+  }
+  .tl-hint {
+    /* 44px minimum touch target; it was a 35px line of 11px grey mono. */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--rust);
+  }
+}
+
+/* ── detail modal: a full-screen sheet on phones ──────────────────────────
+   A centred card does not work at 390px. `max-height: 88vh` resolves against
+   the LARGE viewport (URL bar hidden), so the modal could be taller than the
+   screen actually displaying it, putting the close button off-screen. */
+@media (max-width: 760px) {
+  .exp-modal-backdrop {
+    padding: 0;
+    place-items: stretch;
+    /* The sheet covers the viewport, so there is nothing left to see through —
+       and a full-viewport backdrop-filter is one of the most expensive things
+       a phone GPU can be asked to composite. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(26, 23, 18, 0.55);
+  }
+  .exp-modal {
+    width: 100%;
+    max-width: none;
+    border: 0;
+    border-radius: 0;
+    /* dvh, not vh — this has to track the visible viewport, not the large one. */
+    height: 100dvh;
+    max-height: 100dvh;
+    grid-template-columns: 1fr;
+    /* media sizes to its own ratio, body takes the remainder and scrolls */
+    grid-template-rows: auto minmax(0, 1fr);
+    animation: sheetRise 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes sheetRise {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+  .exp-modal-media {
+    display: block;
+    padding: 0;
+    /* The sheet itself is the entrance now. */
+    animation: none;
+  }
+  .exp-modal-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    /* The frame is landscape here, matching the source, so cover crops nothing
+       that matters — unlike the portrait column on desktop, which needs contain. */
+    object-fit: cover;
+    object-position: top center;
+  }
+  .exp-modal-thumbs {
+    padding: 8px 10px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .exp-thumb {
+    width: 84px;
+    height: 52px;
+    flex: 0 0 auto;
+  }
+  .exp-modal-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+  }
+  .exp-modal-close {
+    /* 44px minimum touch target; was 34px. */
+    width: 44px;
+    height: 44px;
+    top: calc(8px + env(safe-area-inset-top));
+    right: 10px;
+    font-size: 16px;
+    background: rgba(26, 23, 18, 0.72);
   }
 }
 
@@ -103,3 +251,62 @@
   }
 }
 
+/* ── touch targets ────────────────────────────────────────────────────────
+   Every control here measured under the 44px minimum at 390px wide. Where a
+   control's size is purely its text, the hit area is grown with padding and
+   pulled back with an equal negative margin, so the tap target grows without
+   moving anything on screen. */
+@media (hover: none), (max-width: 640px) {
+  .nav-burger {
+    /* was 42x33 */
+    min-width: 44px;
+    min-height: 44px;
+    padding: 11px 12px;
+  }
+  .brand {
+    /* was 34x34 — .brand-name is hidden below 420px, leaving just the mark */
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .nav-sheet-links a {
+    /* was 39px */
+    padding: 5px 0;
+  }
+  .contact-item a {
+    /* was 23px tall */
+    display: block;
+    padding: 11px 0;
+    margin: -11px 0;
+  }
+  .foot-right a {
+    /* "Back to top" was 84x21 */
+    display: inline-block;
+    padding: 12px 0;
+    margin: -12px 0;
+  }
+  .sound-toggle {
+    /* was 101x32 */
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+}
+
+/* ── the hero role line on narrow phones ──────────────────────────────────
+   "~ $" + "whoami →" + the reserved role box come to ~354px, against 353px of
+   usable width at 393px. Flex had nowhere to go, so it squeezed every item
+   until "~ $" broke into two stacked lines and the row read as a 2x3 grid.
+   Give the role its own row and forbid the mono labels from ever breaking.
+   (420px matches the breakpoint where .brand-name is dropped.) */
+@media (max-width: 420px) {
+  .role-line {
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 13px;
+  }
+  .role-line > span:not(.role-rotator) {
+    white-space: nowrap;
+  }
+  .role-rotator {
+    flex: 1 0 100%;
+  }
+}

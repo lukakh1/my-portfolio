@@ -266,6 +266,12 @@
     border: 0 !important;
     padding: 0 !important;
     background: none !important;
+    /* Screen splits each card into an identity rail + prose column; on paper
+       the grid is already two columns, so keep the card itself a plain block. */
+    display: block !important;
+  }
+  .edu-body {
+    margin-top: 4pt !important;
   }
   .edu h3 {
     font-size: 11pt !important;

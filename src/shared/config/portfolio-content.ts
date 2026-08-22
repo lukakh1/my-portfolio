@@ -374,11 +374,11 @@ export const projects: ProjectItem[] = [
     pills: ["Next.js", "Supabase", "Ledger"],
   },
   {
-    href: "https://stickets.ge",
-    tag: "Built, deployed & run solo · Live",
+    href: "/work/stickets",
+    tag: "Case study · Built, deployed & run solo",
     title: "sTickets",
     description:
-      "An NFT event ticketing platform I built end to end and operated myself — organizer dashboard, marketplace, resale flow, live payments, and an on-chain ticket layer synced to Postgres.",
+      "An NFT event ticketing platform I built end to end and operated myself — organizer dashboard, marketplace, resale with a 5% organizer royalty, one-time admission QR, and an on-chain ticket layer synced to Postgres. Read how it works →",
     pills: ["Next.js", "Express", "PostgreSQL"],
   },
   {

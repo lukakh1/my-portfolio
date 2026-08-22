@@ -72,14 +72,16 @@ export function PortfolioProjects() {
             // plain <div> keeps the card in .proj-grid — and in the drag and
             // glow features, which both query .proj — without shipping an
             // anchor that goes nowhere.
+            // Internal routes (the case studies) must not open in a new tab.
+            const external = proj.href?.startsWith("http");
             return proj.href ? (
               <a
                 key={proj.href + proj.title}
                 className="proj reveal"
                 data-delay={delay}
                 href={proj.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={external ? "_blank" : undefined}
+                rel={external ? "noopener noreferrer" : undefined}
               >
                 {body}
               </a>
